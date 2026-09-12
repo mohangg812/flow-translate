@@ -1,0 +1,218 @@
+import random
+import logging
+import urllib.parse
+import pyotp
+from fastapi import APIRouter, HTTPException, status, Depends, BackgroundTasks
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+
+from app.core.database import get_db
+from app.models.models import User
+from app.schemas.user import (
+    UserRegister,
+    UserLogin,
+    UserResponse,
+    Token,
+    ThemeUpdate,
+    PasswordChange,
+    VerifyCodeRequest
+)
+from app.core.security import (
+    hash_password,
+    verify_password,
+    create_access_token,
+    decode_access_token
+)
+from app.services.email import EmailService
+
+logger = logging.getLogger("flow_translate.auth")
+router = APIRouter(prefix="/auth", tags=["Аутентификация и Пользователи"])
+security = HTTPBearer()
+
+
+# Dependency для получения авторизованного пользователя из БД
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: AsyncSession = Depends(get_db)
+) -> User:
+    token = credentials.credentials
+    payload = decode_access_token(token)
+    if not payload or "sub" not in payload:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Недействительный или просроченный токен авторизации",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    email = payload["sub"]
+    stmt = select(User).where(User.email == email)
+    result = await db.execute(stmt)
+    user = result.scalar_one_or_none()
+
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
+    
+    if not user.is_active:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Аккаунт заблокирован администратором")
+        
+    return user
+
+
+@router.post("/register", status_code=status.HTTP_201_CREATED, summary="Регистрация нового пользователя")
+async def register(
+    payload: UserRegister,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db)
+):
+    email_clean = payload.email.lower().strip()
+
+    stmt = select(User).where(User.email == email_clean)
+    existing_user = (await db.execute(stmt)).scalar_one_or_none()
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Пользователь с таким email уже зарегистрирован"
+        )
+    
+    # 1. Генерируем секретный ключ TOTP для Google Authenticator (Base32)
+    totp_secret = pyotp.random_base32()
+
+    # 2. Создаем ссылку otpauth:// для сканирования QR-кода
+    totp_uri = pyotp.totp.TOTP(totp_secret).provisioning_uri(
+        name=email_clean,
+        issuer_name="Flow Translate"
+    )
+
+    # 3. Формируем URL для отрисовки QR-кода через публичный API
+    qr_code_url = f"https://api.qrserver.com/v1/create-qr-code/?size=220x220&data={urllib.parse.quote(totp_uri)}"
+
+    new_user = User(
+        email=email_clean,
+        hashed_password=hash_password(payload.password),
+        role="user",
+        is_active=True,
+        is_verified=False,
+        verification_token=totp_secret,  # Храним секрет аутентификатора
+        theme_preference="light"
+    )
+    db.add(new_user)
+    await db.commit()
+    await db.refresh(new_user)
+
+    # Текущий 6-значный код на момент регистрации
+    current_code = pyotp.TOTP(totp_secret).now()
+    verify_url = f"http://127.0.0.1:8000/api/v1/auth/verify-email?token={totp_secret}"
+    
+    # Фоновая отправка письма (если настроен SMTP, иначе вывод в лог)
+    background_tasks.add_task(EmailService.send_verification_email, email_clean, current_code, verify_url)
+
+    return {
+        "message": "Регистрация успешна! Отсканируйте QR-код в Google Authenticator.",
+        "email": email_clean,
+        "qr_code_url": qr_code_url,
+        "totp_secret": totp_secret,
+        "demo_code": current_code
+    }
+
+
+@router.post("/verify-code", summary="Подтвердить регистрацию кодом из Google Authenticator")
+async def verify_code(payload: VerifyCodeRequest, db: AsyncSession = Depends(get_db)):
+    email_clean = payload.email.lower().strip()
+    stmt = select(User).where(User.email == email_clean)
+    user = (await db.execute(stmt)).scalar_one_or_none()
+
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
+
+    if user.is_verified:
+        return {"message": "Почта уже была подтверждена ранее. Вы можете войти."}
+
+    # Проверка введенного кода через алгоритм Google Authenticator (с окном +-30 сек)
+    code_clean = payload.code.strip().replace(" ", "")
+    
+    is_valid = False
+    if user.verification_token:
+        try:
+            totp = pyotp.TOTP(user.verification_token)
+            is_valid = totp.verify(code_clean, valid_window=1)
+        except Exception:
+            is_valid = (user.verification_token == code_clean)
+    
+    if not is_valid:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Неверный или просроченный код из Google Authenticator"
+        )
+
+    user.is_verified = True
+    await db.commit()
+    logger.info(f"Аккаунт успешно подтвержден через Google Authenticator: {user.email}")
+
+    return {"message": "Аккаунт успешно подтвержден! Теперь вы можете войти в систему."}
+
+
+@router.get("/verify-email", summary="Подтверждение регистрации по ссылке")
+async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
+    stmt = select(User).where(User.verification_token == token.strip())
+    user = (await db.execute(stmt)).scalars().first()
+
+    if not user:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Неверный или устаревший токен подтверждения")
+
+    user.is_verified = True
+    await db.commit()
+    logger.info(f"Email подтвержден по ссылке: {user.email}")
+
+    return {"message": "Почта успешно подтверждена! Теперь вы можете войти в систему."}
+
+
+@router.post("/login", response_model=Token, summary="Вход в систему (получение JWT)")
+async def login(payload: UserLogin, db: AsyncSession = Depends(get_db)):
+    email_clean = payload.email.lower().strip()
+    stmt = select(User).where(User.email == email_clean)
+    user = (await db.execute(stmt)).scalar_one_or_none()
+
+    if not user or not verify_password(payload.password, user.hashed_password):
+        logger.warning(f"Неудачная попытка входа: {email_clean}")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Неверный email или пароль")
+    
+    if not user.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Email не подтвержден. Пожалуйста, введите код из Google Authenticator."
+        )
+        
+    if not user.is_active:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Ваш аккаунт заблокирован администратором")
+
+    access_token = create_access_token(data={"sub": user.email, "role": user.role})
+    logger.info(f"Успешный вход в систему: {email_clean}")
+    return Token(access_token=access_token, user=UserResponse.model_validate(user))
+
+
+@router.get("/me", response_model=UserResponse, summary="Получить профиль текущего пользователя")
+async def get_profile(current_user: User = Depends(get_current_user)):
+    return UserResponse.model_validate(current_user)
+
+
+@router.patch("/me/theme", summary="Сохранить тему интерфейса (light/dark)")
+async def update_theme(payload: ThemeUpdate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    current_user.theme_preference = payload.theme
+    await db.commit()
+    return {"message": f"Тема успешно изменена на {payload.theme}", "theme": payload.theme}
+
+
+@router.post("/change-password", summary="Сменить пароль")
+async def change_password(
+    payload: PasswordChange,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    if not verify_password(payload.old_password, current_user.hashed_password):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Неверный старый пароль")
+
+    current_user.hashed_password = hash_password(payload.new_password)
+    await db.commit()
+    logger.info(f"Пользователь {current_user.email} успешно сменил пароль")
+    return {"message": "Пароль успешно изменен"}
