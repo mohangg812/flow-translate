@@ -41,3 +41,13 @@ class TranslateResponse(BaseModel):
     target_lang: str
     is_saved_in_dictionary: bool = False
     saved_entry_id: Optional[uuid.UUID] = None
+
+
+class UrlExtractRequest(BaseModel):
+    url: str = Field(..., description="URL веб-страницы для перевода")
+
+
+class UrlExtractResponse(BaseModel):
+    url: str
+    title: str
+    text: str

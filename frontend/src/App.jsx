@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import Tesseract from 'tesseract.js';
 import api from './api';
 import { 
   Volume2, Star, Edit3, Search, LogOut, 
   ArrowRightLeft, X, Shield, RefreshCw, Check, Sun, Moon, Copy,
   Sparkles, Languages, PlusCircle, CheckCircle2,
   Lock, Mail, LayoutGrid, ListFilter, RotateCw, ChevronLeft, ChevronRight,
-  Zap, Lightbulb, Play
+  Zap, Lightbulb, Play, Camera, FileText, Globe, Download, UploadCloud,
+  FileCheck, ExternalLink, Loader2, ArrowUpRight
 } from 'lucide-react';
 
 const LANGUAGES = [
@@ -21,6 +23,12 @@ const QUICK_CHIPS = [
   { text: 'Where is terminal 3 for departure?', label: '✈️ В аэропорту' },
   { text: 'It was a great pleasure working with you', label: '💼 Деловое письмо' },
   { text: 'Thank you so much for your warm hospitality', label: '🌟 Благодарность' },
+];
+
+const URL_PRESETS = [
+  { label: 'Wikipedia (AI)', url: 'https://en.wikipedia.org/wiki/Artificial_intelligence' },
+  { label: 'TechCrunch', url: 'https://techcrunch.com' },
+  { label: 'BBC News', url: 'https://www.bbc.com/news' },
 ];
 
 function useDebounce(value, delay) {
@@ -60,6 +68,20 @@ export default function App() {
   const [isSpeakingTarget, setIsSpeakingTarget] = useState(false);
   const [isSwapping, setIsSwapping] = useState(false);
 
+  // New Features: OCR / Document / URL State
+  const [activeMode, setActiveMode] = useState('text'); // 'text' | 'image' | 'doc' | 'url'
+  const [isOcrProcessing, setIsOcrProcessing] = useState(false);
+  const [ocrProgress, setOcrProgress] = useState(0);
+  const [ocrStatusText, setOcrStatusText] = useState('');
+  const [loadedFile, setLoadedFile] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  // URL modal state
+  const [urlModal, setUrlModal] = useState(false);
+  const [inputUrl, setInputUrl] = useState('');
+  const [isUrlLoading, setIsUrlLoading] = useState(false);
+  const [urlError, setUrlError] = useState('');
+
   // Favorites state
   const [entries, setEntries] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -76,7 +98,7 @@ export default function App() {
   const [newCatName, setNewCatName] = useState('');
   const [newCatColor, setNewCatColor] = useState('#0071E3');
 
-  // iOS 18 New Features: View Mode & Flashcards
+  // View Mode & Flashcards
   const [viewMode, setViewMode] = useState('list'); // 'list' | 'grid'
   const [flashcardModal, setFlashcardModal] = useState(false);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
@@ -86,10 +108,12 @@ export default function App() {
   const [adminStats, setAdminStats] = useState(null);
   const [adminUsers, setAdminUsers] = useState([]);
 
-  // Mouse spotlight position for VisionOS/iOS glow
+  // Mouse spotlight position
   const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
 
   const translateAbortRef = useRef(null);
+  const imageInputRef = useRef(null);
+  const docInputRef = useRef(null);
   const debouncedSearch = useDebounce(search, 400);
 
   useEffect(() => {
@@ -99,6 +123,26 @@ export default function App() {
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
+
+  // Global Paste listener (Ctrl + V for screenshot OCR)
+  useEffect(() => {
+    const handlePaste = (e) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          const blob = items[i].getAsFile();
+          if (blob) {
+            e.preventDefault();
+            processImageFile(blob);
+          }
+          break;
+        }
+      }
+    };
+    window.addEventListener('paste', handlePaste);
+    return () => window.removeEventListener('paste', handlePaste);
+  }, [sourceLang]);
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -153,6 +197,147 @@ export default function App() {
     window.speechSynthesis.speak(utterance);
   };
 
+  // OCR Processing Function via Tesseract.js
+  const processImageFile = async (file) => {
+    if (!file) return;
+    setIsOcrProcessing(true);
+    setOcrProgress(0);
+    setOcrStatusText('Подготовка изображения...');
+    setActiveMode('image');
+
+    try {
+      const langMap = { en: 'eng', ru: 'rus', de: 'deu', es: 'spa' };
+      const ocrLang = langMap[sourceLang] || 'eng';
+
+      setOcrStatusText('Инициализация OCR...');
+      const { data: { text } } = await Tesseract.recognize(
+        file,
+        ocrLang,
+        {
+          logger: (m) => {
+            if (m.status === 'recognizing text') {
+              const p = Math.round(m.progress * 100);
+              setOcrProgress(p);
+              setOcrStatusText(`Распознавание текста: ${p}%`);
+            }
+          }
+        }
+      );
+
+      const cleanText = text.replace(/\n\s*\n/g, '\n').trim();
+      if (cleanText) {
+        setSourceText(cleanText);
+        setLoadedFile({ name: file.name || 'Скриншот', size: (file.size / 1024).toFixed(1) + ' KB', type: 'image' });
+      } else {
+        alert('Текст на изображении не обнаружен. Попробуйте более четкое фото.');
+      }
+    } catch (err) {
+      console.error('OCR Error:', err);
+      alert('Ошибка при распознавании изображения.');
+    } finally {
+      setIsOcrProcessing(false);
+      setOcrProgress(0);
+    }
+  };
+
+  // Document Processing Function
+  const processDocumentFile = async (file) => {
+    if (!file) return;
+    setActiveMode('doc');
+    const ext = file.name.split('.').pop().toLowerCase();
+
+    // Plain text formats
+    if (['txt', 'md', 'json', 'csv', 'srt'].includes(ext)) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target.result;
+        setSourceText(text.slice(0, 2000));
+        setLoadedFile({ name: file.name, size: (file.size / 1024).toFixed(1) + ' KB', type: 'doc' });
+      };
+      reader.readAsText(file, 'UTF-8');
+    } else if (ext === 'pdf') {
+      // Basic text extraction from PDF via binary scan
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const buffer = e.target.result;
+        const textDecoder = new TextDecoder('iso-8859-1');
+        const content = textDecoder.decode(buffer);
+        // Extract text between BT and ET blocks
+        const matches = content.match(/\((.*?)\)\s*Tj/g) || content.match(/\[(.*?)\]\s*TJ/g);
+        if (matches && matches.length > 0) {
+          const extracted = matches.map(m => m.replace(/[\(\)\[\]]|Tj|TJ/g, '').trim()).join(' ');
+          setSourceText(extracted.slice(0, 2000));
+        } else {
+          // Fallback: search for readable chunks
+          const chunks = content.match(/[A-Za-zА-Яа-я0-9\s.,!?-]{20,}/g);
+          setSourceText(chunks ? chunks.slice(0, 5).join('\n\n').slice(0, 2000) : 'Не удалось автоматически извлечь текст из PDF.');
+        }
+        setLoadedFile({ name: file.name, size: (file.size / 1024).toFixed(1) + ' KB', type: 'pdf' });
+      };
+      reader.readAsArrayBuffer(file);
+    } else {
+      alert(`Формат .${ext} пока не поддерживается. Поддерживаются: .txt, .md, .json, .csv, .srt, .pdf`);
+    }
+  };
+
+  // Extract text from Web Page URL
+  const handleUrlExtract = async (e) => {
+    if (e) e.preventDefault();
+    if (!inputUrl.trim()) return;
+    setIsUrlLoading(true);
+    setUrlError('');
+
+    try {
+      let extractedText = '';
+      try {
+        const res = await api.post('/translate/extract-url', { url: inputUrl });
+        extractedText = res.data.text;
+      } catch (backendErr) {
+        // Fallback for GitHub Pages (client-side via CORS proxy)
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(inputUrl)}`;
+        const fallbackRes = await fetch(proxyUrl);
+        const fallbackData = await fallbackRes.json();
+        const html = fallbackData.contents;
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        // Remove script, style, nav, footer
+        doc.querySelectorAll('script, style, nav, header, footer, noscript').forEach(el => el.remove());
+        const paragraphs = Array.from(doc.querySelectorAll('p, h1, h2, h3'))
+          .map(p => p.textContent.trim())
+          .filter(t => t.length > 25);
+        extractedText = paragraphs.slice(0, 10).join('\n\n');
+      }
+
+      if (extractedText) {
+        setSourceText(extractedText.slice(0, 2000));
+        setLoadedFile({ name: inputUrl.replace(/^https?:\/\//, '').split('/')[0], size: 'Web Page', type: 'url' });
+        setUrlModal(false);
+        setInputUrl('');
+        setActiveMode('url');
+      } else {
+        setUrlError('Не удалось извлечь читаемый текст со страницы.');
+      }
+    } catch (err) {
+      setUrlError('Ошибка загрузки страницы. Проверьте правильность адреса.');
+    } finally {
+      setIsUrlLoading(false);
+    }
+  };
+
+  // Download translated file
+  const handleDownloadTranslation = () => {
+    if (!translatedText) return;
+    const blob = new Blob([translatedText], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const baseName = loadedFile ? loadedFile.name.replace(/\.[^/.]+$/, "") : 'translation';
+    a.download = `translated_${baseName}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // Translation Effect
   useEffect(() => {
     const text = sourceText.trim();
     if (!text) {
@@ -411,12 +596,27 @@ export default function App() {
 
   const activeSourceLang = LANGUAGES.find(l => l.code === sourceLang) || LANGUAGES[0];
   const activeTargetLang = LANGUAGES.find(l => l.code === targetLang) || LANGUAGES[1];
-
   const currentFlashcard = entries[currentCardIndex];
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-[#E8EEFF] via-[#F3F4F8] to-[#FCE7F3] dark:bg-gradient-to-b dark:from-[#090A10] dark:via-[#05060A] dark:to-[#020204] text-[#1C1C1E] dark:text-[#F5F5F7] transition-colors duration-500 font-sans pb-32 overflow-x-hidden selection:bg-[#0071E3]/25 selection:text-[#0071E3]">
       
+      {/* Hidden File Inputs */}
+      <input 
+        type="file" 
+        ref={imageInputRef} 
+        onChange={(e) => processImageFile(e.target.files[0])} 
+        accept="image/*" 
+        className="hidden" 
+      />
+      <input 
+        type="file" 
+        ref={docInputRef} 
+        onChange={(e) => processDocumentFile(e.target.files[0])} 
+        accept=".txt,.md,.json,.csv,.srt,.pdf" 
+        className="hidden" 
+      />
+
       {/* ================= VIBRANT AMBIENT AURORA BACKGROUND ================= */}
       <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
         
@@ -536,10 +736,17 @@ export default function App() {
       {/* ================= MAIN CONTAINER ================= */}
       <main className="max-w-4xl mx-auto px-6 mt-6 space-y-7">
 
-        {/* ================= iOS 18 DYNAMIC ISLAND STATUS BAR ================= */}
+        {/* Dynamic Island Status Capsule */}
         <div className="flex justify-center">
           <div className="ios-glass px-4 py-2 rounded-full flex items-center gap-2.5 shadow-sm border border-black/[0.05] dark:border-white/[0.08] text-xs font-medium transition-all duration-300 hover:scale-105">
-            {isTranslating ? (
+            {isOcrProcessing ? (
+              <>
+                <div className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping" />
+                <span className="text-amber-600 dark:text-amber-400 font-semibold flex items-center gap-1.5">
+                  <Camera size={13} className="animate-pulse" /> {ocrStatusText || 'OCR Сканирование...'}
+                </span>
+              </>
+            ) : isTranslating ? (
               <>
                 <div className="w-2.5 h-2.5 rounded-full bg-[#0071E3] animate-ping" />
                 <span className="text-[#0071E3] font-semibold flex items-center gap-1.5">
@@ -566,6 +773,73 @@ export default function App() {
             )}
           </div>
         </div>
+
+        {/* Mode Selector (Text / Photo / Document / Website) */}
+        <div className="flex items-center justify-center gap-2">
+          <div className="ios-glass p-1 rounded-2xl flex items-center gap-1 border border-black/[0.04] dark:border-white/[0.06] shadow-sm">
+            <button
+              onClick={() => { setActiveMode('text'); setLoadedFile(null); }}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${activeMode === 'text' ? 'bg-[#0071E3] text-white shadow-sm' : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'}`}
+            >
+              ✍️ Текст
+            </button>
+            <button
+              onClick={() => imageInputRef.current?.click()}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${activeMode === 'image' ? 'bg-[#0071E3] text-white shadow-sm' : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'}`}
+              title="Загрузить фото, скриншот или нажать Ctrl+V"
+            >
+              <Camera size={14} /> Фото / Скан
+            </button>
+            <button
+              onClick={() => docInputRef.current?.click()}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${activeMode === 'doc' ? 'bg-[#0071E3] text-white shadow-sm' : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'}`}
+              title="Загрузить файл: .txt, .md, .pdf, .json, .csv, .srt"
+            >
+              <FileText size={14} /> Документ
+            </button>
+            <button
+              onClick={() => setUrlModal(true)}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${activeMode === 'url' ? 'bg-[#0071E3] text-white shadow-sm' : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'}`}
+              title="Перевести страницу по ссылке"
+            >
+              <Globe size={14} /> Веб-сайт
+            </button>
+          </div>
+        </div>
+
+        {/* Uploaded File Banner */}
+        {loadedFile && (
+          <div className="ios-glass px-4 py-2.5 rounded-2xl flex items-center justify-between border border-[#0071E3]/30 bg-[#0071E3]/5 animate-in fade-in">
+            <div className="flex items-center gap-2.5">
+              {loadedFile.type === 'image' ? <Camera size={16} className="text-[#0071E3]" /> : loadedFile.type === 'url' ? <Globe size={16} className="text-[#0071E3]" /> : <FileCheck size={16} className="text-[#0071E3]" />}
+              <span className="text-xs font-bold text-[#1C1C1E] dark:text-white truncate max-w-xs">{loadedFile.name}</span>
+              <span className="text-[10px] text-[#8E8E93] bg-black/[0.05] dark:bg-white/[0.08] px-2 py-0.5 rounded-full">{loadedFile.size}</span>
+            </div>
+            <button 
+              onClick={() => { setLoadedFile(null); setSourceText(''); }}
+              className="text-[#8E8E93] hover:text-rose-500 p-1 rounded-full transition-colors"
+              title="Удалить файл"
+            >
+              <X size={15} />
+            </button>
+          </div>
+        )}
+
+        {/* OCR Progress Bar Banner */}
+        {isOcrProcessing && (
+          <div className="ios-glass p-4 rounded-2xl border border-amber-500/30 bg-amber-500/5 space-y-2 animate-in fade-in">
+            <div className="flex items-center justify-between text-xs font-semibold text-amber-600 dark:text-amber-400">
+              <span className="flex items-center gap-1.5"><Loader2 size={14} className="animate-spin" /> {ocrStatusText}</span>
+              <span>{ocrProgress}%</span>
+            </div>
+            <div className="w-full bg-black/[0.05] dark:bg-white/[0.1] rounded-full h-1.5 overflow-hidden">
+              <div 
+                className="bg-gradient-to-r from-amber-500 to-orange-500 h-full transition-all duration-200 rounded-full"
+                style={{ width: `${ocrProgress}%` }}
+              />
+            </div>
+          </div>
+        )}
 
         {/* АДМИНИСТРАТИВНАЯ ПАНЕЛЬ */}
         {showAdmin && user?.role === 'admin' && (
@@ -645,28 +919,64 @@ export default function App() {
           {/* Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             
-            {/* Source Card */}
-            <div className="ios-glass ios-card-specular rounded-[32px] p-6 min-h-[220px] flex flex-col justify-between transition-all duration-300 hover:shadow-2xl focus-within:ring-2 focus-within:ring-[#0071E3]/40">
+            {/* Source Card (with Drag & Drop support) */}
+            <div 
+              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setIsDragging(false);
+                const file = e.dataTransfer.files[0];
+                if (file) {
+                  if (file.type.startsWith('image/')) processImageFile(file);
+                  else processDocumentFile(file);
+                }
+              }}
+              className={`ios-glass ios-card-specular rounded-[32px] p-6 min-h-[220px] flex flex-col justify-between transition-all duration-300 hover:shadow-2xl focus-within:ring-2 focus-within:ring-[#0071E3]/40 relative ${isDragging ? 'ring-4 ring-[#0071E3] bg-[#0071E3]/10 scale-[1.01]' : ''}`}
+            >
+              {isDragging && (
+                <div className="absolute inset-0 z-20 backdrop-blur-sm bg-white/70 dark:bg-black/70 rounded-[32px] flex flex-col items-center justify-center gap-2 text-[#0071E3] font-bold">
+                  <UploadCloud size={36} className="animate-bounce" />
+                  <span>Отпустите файл для распознавания</span>
+                </div>
+              )}
+
               <div>
                 <div className="flex items-center justify-between pb-3 mb-2 border-b border-black/[0.04] dark:border-white/[0.06]">
                   <span className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider flex items-center gap-1.5">
                     {activeSourceLang.flag} {activeSourceLang.label}
                   </span>
-                  {sourceText && (
-                    <button 
-                      onClick={() => setSourceText('')}
-                      className="text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1 rounded-full hover:bg-black/[0.05] dark:hover:bg-white/[0.08] transition-colors"
-                      title="Очистить"
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => imageInputRef.current?.click()}
+                      className="p-1 text-[#8E8E93] hover:text-[#0071E3] rounded-lg transition-colors"
+                      title="Фото / Скриншот (или нажмите Ctrl+V)"
                     >
-                      <X size={14} />
+                      <Camera size={15} />
                     </button>
-                  )}
+                    <button
+                      onClick={() => docInputRef.current?.click()}
+                      className="p-1 text-[#8E8E93] hover:text-[#0071E3] rounded-lg transition-colors"
+                      title="Загрузить документ"
+                    >
+                      <FileText size={15} />
+                    </button>
+                    {sourceText && (
+                      <button 
+                        onClick={() => { setSourceText(''); setLoadedFile(null); }}
+                        className="text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1 rounded-full hover:bg-black/[0.05] dark:hover:bg-white/[0.08] transition-colors"
+                        title="Очистить"
+                      >
+                        <X size={14} />
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <textarea
                   value={sourceText}
                   onChange={(e) => setSourceText(e.target.value)}
-                  placeholder="Введите текст для перевода..."
+                  placeholder="Введите текст или перетащите фото / документ сюда..."
                   rows={3}
                   className="w-full text-2xl sm:text-3xl font-bold bg-transparent border-none resize-none focus:outline-none placeholder-[#AEAEB2] dark:placeholder-[#48484A] leading-snug tracking-tight text-[#1C1C1E] dark:text-white"
                 />
@@ -716,9 +1026,20 @@ export default function App() {
                   <span className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider flex items-center gap-1.5">
                     {activeTargetLang.flag} {activeTargetLang.label}
                   </span>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#0071E3]/10 text-[#0071E3] uppercase tracking-wider">
-                    Результат
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    {translatedText && (
+                      <button
+                        onClick={handleDownloadTranslation}
+                        className="text-xs font-semibold px-2.5 py-1 rounded-xl bg-black/[0.04] dark:bg-white/[0.06] hover:bg-[#0071E3] hover:text-white transition-all flex items-center gap-1 text-[#8E8E93]"
+                        title="Скачать перевод в файл"
+                      >
+                        <Download size={13} /> Скачать
+                      </button>
+                    )}
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#0071E3]/10 text-[#0071E3] uppercase tracking-wider">
+                      Результат
+                    </span>
+                  </div>
                 </div>
 
                 {isTranslating ? (
@@ -779,7 +1100,7 @@ export default function App() {
 
           </div>
 
-          {/* Quick Suggestion Chips (iOS 18 Quick Actions) */}
+          {/* Quick Suggestion Chips */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 no-scrollbar">
             <span className="text-[11px] font-semibold text-[#8E8E93] flex items-center gap-1 flex-shrink-0 pl-1">
               <Zap size={13} className="text-amber-500" /> Быстрые фразы:
@@ -797,7 +1118,7 @@ export default function App() {
 
         </section>
 
-        {/* ================= СЕКЦИЯ 2: FAVORITES (APPLE NOTES & FLASHCARDS) ================= */}
+        {/* ================= СЕКЦИЯ 2: FAVORITES ================= */}
         <section className="space-y-4 pt-2">
           
           <div className="flex items-center justify-between">
@@ -815,7 +1136,7 @@ export default function App() {
 
             <div className="flex items-center gap-2">
               
-              {/* Study Mode Button (Apple Flashcards) */}
+              {/* Study Mode Button */}
               {entries.length > 0 && (
                 <button
                   onClick={() => { setCurrentCardIndex(0); setIsCardFlipped(false); setFlashcardModal(true); }}
@@ -825,7 +1146,7 @@ export default function App() {
                 </button>
               )}
 
-              {/* View Mode Toggle (List vs Grid) */}
+              {/* View Mode Toggle */}
               <div className="flex items-center bg-black/[0.04] dark:bg-white/[0.06] p-0.5 rounded-xl border border-black/[0.04] dark:border-white/[0.06]">
                 <button
                   onClick={() => setViewMode('list')}
@@ -907,7 +1228,6 @@ export default function App() {
                 </p>
               </div>
             ) : viewMode === 'list' ? (
-              // List View
               <div className="space-y-2">
                 {entries.map((item) => (
                   <div
@@ -960,7 +1280,6 @@ export default function App() {
                 ))}
               </div>
             ) : (
-              // Grid View (iOS 18 Widget Cards)
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {entries.map((item) => (
                   <div
@@ -1039,7 +1358,77 @@ export default function App() {
 
       </main>
 
-      {/* ================= iOS 18 FLASHCARDS STUDY MODAL ================= */}
+      {/* ================= URL TRANSLATION MODAL ================= */}
+      {urlModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="ios-glass ios-card-specular rounded-[36px] p-7 w-full max-w-md border border-black/10 dark:border-white/10 shadow-2xl relative">
+            <button onClick={() => setUrlModal(false)} className="absolute right-5 top-5 text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1 rounded-full"><X size={18} /></button>
+            
+            <div className="flex items-center gap-2 mb-1">
+              <Globe size={20} className="text-[#0071E3]" />
+              <h3 className="text-lg font-bold tracking-tight text-[#1C1C1E] dark:text-white">
+                Перевод веб-страницы
+              </h3>
+            </div>
+            <p className="text-xs text-[#8E8E93] mb-4">
+              Вставьте ссылку на любую статью, новость или пост:
+            </p>
+
+            {urlError && (
+              <div className="p-3 mb-3 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 text-xs font-semibold border border-rose-500/20">
+                {urlError}
+              </div>
+            )}
+
+            <form onSubmit={handleUrlExtract} className="space-y-4">
+              <div className="relative">
+                <input
+                  type="url"
+                  required
+                  placeholder="https://en.wikipedia.org/wiki/..."
+                  value={inputUrl}
+                  onChange={(e) => setInputUrl(e.target.value)}
+                  className="w-full pl-4 pr-10 py-3 bg-black/[0.04] dark:bg-white/[0.06] rounded-2xl text-sm border border-transparent focus:border-[#0071E3] focus:outline-none transition-all text-[#1C1C1E] dark:text-white"
+                />
+              </div>
+
+              {/* Quick Preset Links */}
+              <div>
+                <span className="text-[11px] font-semibold text-[#8E8E93] uppercase block mb-1.5">Примеры для теста:</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {URL_PRESETS.map((p, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setInputUrl(p.url)}
+                      className="text-xs px-2.5 py-1 rounded-xl bg-black/[0.04] dark:bg-white/[0.06] hover:bg-[#0071E3]/15 text-[#8E8E93] hover:text-[#0071E3] transition-colors flex items-center gap-1"
+                    >
+                      {p.label} <ArrowUpRight size={12} />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isUrlLoading || !inputUrl.trim()}
+                className="w-full bg-[#0071E3] hover:bg-[#0077ED] text-white font-semibold py-3 rounded-2xl text-sm transition-all shadow-md active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {isUrlLoading ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    Извлекаем текст статьи...
+                  </>
+                ) : (
+                  'Извлечь и перевести'
+                )}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ================= FLASHCARDS STUDY MODAL ================= */}
       {flashcardModal && currentFlashcard && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-200">
           <div className="w-full max-w-md space-y-4">
@@ -1125,7 +1514,7 @@ export default function App() {
               </div>
             </div>
 
-            {/* Flashcard Navigation Controls */}
+            {/* Flashcard Controls */}
             <div className="flex items-center justify-between gap-3 pt-2">
               <button
                 disabled={currentCardIndex <= 0}
@@ -1152,7 +1541,7 @@ export default function App() {
         </div>
       )}
 
-      {/* ================= APPLE SHEETS (MODALS) ================= */}
+      {/* ================= MODALS ================= */}
 
       {/* Auth Modal */}
       {authModal && (
@@ -1199,7 +1588,6 @@ export default function App() {
                 </div>
               )}
 
-              {/* QR-CODE MODAL */}
               {authModal === 'verify' && (
                 <div className="space-y-3.5 text-center">
                   {qrCodeUrl && (
