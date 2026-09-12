@@ -6,7 +6,7 @@ import {
   ArrowRightLeft, X, Shield, RefreshCw, Check, Sun, Moon, Copy,
   Sparkles, Languages, PlusCircle, CheckCircle2,
   Lock, Mail, LayoutGrid, ListFilter, RotateCw, ChevronLeft, ChevronRight,
-  Zap, Lightbulb, Play, Camera, FileText, Globe, Download, UploadCloud,
+  Camera, FileText, Globe, Download, UploadCloud,
   FileCheck, ExternalLink, Loader2, ArrowUpRight, Scan, BookOpen, Compass, Bookmark
 } from 'lucide-react';
 
@@ -94,14 +94,6 @@ function detectLanguage(text) {
   if (scoreEs > scoreEn && scoreEs > scoreDe) return 'es';
   return 'en';
 }
-
-const QUICK_CHIPS = [
-  { text: 'Simplicity is the ultimate sophistication', label: '✨ Простота и стиль' },
-  { text: 'Could I get an iced oat flat white, please?', label: '☕ Заказать кофе' },
-  { text: 'Where is terminal 3 for departure?', label: '✈️ В аэропорту' },
-  { text: 'It was a great pleasure working with you', label: '💼 Деловое письмо' },
-  { text: 'Thank you so much for your warm hospitality', label: '🌟 Благодарность' },
-];
 
 const URL_PRESETS = [
   { label: 'Wikipedia', domain: 'wikipedia.org', icon: '🌐', desc: 'Искусственный интеллект', url: 'https://en.wikipedia.org/wiki/Artificial_intelligence' },
@@ -1492,70 +1484,55 @@ export default function App() {
 
           </div>
 
-          {/* Quick Context-Aware Suggestion Chips */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 no-scrollbar">
-            {activeMode === 'text' && (
-              <>
-                <span className="text-[11px] font-semibold text-[#8E8E93] flex items-center gap-1 flex-shrink-0 pl-1">
-                  <Zap size={13} className="text-amber-500" /> Быстрые фразы:
-                </span>
-                {QUICK_CHIPS.map((chip, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setSourceText(chip.text)}
-                    className="ios-glass hover:bg-white dark:hover:bg-white/[0.1] text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 transition-all hover:scale-105 active:scale-95 text-[#1C1C1E] dark:text-[#F5F5F7]"
-                  >
-                    {chip.label}
-                  </button>
-                ))}
-              </>
-            )}
+          {/* Context-Aware Tips for Image / Doc / URL modes */}
+          {activeMode !== 'text' && (
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 no-scrollbar">
+              {activeMode === 'image' && (
+                <>
+                  <span className="text-[11px] font-semibold text-[#8E8E93] flex items-center gap-1 flex-shrink-0 pl-1">
+                    <Camera size={13} className="text-[#0071E3]" /> Советы по фото:
+                  </span>
+                  <span className="ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
+                    📸 Сделайте фото камерой или выберите из галереи
+                  </span>
+                  <span className="hidden sm:inline-flex ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
+                    📋 На ПК: вставка скриншота через Ctrl+V
+                  </span>
+                  <span className="ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
+                    ✨ Распознавание как печатного, так и рукописного текста
+                  </span>
+                </>
+              )}
 
-            {activeMode === 'image' && (
-              <>
-                <span className="text-[11px] font-semibold text-[#8E8E93] flex items-center gap-1 flex-shrink-0 pl-1">
-                  <Camera size={13} className="text-[#0071E3]" /> Советы по фото:
-                </span>
-                <span className="ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
-                  📸 Сделайте фото камерой или выберите из галереи
-                </span>
-                <span className="hidden sm:inline-flex ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
-                  📋 На ПК: вставка скриншота через Ctrl+V
-                </span>
-                <span className="ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
-                  ✨ Распознавание как печатного, так и рукописного текста
-                </span>
-              </>
-            )}
+              {activeMode === 'doc' && (
+                <>
+                  <span className="text-[11px] font-semibold text-[#8E8E93] flex items-center gap-1 flex-shrink-0 pl-1">
+                    <FileText size={13} className="text-indigo-500" /> Советы по файлам:
+                  </span>
+                  <span className="ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
+                    📄 Поддерживаются .pdf, .txt, .md, .json, .csv, .srt
+                  </span>
+                  <span className="ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
+                    💾 Кнопка «Скачать .txt» мгновенно сохраняет готовый файл
+                  </span>
+                </>
+              )}
 
-            {activeMode === 'doc' && (
-              <>
-                <span className="text-[11px] font-semibold text-[#8E8E93] flex items-center gap-1 flex-shrink-0 pl-1">
-                  <FileText size={13} className="text-indigo-500" /> Советы по файлам:
-                </span>
-                <span className="ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
-                  📄 Поддерживаются .pdf, .txt, .md, .json, .csv, .srt
-                </span>
-                <span className="ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
-                  💾 Кнопка «Скачать .txt» мгновенно сохраняет готовый файл
-                </span>
-              </>
-            )}
-
-            {activeMode === 'url' && (
-              <>
-                <span className="text-[11px] font-semibold text-[#8E8E93] flex items-center gap-1 flex-shrink-0 pl-1">
-                  <Compass size={13} className="text-purple-500" /> Советы по сайтам:
-                </span>
-                <span className="ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
-                  🌐 Режим Reader View удаляет рекламу, меню и баннеры со страницы
-                </span>
-                <span className="ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
-                  📖 Подходят статьи, блоги, новости и публикации
-                </span>
-              </>
-            )}
-          </div>
+              {activeMode === 'url' && (
+                <>
+                  <span className="text-[11px] font-semibold text-[#8E8E93] flex items-center gap-1 flex-shrink-0 pl-1">
+                    <Compass size={13} className="text-purple-500" /> Советы по сайтам:
+                  </span>
+                  <span className="ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
+                    🌐 Режим Reader View удаляет рекламу, меню и баннеры со страницы
+                  </span>
+                  <span className="ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
+                    📖 Подходят статьи, блоги, новости и публикации
+                  </span>
+                </>
+              )}
+            </div>
+          )}
 
         </section>
 
