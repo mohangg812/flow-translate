@@ -10,12 +10,90 @@ import {
   FileCheck, ExternalLink, Loader2, ArrowUpRight, Scan, BookOpen, Compass, Bookmark
 } from 'lucide-react';
 
-const LANGUAGES = [
+const SOURCE_LANGUAGES = [
+  { code: 'auto', label: 'Автоопределение', flag: '✨' },
   { code: 'en', label: 'English', flag: '🇬🇧' },
   { code: 'ru', label: 'Русский', flag: '🇷🇺' },
   { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
   { code: 'es', label: 'Español', flag: '🇪🇸' },
 ];
+
+const TARGET_LANGUAGES = [
+  { code: 'en', label: 'English', flag: '🇬🇧' },
+  { code: 'ru', label: 'Русский', flag: '🇷🇺' },
+  { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
+  { code: 'es', label: 'Español', flag: '🇪🇸' },
+];
+
+const LANGUAGES = TARGET_LANGUAGES;
+
+// Smart client-side language detection tailored for ru, en, de, es
+function detectLanguage(text) {
+  if (!text || typeof text !== 'string') return null;
+  const clean = text.trim();
+  if (clean.length < 2) return null;
+
+  // 1. Cyrillic alphabet -> Russian
+  if (/[\u0400-\u04FF]/.test(clean)) {
+    return 'ru';
+  }
+
+  // 2. Specific German characters (Umlauts & Eszett)
+  if (/[äöüßÄÖÜ]/.test(clean)) {
+    return 'de';
+  }
+
+  // 3. Specific Spanish characters (Accented letters, inverted punctuation, ñ)
+  if (/[áéíóúñ¿¡ÁÉÍÓÚÑ]/.test(clean)) {
+    return 'es';
+  }
+
+  // 4. Tokenize Latin words for statistical match
+  const words = clean.toLowerCase().match(/[a-z]{2,}/g) || [];
+  if (words.length === 0) return 'en';
+
+  const deWords = new Set([
+    'der', 'die', 'das', 'und', 'in', 'den', 'von', 'zu', 'mit', 'sich', 'des', 'auf',
+    'für', 'ist', 'im', 'dem', 'nicht', 'ein', 'eine', 'als', 'auch', 'es', 'an', 'werden',
+    'aus', 'er', 'hat', 'dass', 'sie', 'nach', 'wird', 'bei', 'einer', 'um', 'am', 'sind',
+    'noch', 'wie', 'einem', 'über', 'einen', 'haben', 'kann', 'oder', 'vor',
+    'zur', 'guten', 'tag', 'danke', 'bitte', 'ja', 'nein', 'hallo', 'geht', 'alles'
+  ]);
+
+  const esWords = new Set([
+    'de', 'la', 'que', 'el', 'en', 'y', 'los', 'se', 'del', 'las', 'un', 'por', 'con',
+    'no', 'una', 'su', 'para', 'es', 'al', 'lo', 'como', 'más', 'pero', 'sus', 'le',
+    'ha', 'me', 'si', 'sin', 'sobre', 'este', 'ya', 'entre', 'cuando', 'todo', 'esta',
+    'ser', 'son', 'dos', 'también', 'fue', 'había', 'era', 'muy', 'hola', 'gracias',
+    'favor', 'buenos', 'días', 'amigo', 'donde'
+  ]);
+
+  const enWords = new Set([
+    'the', 'be', 'to', 'of', 'and', 'in', 'that', 'have', 'it', 'for', 'not', 'on',
+    'with', 'he', 'as', 'you', 'do', 'at', 'this', 'but', 'his', 'by', 'from', 'they', 'we',
+    'say', 'her', 'she', 'or', 'an', 'will', 'my', 'one', 'all', 'would', 'there', 'their',
+    'what', 'so', 'up', 'out', 'if', 'about', 'who', 'get', 'which', 'go', 'me', 'when',
+    'make', 'can', 'like', 'time', 'just', 'him', 'know', 'take', 'people', 'into',
+    'year', 'your', 'good', 'some', 'could', 'them', 'see', 'other', 'than', 'then', 'now',
+    'look', 'only', 'come', 'its', 'over', 'think', 'also', 'back', 'after', 'use', 'two',
+    'how', 'our', 'work', 'first', 'well', 'way', 'even', 'new', 'want', 'because', 'any',
+    'these', 'give', 'day', 'most', 'us', 'hello', 'please', 'thanks', 'where', 'why'
+  ]);
+
+  let scoreDe = 0;
+  let scoreEs = 0;
+  let scoreEn = 0;
+
+  for (const w of words) {
+    if (deWords.has(w)) scoreDe += 2;
+    if (esWords.has(w)) scoreEs += 2;
+    if (enWords.has(w)) scoreEn += 2;
+  }
+
+  if (scoreDe > scoreEn && scoreDe > scoreEs) return 'de';
+  if (scoreEs > scoreEn && scoreEs > scoreDe) return 'es';
+  return 'en';
+}
 
 const QUICK_CHIPS = [
   { text: 'Simplicity is the ultimate sophistication', label: '✨ Простота и стиль' },
@@ -57,8 +135,9 @@ export default function App() {
   const [authSuccess, setAuthSuccess] = useState('');
 
   // Translator state
-  const [sourceLang, setSourceLang] = useState('en');
+  const [sourceLang, setSourceLang] = useState('auto');
   const [targetLang, setTargetLang] = useState('ru');
+  const [detectedLang, setDetectedLang] = useState('en');
   const [sourceText, setSourceText] = useState('Simplicity is the ultimate sophistication');
   const [translatedText, setTranslatedText] = useState('Простота — это высшая форма утонченности');
   const [isTranslating, setIsTranslating] = useState(false);
@@ -223,8 +302,8 @@ export default function App() {
     setImagePreviewUrl(previewUrl);
 
     try {
-      const langMap = { en: 'eng', ru: 'rus', de: 'deu', es: 'spa' };
-      const ocrLang = langMap[sourceLang] || 'eng';
+      const langMap = { en: 'eng', ru: 'rus', de: 'deu', es: 'spa', auto: 'eng+rus+deu+spa' };
+      const ocrLang = langMap[sourceLang] || 'eng+rus';
 
       setOcrStatusText('Инициализация нейросети...');
       const { data: { text } } = await Tesseract.recognize(
@@ -358,6 +437,19 @@ export default function App() {
     URL.revokeObjectURL(url);
   };
 
+  // Auto-detect language effect & smart target flip
+  useEffect(() => {
+    if (sourceLang === 'auto') {
+      const detected = detectLanguage(sourceText);
+      if (detected) {
+        setDetectedLang(detected);
+        if (detected === targetLang) {
+          setTargetLang(detected === 'ru' ? 'en' : 'ru');
+        }
+      }
+    }
+  }, [sourceText, sourceLang, targetLang]);
+
   // Translation Effect
   useEffect(() => {
     const text = sourceText.trim();
@@ -368,7 +460,11 @@ export default function App() {
       return;
     }
 
-    if (sourceLang === targetLang) {
+    const effectiveSource = sourceLang === 'auto'
+      ? (detectLanguage(text) || detectedLang || 'en')
+      : sourceLang;
+
+    if (effectiveSource === targetLang) {
       setTranslatedText(text);
       setIsTranslating(false);
       return;
@@ -387,7 +483,7 @@ export default function App() {
         try {
           const res = await api.post('/translate', {
             text: text,
-            source_lang: sourceLang,
+            source_lang: effectiveSource,
             target_lang: targetLang,
           }, { signal: controller.signal });
           resData = res.data;
@@ -395,7 +491,7 @@ export default function App() {
           if (apiErr.name === 'CanceledError' || apiErr.code === 'ERR_CANCELED') {
             throw apiErr;
           }
-          const pair = `${sourceLang}|${targetLang}`;
+          const pair = `${effectiveSource}|${targetLang}`;
           const fallbackRes = await fetch(
             `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${pair}`,
             { signal: controller.signal }
@@ -429,14 +525,14 @@ export default function App() {
     }, 450);
 
     return () => clearTimeout(timer);
-  }, [sourceText, sourceLang, targetLang]);
+  }, [sourceText, sourceLang, targetLang, detectedLang]);
 
   const swapLanguages = () => {
     setIsSwapping(true);
     setTimeout(() => setIsSwapping(false), 300);
-    const tempLang = sourceLang;
+    const effectiveSource = sourceLang === 'auto' ? detectedLang : sourceLang;
     setSourceLang(targetLang);
-    setTargetLang(tempLang);
+    setTargetLang(effectiveSource);
     const tempText = sourceText;
     setSourceText(translatedText);
     setTranslatedText(tempText);
@@ -463,10 +559,11 @@ export default function App() {
         setSavedEntryId(null);
         loadFavorites();
       } else {
+        const effectiveSource = sourceLang === 'auto' ? detectedLang : sourceLang;
         const res = await api.post('/dictionary/entries', {
           source_text: sourceText,
           translated_text: translatedText,
-          source_lang: sourceLang,
+          source_lang: effectiveSource,
           target_lang: targetLang,
           is_favorite: true,
         });
@@ -615,8 +712,9 @@ export default function App() {
     if (showAdmin && user?.role === 'admin') loadAdminData();
   }, [showAdmin, user]);
 
-  const activeSourceLang = LANGUAGES.find(l => l.code === sourceLang) || LANGUAGES[0];
-  const activeTargetLang = LANGUAGES.find(l => l.code === targetLang) || LANGUAGES[1];
+  const activeSourceLang = SOURCE_LANGUAGES.find(l => l.code === sourceLang) || SOURCE_LANGUAGES[0];
+  const detectedLangObj = TARGET_LANGUAGES.find(l => l.code === detectedLang) || TARGET_LANGUAGES[0];
+  const activeTargetLang = TARGET_LANGUAGES.find(l => l.code === targetLang) || TARGET_LANGUAGES[1];
   const currentFlashcard = entries[currentCardIndex];
 
   return (
@@ -940,9 +1038,17 @@ export default function App() {
                 <select
                   value={sourceLang}
                   onChange={(e) => setSourceLang(e.target.value)}
-                  className="appearance-none bg-transparent hover:bg-black/[0.04] dark:hover:bg-white/[0.08] text-xs font-semibold px-3 py-1.5 rounded-xl cursor-pointer transition-colors pr-6 focus:outline-none text-[#1C1C1E] dark:text-white"
+                  className="appearance-none bg-transparent hover:bg-black/[0.04] dark:hover:bg-white/[0.08] text-xs font-semibold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl cursor-pointer transition-colors pr-6 focus:outline-none text-[#1C1C1E] dark:text-white"
                 >
-                  {LANGUAGES.map(l => <option key={l.code} value={l.code} className="dark:bg-[#1C1C1E]">{l.flag} {l.label}</option>)}
+                  {SOURCE_LANGUAGES.map(l => (
+                    <option key={l.code} value={l.code} className="dark:bg-[#1C1C1E]">
+                      {l.code === 'auto' 
+                        ? (sourceLang === 'auto' && detectedLangObj 
+                            ? `✨ Авто (${detectedLangObj.label})` 
+                            : '✨ Автоопределение')
+                        : `${l.flag} ${l.label}`}
+                    </option>
+                  ))}
                 </select>
                 <span className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-[9px] text-[#8E8E93]">▾</span>
               </div>
@@ -959,9 +1065,13 @@ export default function App() {
                 <select
                   value={targetLang}
                   onChange={(e) => setTargetLang(e.target.value)}
-                  className="appearance-none bg-transparent hover:bg-black/[0.04] dark:hover:bg-white/[0.08] text-xs font-semibold px-3 py-1.5 rounded-xl cursor-pointer transition-colors pr-6 focus:outline-none text-[#1C1C1E] dark:text-white"
+                  className="appearance-none bg-transparent hover:bg-black/[0.04] dark:hover:bg-white/[0.08] text-xs font-semibold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl cursor-pointer transition-colors pr-6 focus:outline-none text-[#1C1C1E] dark:text-white"
                 >
-                  {LANGUAGES.map(l => <option key={l.code} value={l.code} className="dark:bg-[#1C1C1E]">{l.flag} {l.label}</option>)}
+                  {TARGET_LANGUAGES.map(l => (
+                    <option key={l.code} value={l.code} className="dark:bg-[#1C1C1E]">
+                      {l.flag} {l.label}
+                    </option>
+                  ))}
                 </select>
                 <span className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-[9px] text-[#8E8E93]">▾</span>
               </div>
@@ -999,9 +1109,19 @@ export default function App() {
                 {/* Source Card Header with Mode Badges */}
                 <div className="flex items-center justify-between pb-2.5 sm:pb-3 mb-2.5 sm:mb-3 border-b border-black/[0.04] dark:border-white/[0.06] gap-1">
                   <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-                    <span className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider flex items-center gap-1 flex-shrink-0">
-                      {activeSourceLang.flag} {activeSourceLang.label}
-                    </span>
+                    {sourceLang === 'auto' ? (
+                      <span className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider flex items-center gap-1.5 flex-shrink-0">
+                        <Sparkles size={12} className="text-[#0071E3] animate-pulse" />
+                        <span className="hidden xs:inline">Авто:</span>
+                        <span className="text-[10px] font-bold text-[#0071E3] bg-[#0071E3]/10 px-2 py-0.5 rounded-full border border-[#0071E3]/20 flex items-center gap-1">
+                          {detectedLangObj.flag} {detectedLangObj.label}
+                        </span>
+                      </span>
+                    ) : (
+                      <span className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider flex items-center gap-1 flex-shrink-0">
+                        {activeSourceLang.flag} {activeSourceLang.label}
+                      </span>
+                    )}
                     {activeMode === 'image' && (
                       <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#0071E3]/10 text-[#0071E3] flex items-center gap-1 border border-[#0071E3]/20 flex-shrink-0">
                         <Scan size={10} /> Live Text
@@ -1257,7 +1377,7 @@ export default function App() {
               <div className="flex items-center justify-between pt-3 sm:pt-4 border-t border-black/[0.04] dark:border-white/[0.06]">
                 <div className="flex items-center gap-1.5 sm:gap-2">
                   <button
-                    onClick={() => speak(sourceText, sourceLang, false)}
+                    onClick={() => speak(sourceText, sourceLang === 'auto' ? detectedLang : sourceLang, false)}
                     disabled={!sourceText.trim()}
                     className={`p-2 rounded-2xl transition-all duration-200 ${
                       isSpeakingSource
