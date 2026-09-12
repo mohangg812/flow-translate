@@ -136,6 +136,12 @@ export default function App() {
       return;
     }
 
+    if (sourceLang === targetLang) {
+      setTranslatedText(text);
+      setIsTranslating(false);
+      return;
+    }
+
     const timer = setTimeout(async () => {
       if (translateAbortRef.current) {
         translateAbortRef.current.abort();
@@ -145,17 +151,47 @@ export default function App() {
 
       setIsTranslating(true);
       try {
-        const res = await api.post('/translate', {
-          text: text,
-          source_lang: sourceLang,
-          target_lang: targetLang,
-        }, { signal: controller.signal });
-        setTranslatedText(res.data.translated_text);
-        setIsInDictionary(res.data.is_saved_in_dictionary);
-        setSavedEntryId(res.data.saved_entry_id);
+        let resData = null;
+        try {
+          const res = await api.post('/translate', {
+            text: text,
+            source_lang: sourceLang,
+            target_lang: targetLang,
+          }, { signal: controller.signal });
+          resData = res.data;
+        } catch (apiErr) {
+          // Если запрос отменен пользователем, пробрасываем
+          if (apiErr.name === 'CanceledError' || apiErr.code === 'ERR_CANCELED') {
+            throw apiErr;
+          }
+          // Автоматический фолбэк для GitHub Pages (где нет Python бэкенда)
+          const pair = `${sourceLang}|${targetLang}`;
+          const fallbackRes = await fetch(
+            `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${pair}`,
+            { signal: controller.signal }
+          );
+          const fallbackJson = await fallbackRes.json();
+          const raw = fallbackJson?.responseData?.translatedText;
+          if (raw) {
+            const doc = new DOMParser().parseFromString(raw, 'text/html');
+            resData = {
+              translated_text: doc.body.textContent || raw,
+              is_saved_in_dictionary: false,
+              saved_entry_id: null,
+            };
+          } else {
+            throw apiErr;
+          }
+        }
+
+        if (resData) {
+          setTranslatedText(resData.translated_text);
+          setIsInDictionary(resData.is_saved_in_dictionary || false);
+          setSavedEntryId(resData.saved_entry_id || null);
+        }
       } catch (err) {
         if (err.name !== 'CanceledError' && err.code !== 'ERR_CANCELED') {
-          console.error(err);
+          console.error('Translation error:', err);
         }
       } finally {
         setIsTranslating(false);
