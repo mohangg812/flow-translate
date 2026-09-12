@@ -18,6 +18,8 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)  # Для блокировки админом
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)  # Подтверждение email
     verification_token: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    # [FIX #5] Отдельное поле для TOTP-секрета (ранее использовался verification_token для обоих целей)
+    totp_secret: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     theme_preference: Mapped[str] = mapped_column(String(10), default="light", nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
@@ -60,7 +62,8 @@ class DictionaryEntry(Base):
     source_lang: Mapped[str] = mapped_column(String(10), nullable=False)
     target_lang: Mapped[str] = mapped_column(String(10), nullable=False)
     notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    is_favorite: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    # [FIX #12] default=False — записи по умолчанию не в избранном (было True — логическая ошибка)
+    is_favorite: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), index=True)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

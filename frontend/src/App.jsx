@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import api from './api';
 import { 
-  Volume2, Star, Trash2, Edit3, Plus, Search, LogOut, 
+  Volume2, Star, Edit3, Search, LogOut, 
   ArrowRightLeft, X, Shield, RefreshCw, Check, Sun, Moon, Copy 
+  // [FIX #18] Убраны неиспользуемые импорты: Trash2, Plus
 } from 'lucide-react';
 
 const LANGUAGES = [
@@ -11,6 +12,16 @@ const LANGUAGES = [
   { code: 'de', label: 'Deutsch' },
   { code: 'es', label: 'Español' },
 ];
+
+// [FIX #14] Хук debounce — задержка перед отправкой запросов (убирает спам при поиске)
+function useDebounce(value, delay) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+  return debouncedValue;
+}
 
 export default function App() {
   const [theme, setTheme] = useState(localStorage.getItem('flow_theme') || 'light');
@@ -24,7 +35,6 @@ export default function App() {
   const [authPasswordConfirm, setAuthPasswordConfirm] = useState('');
   const [verifyCode, setVerifyCode] = useState('');
   const [qrCodeUrl, setQrCodeUrl] = useState('');
-  const [totpSecret, setTotpSecret] = useState('');
   const [authError, setAuthError] = useState('');
   const [authSuccess, setAuthSuccess] = useState('');
 
@@ -57,6 +67,12 @@ export default function App() {
   // Админка
   const [adminStats, setAdminStats] = useState(null);
   const [adminUsers, setAdminUsers] = useState([]);
+
+  // [FIX #8] Ref для AbortController — отмена предыдущего запроса перевода
+  const translateAbortRef = useRef(null);
+
+  // [FIX #9] Debounce поиска — 400мс задержки вместо мгновенного запроса на каждый символ
+  const debouncedSearch = useDebounce(search, 400);
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -99,6 +115,7 @@ export default function App() {
   };
 
   // Авто-перевод (Google Translate Style)
+  // [FIX #8] Добавлен AbortController для отмены предыдущих запросов (race condition)
   useEffect(() => {
     const text = sourceText.trim();
     if (!text) {
@@ -109,18 +126,28 @@ export default function App() {
     }
 
     const timer = setTimeout(async () => {
+      // Отменяем предыдущий запрос, если он ещё в полёте
+      if (translateAbortRef.current) {
+        translateAbortRef.current.abort();
+      }
+      const controller = new AbortController();
+      translateAbortRef.current = controller;
+
       setIsTranslating(true);
       try {
         const res = await api.post('/translate', {
           text: text,
           source_lang: sourceLang,
           target_lang: targetLang,
-        });
+        }, { signal: controller.signal });
         setTranslatedText(res.data.translated_text);
         setIsInDictionary(res.data.is_saved_in_dictionary);
         setSavedEntryId(res.data.saved_entry_id);
       } catch (err) {
-        console.error(err);
+        // Игнорируем ошибки отмены (AbortError)
+        if (err.name !== 'CanceledError' && err.code !== 'ERR_CANCELED') {
+          console.error(err);
+        }
       } finally {
         setIsTranslating(false);
       }
@@ -175,26 +202,37 @@ export default function App() {
     }
   };
 
-  const loadFavorites = async () => {
+  // [FIX #16] loadFavorites обёрнута в useCallback для стабильной ссылки
+  const loadFavorites = useCallback(async () => {
     if (!user) return;
     try {
       const params = { page, page_size: 10, is_favorite: true, sort_by: 'created_at', order: 'desc' };
-      if (search.trim()) params.search = search.trim();
+      if (debouncedSearch.trim()) params.search = debouncedSearch.trim();
       if (filterCat) params.category_id = filterCat;
 
       const res = await api.get('/dictionary/entries', { params });
       setEntries(res.data.items);
       setTotalPages(res.data.total_pages);
       setTotalEntries(res.data.total);
+    } catch (_) {}
+  }, [user, page, debouncedSearch, filterCat]);
 
+  // [FIX #22] Загрузка категорий вынесена в отдельный useEffect — не спамит при смене страницы/фильтра
+  const loadCategories = useCallback(async () => {
+    if (!user) return;
+    try {
       const catsRes = await api.get('/dictionary/categories');
       setCategories(catsRes.data);
     } catch (_) {}
-  };
+  }, [user]);
+
+  useEffect(() => {
+    loadCategories();
+  }, [loadCategories]);
 
   useEffect(() => {
     loadFavorites();
-  }, [user, page, search, filterCat]);
+  }, [loadFavorites]);
 
   const deleteFavorite = async (id) => {
     try {
@@ -227,6 +265,22 @@ export default function App() {
     }
   };
 
+  // [FIX #7] Отдельный обработчик для РЕДАКТИРОВАНИЯ карточки (ранее использовался handleManualAdd — баг)
+  const handleEditEntry = async (e) => {
+    e.preventDefault();
+    if (!editingEntry) return;
+    try {
+      await api.patch(`/dictionary/entries/${editingEntry.id}`, {
+        translated_text: editingEntry.translated_text,
+        category_id: editingEntry.category_id || null,
+      });
+      setEditingEntry(null);
+      loadFavorites();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Ошибка редактирования');
+    }
+  };
+
   const handleCreateCategory = async (e) => {
     e.preventDefault();
     if (!newCatName.trim()) return;
@@ -234,6 +288,7 @@ export default function App() {
       await api.post('/dictionary/categories', { name: newCatName, color_hex: newCatColor });
       setNewCatName('');
       setNewCatModal(false);
+      loadCategories(); // Перезагрузить категории после создания
       loadFavorites();
     } catch (err) {
       alert(err.response?.data?.message || 'Ошибка');
@@ -259,7 +314,6 @@ export default function App() {
           password_confirm: authPasswordConfirm,
         });
         setQrCodeUrl(res.data.qr_code_url || '');
-        setTotpSecret(res.data.totp_secret || '');
         setAuthSuccess('Отсканируйте QR-код в приложении Google Authenticator:');
         setAuthModal('verify');
       } else if (authModal === 'verify') {
@@ -271,7 +325,7 @@ export default function App() {
         setVerifyCode('');
       }
     } catch (err) {
-      setAuthError(err.response?.data?.message || 'Ошибка входа');
+      setAuthError(err.response?.data?.message || err.response?.data?.detail || 'Ошибка входа');
     }
   };
 
@@ -284,9 +338,10 @@ export default function App() {
     } catch (_) {}
   };
 
+  // [FIX #15] Добавлен user в зависимости useEffect (ранее отсутствовал — stale closure)
   useEffect(() => {
     if (showAdmin && user?.role === 'admin') loadAdminData();
-  }, [showAdmin]);
+  }, [showAdmin, user]);
 
   const toggleUserStatus = async (userId) => {
     try {
@@ -709,12 +764,7 @@ export default function App() {
                     </div>
                   )}
                   <div className="text-xs text-[#736E66] dark:text-[#A09B93] leading-relaxed">
-                    Отсканируйте QR-код в <b>Google Authenticator</b> на смартфоне или введите ключ вручную:
-                    <div className="mt-1">
-                      <span className="bg-[#EAE4D8] dark:bg-[#25282D] text-[#1C1A17] dark:text-white px-2 py-0.5 rounded font-mono text-[11px] font-bold select-all tracking-wider">
-                        {totpSecret}
-                      </span>
-                    </div>
+                    Отсканируйте QR-код в <b>Google Authenticator</b> на смартфоне и введите 6-значный код:
                   </div>
                   <div>
                     <label className="text-[10px] font-bold text-[#8A847B] uppercase block text-left mb-1">
@@ -799,14 +849,14 @@ export default function App() {
         </div>
       )}
 
-      {/* Модалка редактирования */}
+      {/* [FIX #7] Модалка редактирования — теперь вызывает handleEditEntry вместо handleManualAdd */}
       {editingEntry && (
         <div className="fixed inset-0 z-50 bg-black/45 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[#FAF7F2] dark:bg-[#1A1C1F] rounded-3xl p-6 w-full max-w-sm border border-[#D5CBBF] dark:border-[#2C2F36] shadow-xl relative">
             <button onClick={() => setEditingEntry(null)} className="absolute right-4 top-4 text-[#8A847B]"><X size={18} /></button>
             <h3 className="text-base font-bold mb-1">Редактировать</h3>
             <p className="text-xs text-[#8A847B] mb-3">Оригинал: <span className="font-bold text-[#1C1A17] dark:text-white">{editingEntry.source_text}</span></p>
-            <form onSubmit={handleManualAdd} className="space-y-3">
+            <form onSubmit={handleEditEntry} className="space-y-3">
               <div>
                 <label className="text-[10px] font-bold text-[#8A847B] uppercase">Перевод</label>
                 <input type="text" required value={editingEntry.translated_text} onChange={e => setEditingEntry({...editingEntry, translated_text: e.target.value})} className="w-full mt-1 p-2 bg-white dark:bg-[#25282D] rounded-xl text-sm border border-[#D5CBBF] focus:outline-none" />

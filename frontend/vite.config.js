@@ -3,8 +3,10 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  base: process.env.GITHUB_PAGES ? '/flow-translate/' : '/',
   server: {
-    allowedHosts: true, // Разрешает туннели localtunnel и любые внешние домены
+    // [FIX #21] Ограничены разрешённые хосты (было true — уязвимость DNS Rebinding)
+    allowedHosts: ['.loca.lt'],
     proxy: {
       '/api': {
         target: 'http://127.0.0.1:8000',

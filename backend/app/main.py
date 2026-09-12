@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import select
 
 from app.core.database import engine, Base, async_session_maker
+from app.core.config import settings
 from app.models.models import User
 from app.core.security import hash_password
 from app.api.translate import router as translate_router
@@ -29,7 +30,8 @@ async def seed_admin():
         if not existing_admin:
             admin = User(
                 email="admin@flow.com",
-                hashed_password=hash_password("Admin1234!"),
+                # [FIX #3] Пароль админа берётся из переменной окружения, а не захардкожен
+                hashed_password=hash_password(settings.ADMIN_DEFAULT_PASSWORD),
                 role="admin",
                 is_active=True,
                 is_verified=True,
@@ -117,7 +119,7 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
             "status": "error",
             "message": "Внутренняя ошибка сервера. Сервер продолжает стабильную работу.",
             "code": 500,
-            "error_type": exc.__class__.__name__
+            # [FIX #25] Убран error_type — имя исключения раскрывало внутреннюю реализацию
         }
     )
 

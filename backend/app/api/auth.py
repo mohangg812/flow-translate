@@ -1,5 +1,6 @@
-import random
+# [FIX #11] Убран неиспользуемый import random
 import logging
+import uuid
 import urllib.parse
 import pyotp
 from fastapi import APIRouter, HTTPException, status, Depends, BackgroundTasks
@@ -87,13 +88,18 @@ async def register(
     # 3. Формируем URL для отрисовки QR-кода через публичный API
     qr_code_url = f"https://api.qrserver.com/v1/create-qr-code/?size=220x220&data={urllib.parse.quote(totp_uri)}"
 
+    # [FIX #5] Генерируем отдельный одноразовый токен для email-верификации
+    # (ранее использовался totp_secret, что позволяло подтвердить чужой аккаунт)
+    email_verify_token = str(uuid.uuid4())
+
     new_user = User(
         email=email_clean,
         hashed_password=hash_password(payload.password),
         role="user",
         is_active=True,
         is_verified=False,
-        verification_token=totp_secret,  # Храним секрет аутентификатора
+        verification_token=email_verify_token,  # Одноразовый токен для email
+        totp_secret=totp_secret,  # TOTP-секрет хранится отдельно
         theme_preference="light"
     )
     db.add(new_user)
@@ -102,7 +108,7 @@ async def register(
 
     # Текущий 6-значный код на момент регистрации
     current_code = pyotp.TOTP(totp_secret).now()
-    verify_url = f"http://127.0.0.1:8000/api/v1/auth/verify-email?token={totp_secret}"
+    verify_url = f"http://127.0.0.1:8000/api/v1/auth/verify-email?token={email_verify_token}"
     
     # Фоновая отправка письма (если настроен SMTP, иначе вывод в лог)
     background_tasks.add_task(EmailService.send_verification_email, email_clean, current_code, verify_url)
@@ -111,7 +117,7 @@ async def register(
         "message": "Регистрация успешна! Отсканируйте QR-код в Google Authenticator.",
         "email": email_clean,
         "qr_code_url": qr_code_url,
-        "totp_secret": totp_secret,
+        # [FIX #4] totp_secret больше НЕ возвращается клиенту — QR-код достаточен
         "demo_code": current_code
     }
 
@@ -128,16 +134,16 @@ async def verify_code(payload: VerifyCodeRequest, db: AsyncSession = Depends(get
     if user.is_verified:
         return {"message": "Почта уже была подтверждена ранее. Вы можете войти."}
 
-    # Проверка введенного кода через алгоритм Google Authenticator (с окном +-30 сек)
+    # [FIX #5] Проверка кода через TOTP-секрет (хранится в отдельном поле)
     code_clean = payload.code.strip().replace(" ", "")
     
     is_valid = False
-    if user.verification_token:
+    if user.totp_secret:
         try:
-            totp = pyotp.TOTP(user.verification_token)
+            totp = pyotp.TOTP(user.totp_secret)
             is_valid = totp.verify(code_clean, valid_window=1)
         except Exception:
-            is_valid = (user.verification_token == code_clean)
+            is_valid = False
     
     if not is_valid:
         raise HTTPException(
@@ -154,6 +160,7 @@ async def verify_code(payload: VerifyCodeRequest, db: AsyncSession = Depends(get
 
 @router.get("/verify-email", summary="Подтверждение регистрации по ссылке")
 async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
+    # [FIX #5] Ищем по одноразовому email_verify_token, а не по TOTP-секрету
     stmt = select(User).where(User.verification_token == token.strip())
     user = (await db.execute(stmt)).scalars().first()
 
@@ -161,6 +168,8 @@ async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Неверный или устаревший токен подтверждения")
 
     user.is_verified = True
+    # Обнуляем токен после использования (одноразовый)
+    user.verification_token = None
     await db.commit()
     logger.info(f"Email подтвержден по ссылке: {user.email}")
 

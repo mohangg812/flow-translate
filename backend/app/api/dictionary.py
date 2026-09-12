@@ -22,6 +22,32 @@ from app.schemas.dictionary import (
 router = APIRouter(prefix="/dictionary", tags=["Личный словарь и Категории"])
 
 
+# [FIX #19] Хелпер-функция вместо 4-кратного дублирования маппинга
+def _entry_to_response(entry: DictionaryEntry) -> DictionaryEntryResponse:
+    """Преобразует ORM-объект DictionaryEntry в Pydantic-ответ с данными категории."""
+    return DictionaryEntryResponse(
+        id=entry.id,
+        user_id=entry.user_id,
+        category_id=entry.category_id,
+        category_name=entry.category.name if entry.category else None,
+        category_color=entry.category.color_hex if entry.category else None,
+        source_text=entry.source_text,
+        translated_text=entry.translated_text,
+        source_lang=entry.source_lang,
+        target_lang=entry.target_lang,
+        notes=entry.notes,
+        is_favorite=entry.is_favorite,
+        created_at=entry.created_at,
+        updated_at=entry.updated_at,
+    )
+
+
+# [FIX #13] Экранирование спецсимволов LIKE (%, _) в поисковом запросе
+def _escape_like(value: str) -> str:
+    """Экранирует спецсимволы SQL LIKE, чтобы '%' и '_' искались буквально."""
+    return value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+
+
 # ==========================================
 # 1. КАТЕГОРИИ
 # ==========================================
@@ -155,21 +181,7 @@ async def add_entry(
         stmt_reload = select(DictionaryEntry).options(joinedload(DictionaryEntry.category)).where(DictionaryEntry.id == existing_entry.id)
         entry_with_cat = (await db.execute(stmt_reload)).scalar_one()
 
-        return DictionaryEntryResponse(
-            id=entry_with_cat.id,
-            user_id=entry_with_cat.user_id,
-            category_id=entry_with_cat.category_id,
-            category_name=entry_with_cat.category.name if entry_with_cat.category else None,
-            category_color=entry_with_cat.category.color_hex if entry_with_cat.category else None,
-            source_text=entry_with_cat.source_text,
-            translated_text=entry_with_cat.translated_text,
-            source_lang=entry_with_cat.source_lang,
-            target_lang=entry_with_cat.target_lang,
-            notes=entry_with_cat.notes,
-            is_favorite=entry_with_cat.is_favorite,
-            created_at=entry_with_cat.created_at,
-            updated_at=entry_with_cat.updated_at
-        )
+        return _entry_to_response(entry_with_cat)
 
     new_entry = DictionaryEntry(
         user_id=current_user.id,
@@ -187,21 +199,7 @@ async def add_entry(
     stmt_res = select(DictionaryEntry).options(joinedload(DictionaryEntry.category)).where(DictionaryEntry.id == new_entry.id)
     entry_with_cat = (await db.execute(stmt_res)).scalar_one()
 
-    return DictionaryEntryResponse(
-        id=entry_with_cat.id,
-        user_id=entry_with_cat.user_id,
-        category_id=entry_with_cat.category_id,
-        category_name=entry_with_cat.category.name if entry_with_cat.category else None,
-        category_color=entry_with_cat.category.color_hex if entry_with_cat.category else None,
-        source_text=entry_with_cat.source_text,
-        translated_text=entry_with_cat.translated_text,
-        source_lang=entry_with_cat.source_lang,
-        target_lang=entry_with_cat.target_lang,
-        notes=entry_with_cat.notes,
-        is_favorite=entry_with_cat.is_favorite,
-        created_at=entry_with_cat.created_at,
-        updated_at=entry_with_cat.updated_at
-    )
+    return _entry_to_response(entry_with_cat)
 
 
 @router.get("/entries", response_model=PaginatedDictionaryResponse, summary="Получить карточки словаря (Фильтры, Поиск, Пагинация 10)")
@@ -221,7 +219,9 @@ async def get_entries(
     filters = [DictionaryEntry.user_id == current_user.id]
 
     if search and search.strip():
-        s = f"%{search.strip()}%"
+        # [FIX #13] Экранирование спецсимволов LIKE перед использованием в запросе
+        escaped = _escape_like(search.strip())
+        s = f"%{escaped}%"
         filters.append((DictionaryEntry.source_text.ilike(s)) | (DictionaryEntry.translated_text.ilike(s)))
     if category_id:
         filters.append(DictionaryEntry.category_id == category_id)
@@ -248,24 +248,7 @@ async def get_entries(
     )
     entries = (await db.execute(stmt)).scalars().unique().all()
 
-    items = [
-        DictionaryEntryResponse(
-            id=e.id,
-            user_id=e.user_id,
-            category_id=e.category_id,
-            category_name=e.category.name if e.category else None,
-            category_color=e.category.color_hex if e.category else None,
-            source_text=e.source_text,
-            translated_text=e.translated_text,
-            source_lang=e.source_lang,
-            target_lang=e.target_lang,
-            notes=e.notes,
-            is_favorite=e.is_favorite,
-            created_at=e.created_at,
-            updated_at=e.updated_at
-        )
-        for e in entries
-    ]
+    items = [_entry_to_response(e) for e in entries]
 
     total_pages = math.ceil(total / page_size) if total > 0 else 1
 
@@ -318,21 +301,7 @@ async def update_entry(
     stmt_reload = select(DictionaryEntry).options(joinedload(DictionaryEntry.category)).where(DictionaryEntry.id == entry.id)
     refreshed = (await db.execute(stmt_reload)).scalar_one()
 
-    return DictionaryEntryResponse(
-        id=refreshed.id,
-        user_id=refreshed.user_id,
-        category_id=refreshed.category_id,
-        category_name=refreshed.category.name if refreshed.category else None,
-        category_color=refreshed.category.color_hex if refreshed.category else None,
-        source_text=refreshed.source_text,
-        translated_text=refreshed.translated_text,
-        source_lang=refreshed.source_lang,
-        target_lang=refreshed.target_lang,
-        notes=refreshed.notes,
-        is_favorite=refreshed.is_favorite,
-        created_at=refreshed.created_at,
-        updated_at=refreshed.updated_at
-    )
+    return _entry_to_response(refreshed)
 
 
 @router.delete("/entries/{entry_id}", status_code=status.HTTP_200_OK, summary="Удалить слово из словаря")
