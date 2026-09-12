@@ -2,18 +2,18 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import api from './api';
 import { 
   Volume2, Star, Edit3, Search, LogOut, 
-  ArrowRightLeft, X, Shield, RefreshCw, Check, Sun, Moon, Copy 
-  // [FIX #18] Убраны неиспользуемые импорты: Trash2, Plus
+  ArrowRightLeft, X, Shield, RefreshCw, Check, Sun, Moon, Copy,
+  Sparkles, Languages, SlidersHorizontal, PlusCircle, CheckCircle2,
+  Lock, KeyRound, Mail, ChevronRight, Hash
 } from 'lucide-react';
 
 const LANGUAGES = [
-  { code: 'en', label: 'English' },
-  { code: 'ru', label: 'Russian' },
-  { code: 'de', label: 'Deutsch' },
-  { code: 'es', label: 'Español' },
+  { code: 'en', label: 'English', flag: '🇬🇧' },
+  { code: 'ru', label: 'Русский', flag: '🇷🇺' },
+  { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
+  { code: 'es', label: 'Español', flag: '🇪🇸' },
 ];
 
-// [FIX #14] Хук debounce — задержка перед отправкой запросов (убирает спам при поиске)
 function useDebounce(value, delay) {
   const [debouncedValue, setDebouncedValue] = useState(value);
   useEffect(() => {
@@ -24,11 +24,11 @@ function useDebounce(value, delay) {
 }
 
 export default function App() {
-  const [theme, setTheme] = useState(localStorage.getItem('flow_theme') || 'light');
+  const [theme, setTheme] = useState(localStorage.getItem('flow_theme') || 'dark');
   const [user, setUser] = useState(null);
   const [showAdmin, setShowAdmin] = useState(false);
   
-  // Авторизация и Google Authenticator
+  // Auth state
   const [authModal, setAuthModal] = useState(null);
   const [authEmail, setAuthEmail] = useState('');
   const [authPassword, setAuthPassword] = useState('');
@@ -38,17 +38,20 @@ export default function App() {
   const [authError, setAuthError] = useState('');
   const [authSuccess, setAuthSuccess] = useState('');
 
-  // Переводчик
+  // Translator state
   const [sourceLang, setSourceLang] = useState('en');
   const [targetLang, setTargetLang] = useState('ru');
-  const [sourceText, setSourceText] = useState('Apple');
-  const [translatedText, setTranslatedText] = useState('Яблоко');
+  const [sourceText, setSourceText] = useState('Apple design is pure perfection');
+  const [translatedText, setTranslatedText] = useState('Дизайн Apple — это совершенство');
   const [isTranslating, setIsTranslating] = useState(false);
   const [isInDictionary, setIsInDictionary] = useState(false);
   const [savedEntryId, setSavedEntryId] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [isSpeakingSource, setIsSpeakingSource] = useState(false);
+  const [isSpeakingTarget, setIsSpeakingTarget] = useState(false);
+  const [isSwapping, setIsSwapping] = useState(false);
 
-  // Favorites
+  // Favorites state
   const [entries, setEntries] = useState([]);
   const [categories, setCategories] = useState([]);
   const [page, setPage] = useState(1);
@@ -62,16 +65,13 @@ export default function App() {
   const [editingEntry, setEditingEntry] = useState(null);
   const [newCatModal, setNewCatModal] = useState(false);
   const [newCatName, setNewCatName] = useState('');
-  const [newCatColor, setNewCatColor] = useState('#6366f1');
+  const [newCatColor, setNewCatColor] = useState('#0071E3');
 
-  // Админка
+  // Admin state
   const [adminStats, setAdminStats] = useState(null);
   const [adminUsers, setAdminUsers] = useState([]);
 
-  // [FIX #8] Ref для AbortController — отмена предыдущего запроса перевода
   const translateAbortRef = useRef(null);
-
-  // [FIX #9] Debounce поиска — 400мс задержки вместо мгновенного запроса на каждый символ
   const debouncedSearch = useDebounce(search, 400);
 
   useEffect(() => {
@@ -105,17 +105,28 @@ export default function App() {
     }
   };
 
-  const speak = (text, langCode) => {
+  const speak = (text, langCode, isTarget = false) => {
     if (!('speechSynthesis' in window) || !text) return;
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     const map = { ru: 'ru-RU', en: 'en-US', de: 'de-DE', es: 'es-ES' };
     utterance.lang = map[langCode] || 'en-US';
+    
+    if (isTarget) setIsSpeakingTarget(true);
+    else setIsSpeakingSource(true);
+
+    utterance.onend = () => {
+      setIsSpeakingSource(false);
+      setIsSpeakingTarget(false);
+    };
+    utterance.onerror = () => {
+      setIsSpeakingSource(false);
+      setIsSpeakingTarget(false);
+    };
+
     window.speechSynthesis.speak(utterance);
   };
 
-  // Авто-перевод (Google Translate Style)
-  // [FIX #8] Добавлен AbortController для отмены предыдущих запросов (race condition)
   useEffect(() => {
     const text = sourceText.trim();
     if (!text) {
@@ -126,7 +137,6 @@ export default function App() {
     }
 
     const timer = setTimeout(async () => {
-      // Отменяем предыдущий запрос, если он ещё в полёте
       if (translateAbortRef.current) {
         translateAbortRef.current.abort();
       }
@@ -144,7 +154,6 @@ export default function App() {
         setIsInDictionary(res.data.is_saved_in_dictionary);
         setSavedEntryId(res.data.saved_entry_id);
       } catch (err) {
-        // Игнорируем ошибки отмены (AbortError)
         if (err.name !== 'CanceledError' && err.code !== 'ERR_CANCELED') {
           console.error(err);
         }
@@ -157,6 +166,8 @@ export default function App() {
   }, [sourceText, sourceLang, targetLang]);
 
   const swapLanguages = () => {
+    setIsSwapping(true);
+    setTimeout(() => setIsSwapping(false), 300);
     const tempLang = sourceLang;
     setSourceLang(targetLang);
     setTargetLang(tempLang);
@@ -202,7 +213,6 @@ export default function App() {
     }
   };
 
-  // [FIX #16] loadFavorites обёрнута в useCallback для стабильной ссылки
   const loadFavorites = useCallback(async () => {
     if (!user) return;
     try {
@@ -217,7 +227,6 @@ export default function App() {
     } catch (_) {}
   }, [user, page, debouncedSearch, filterCat]);
 
-  // [FIX #22] Загрузка категорий вынесена в отдельный useEffect — не спамит при смене страницы/фильтра
   const loadCategories = useCallback(async () => {
     if (!user) return;
     try {
@@ -265,7 +274,6 @@ export default function App() {
     }
   };
 
-  // [FIX #7] Отдельный обработчик для РЕДАКТИРОВАНИЯ карточки (ранее использовался handleManualAdd — баг)
   const handleEditEntry = async (e) => {
     e.preventDefault();
     if (!editingEntry) return;
@@ -288,14 +296,13 @@ export default function App() {
       await api.post('/dictionary/categories', { name: newCatName, color_hex: newCatColor });
       setNewCatName('');
       setNewCatModal(false);
-      loadCategories(); // Перезагрузить категории после создания
+      loadCategories();
       loadFavorites();
     } catch (err) {
       alert(err.response?.data?.message || 'Ошибка');
     }
   };
 
-  // Авторизация через Google Authenticator
   const handleAuth = async (e) => {
     e.preventDefault();
     setAuthError('');
@@ -338,7 +345,6 @@ export default function App() {
     } catch (_) {}
   };
 
-  // [FIX #15] Добавлен user в зависимости useEffect (ранее отсутствовал — stale closure)
   useEffect(() => {
     if (showAdmin && user?.role === 'admin') loadAdminData();
   }, [showAdmin, user]);
@@ -352,148 +358,174 @@ export default function App() {
     }
   };
 
-  return (
-    <div className="relative min-h-screen bg-[#F4EFE6] dark:bg-[#16181B] text-[#1E1B18] dark:text-[#E8E5DF] transition-colors duration-300 font-sans pb-28 overflow-x-hidden selection:bg-[#E5D7C2] selection:text-black">
-      
-      {/* ================= ФОН: ЛЕНТЫ FLOW ================= */}
-      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-        <div className="absolute -top-32 -left-32 w-[42rem] h-[42rem] rounded-full bg-[#EADECF]/90 dark:bg-amber-950/15 blur-[120px]" />
-        <div className="absolute top-1/3 -right-32 w-[46rem] h-[46rem] rounded-full bg-[#E4D4C0]/80 dark:bg-indigo-950/20 blur-[130px]" />
-        <div className="absolute -bottom-32 left-1/4 w-[40rem] h-[40rem] rounded-full bg-[#E8DACB]/75 dark:bg-purple-950/15 blur-[120px]" />
+  const activeSourceLang = LANGUAGES.find(l => l.code === sourceLang) || LANGUAGES[0];
+  const activeTargetLang = LANGUAGES.find(l => l.code === targetLang) || LANGUAGES[1];
 
-        <svg className="absolute inset-0 w-full h-full opacity-65 dark:opacity-25" preserveAspectRatio="none" viewBox="0 0 1440 900" fill="none">
-          <path d="M-150 120 C 150 40, 350 360, 480 200 C 600 50, 750 250, 850 180" stroke="#DCD0BE" strokeWidth="60" strokeLinecap="round" opacity="0.4" />
-          <path d="M-100 480 C 180 320, 380 620, 620 420 C 780 280, 920 480, 1020 400" stroke="#E3D7C5" strokeWidth="85" strokeLinecap="round" opacity="0.5" />
-          <path d="M650 780 C 880 580, 1150 820, 1380 640 C 1500 540, 1600 680, 1700 650" stroke="#DACDB8" strokeWidth="95" strokeLinecap="round" opacity="0.45" />
-          <path d="M850 150 C 1050 50, 1250 320, 1450 180 C 1550 100, 1650 220, 1750 180" stroke="#E6DAC9" strokeWidth="45" strokeLinecap="round" opacity="0.4" />
-        </svg>
+  return (
+    <div className="relative min-h-screen bg-[#F5F5F7] dark:bg-[#000000] text-[#1D1D1F] dark:text-[#F5F5F7] transition-colors duration-500 font-sans pb-32 overflow-x-hidden selection:bg-[#0071E3]/20 selection:text-[#0071E3]">
+      
+      {/* ================= APPLE AMBIENT AURORA BACKGROUND ================= */}
+      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+        {/* Apple Intelligence Aurora orbs */}
+        <div className="absolute -top-40 -left-32 w-[48rem] h-[48rem] rounded-full bg-gradient-to-tr from-indigo-500/25 via-blue-500/20 to-cyan-400/25 dark:from-indigo-600/20 dark:via-blue-600/15 dark:to-cyan-500/15 blur-[140px] animate-orb-1" />
+        <div className="absolute top-1/4 -right-40 w-[52rem] h-[52rem] rounded-full bg-gradient-to-bl from-purple-500/25 via-pink-500/20 to-orange-400/20 dark:from-purple-900/30 dark:via-fuchsia-950/20 dark:to-indigo-950/20 blur-[150px] animate-orb-2" />
+        <div className="absolute -bottom-40 left-1/4 w-[46rem] h-[46rem] rounded-full bg-gradient-to-t from-emerald-400/20 via-teal-400/15 to-sky-400/20 dark:from-emerald-950/20 dark:via-teal-950/15 dark:to-blue-950/20 blur-[130px] animate-orb-3" />
+
+        {/* Apple subtle micro-dot mesh grid overlay */}
+        <div className="absolute inset-0 opacity-[0.035] dark:opacity-[0.05] bg-[radial-gradient(#000_1px,transparent_1px)] dark:bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:24px_24px]" />
       </div>
 
-      {/* ================= ШАПКА ================= */}
-      <header className="max-w-4xl mx-auto px-6 pt-10 pb-6 flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 flex items-center justify-center font-black text-2xl tracking-tighter text-[#1C1A17] dark:text-white">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 4h16M4 12h12M4 20h8"/>
-            </svg>
-          </div>
-          <span className="text-xl font-extrabold tracking-tight text-[#1C1A17] dark:text-white">Flow</span>
-        </div>
-
-        <h1 className="text-xl font-bold text-[#1C1A17] dark:text-white tracking-tight hidden sm:block">
-          Flow Translate
-        </h1>
-
-        <div className="flex items-center gap-4">
-          <span className="text-xs font-semibold tracking-wider text-[#8A847B] dark:text-[#9A968F]">
-            RU | EN
-          </span>
-
-          <div className="flex items-center bg-[#E6DFD4] dark:bg-[#202227] p-1 rounded-full border border-[#D5CBBF] dark:border-[#2C2F36] shadow-inner">
-            <button
-              onClick={() => toggleTheme('light')}
-              className={`p-1.5 rounded-full transition-all duration-200 ${
-                theme === 'light' ? 'bg-white text-amber-500 shadow-[0_2px_8px_rgba(0,0,0,0.1)]' : 'text-[#8A847B] hover:text-black'
-              }`}
-              title="Светлая тема"
-            >
-              <Sun size={14} />
-            </button>
-            <button
-              onClick={() => toggleTheme('dark')}
-              className={`p-1.5 rounded-full transition-all duration-200 ${
-                theme === 'dark' ? 'bg-[#121316] text-indigo-400 shadow-[0_2px_8px_rgba(0,0,0,0.4)]' : 'text-[#8A847B] hover:text-white'
-              }`}
-              title="Темная тема"
-            >
-              <Moon size={14} />
-            </button>
+      {/* ================= APPLE FROSTED GLASS HEADER ================= */}
+      <header className="sticky top-0 z-40 backdrop-blur-2xl bg-white/70 dark:bg-[#121316]/75 border-b border-black/[0.05] dark:border-white/[0.08] transition-all duration-300">
+        <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
+          
+          {/* Logo with Apple squircle badge */}
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-[#0071E3] to-[#5E5CE6] flex items-center justify-center text-white shadow-[0_4px_16px_rgba(0,113,227,0.35)] transition-transform hover:scale-105">
+              <Sparkles size={18} className="animate-apple-pulse" />
+            </div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-lg font-bold tracking-tight text-[#1D1D1F] dark:text-white">Flow</span>
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-[#86868B] dark:text-[#A1A1A6] tracking-wider uppercase">
+                Translate
+              </span>
+            </div>
           </div>
 
-          {user ? (
-            <div className="flex items-center gap-2">
-              {user.role === 'admin' && (
-                <button
-                  onClick={() => setShowAdmin(!showAdmin)}
-                  className={`p-2 rounded-xl text-xs font-bold transition-all ${
-                    showAdmin ? 'bg-[#1C1A17] text-white dark:bg-white dark:text-black' : 'text-[#8A847B] hover:text-black dark:hover:text-white'
-                  }`}
-                  title="Панель администратора"
-                >
-                  <Shield size={16} />
-                </button>
-              )}
-              <span className="text-xs font-semibold text-[#8A847B] hidden md:inline">{user.email.split('@')[0]}</span>
+          {/* Right Controls */}
+          <div className="flex items-center gap-3">
+            
+            {/* Apple Segmented Theme Switcher */}
+            <div className="flex items-center bg-black/[0.05] dark:bg-white/[0.08] p-1 rounded-full border border-black/[0.04] dark:border-white/[0.06] shadow-inner">
               <button
-                onClick={() => { localStorage.removeItem('flow_token'); setUser(null); }}
-                className="text-[#8A847B] hover:text-rose-500 p-1.5 transition-colors"
-                title="Выйти"
+                onClick={() => toggleTheme('light')}
+                className={`p-1.5 rounded-full transition-all duration-200 ${
+                  theme === 'light' 
+                    ? 'bg-white text-amber-500 shadow-[0_2px_8px_rgba(0,0,0,0.12)] scale-100' 
+                    : 'text-[#86868B] hover:text-[#1D1D1F] scale-95'
+                }`}
+                title="Светлая тема"
               >
-                <LogOut size={16} />
+                <Sun size={14} />
+              </button>
+              <button
+                onClick={() => toggleTheme('dark')}
+                className={`p-1.5 rounded-full transition-all duration-200 ${
+                  theme === 'dark' 
+                    ? 'bg-[#1C1C1E] text-indigo-400 shadow-[0_2px_8px_rgba(0,0,0,0.4)] scale-100' 
+                    : 'text-[#86868B] hover:text-white scale-95'
+                }`}
+                title="Темная тема"
+              >
+                <Moon size={14} />
               </button>
             </div>
-          ) : (
-            <button
-              onClick={() => { setAuthModal('login'); setAuthError(''); }}
-              className="text-xs font-bold tracking-wide bg-[#1C1A17] text-white hover:bg-black dark:bg-white dark:text-black dark:hover:bg-slate-200 px-4 py-2 rounded-full transition-all shadow-md active:scale-95"
-            >
-              Войти
-            </button>
-          )}
+
+            {/* User Profile / Login */}
+            {user ? (
+              <div className="flex items-center gap-2">
+                {user.role === 'admin' && (
+                  <button
+                    onClick={() => setShowAdmin(!showAdmin)}
+                    className={`p-2 rounded-2xl text-xs font-semibold transition-all ${
+                      showAdmin 
+                        ? 'bg-[#0071E3] text-white shadow-[0_4px_12px_rgba(0,113,227,0.35)]' 
+                        : 'text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-white bg-black/[0.04] dark:bg-white/[0.06]'
+                    }`}
+                    title="Панель администратора"
+                  >
+                    <Shield size={16} />
+                  </button>
+                )}
+                <div className="hidden sm:flex items-center gap-2 bg-black/[0.04] dark:bg-white/[0.06] px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06]">
+                  <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-[10px] font-bold text-white uppercase">
+                    {user.email[0]}
+                  </div>
+                  <span className="text-xs font-medium text-[#1D1D1F] dark:text-[#F5F5F7] max-w-[110px] truncate">
+                    {user.email.split('@')[0]}
+                  </span>
+                </div>
+                <button
+                  onClick={() => { localStorage.removeItem('flow_token'); setUser(null); }}
+                  className="text-[#86868B] hover:text-rose-500 p-2 rounded-full hover:bg-rose-500/10 transition-colors"
+                  title="Выйти"
+                >
+                  <LogOut size={16} />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => { setAuthModal('login'); setAuthError(''); }}
+                className="text-xs font-semibold tracking-tight bg-[#0071E3] hover:bg-[#0077ED] text-white px-4 py-2 rounded-full transition-all shadow-[0_4px_12px_rgba(0,113,227,0.3)] hover:shadow-[0_6px_18px_rgba(0,113,227,0.4)] active:scale-95"
+              >
+                Войти
+              </button>
+            )}
+          </div>
+
         </div>
       </header>
 
-      {/* ================= ОСНОВНОЙ БЛОК ================= */}
-      <main className="max-w-4xl mx-auto px-6 mt-4 space-y-9">
+      {/* ================= MAIN CONTAINER ================= */}
+      <main className="max-w-4xl mx-auto px-6 mt-8 space-y-8">
 
-        {/* АДМИНКА */}
+        {/* АДМИНИСТРАТИВНАЯ ПАНЕЛЬ (APPLE DASHBOARD STYLE) */}
         {showAdmin && user?.role === 'admin' && (
-          <div className="bg-[#EBE4D8] dark:bg-[#1C1E22] p-6 rounded-[28px] border border-[#D5CBBF] dark:border-[#2C2E33] space-y-4 shadow-sm animate-in fade-in duration-200">
+          <div className="apple-glass rounded-[32px] p-6 space-y-5 shadow-lg border border-black/[0.06] dark:border-white/[0.08] animate-in fade-in duration-300">
             <div className="flex items-center justify-between">
-              <h3 className="font-bold text-xs tracking-wider uppercase text-[#736E66] dark:text-[#A09B93]">Административная панель</h3>
-              <button onClick={() => setShowAdmin(false)} className="text-slate-400 hover:text-black dark:hover:text-white"><X size={16} /></button>
+              <div className="flex items-center gap-2">
+                <Shield size={16} className="text-[#0071E3]" />
+                <h3 className="font-semibold text-xs tracking-wider uppercase text-[#86868B]">Панель управления системой</h3>
+              </div>
+              <button onClick={() => setShowAdmin(false)} className="text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-white p-1 rounded-full"><X size={16} /></button>
             </div>
             {adminStats && (
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="bg-white dark:bg-[#25282D] p-4 rounded-2xl border border-[#DED4C5] dark:border-transparent shadow-sm">
-                  <span className="text-[10px] font-bold text-[#8A847B] uppercase">Пользователи</span>
-                  <p className="text-2xl font-black mt-0.5">{adminStats.total_users}</p>
+                <div className="bg-white/80 dark:bg-white/[0.04] p-5 rounded-[22px] border border-black/[0.04] dark:border-white/[0.06] shadow-sm">
+                  <span className="text-[11px] font-semibold text-[#86868B] uppercase tracking-wider">Всего пользователей</span>
+                  <p className="text-3xl font-extrabold mt-1 tracking-tight">{adminStats.total_users}</p>
                 </div>
-                <div className="bg-white dark:bg-[#25282D] p-4 rounded-2xl border border-[#DED4C5] dark:border-transparent shadow-sm">
-                  <span className="text-[10px] font-bold text-[#8A847B] uppercase">Активные</span>
-                  <p className="text-2xl font-black text-emerald-600 mt-0.5">{adminStats.active_users}</p>
+                <div className="bg-white/80 dark:bg-white/[0.04] p-5 rounded-[22px] border border-black/[0.04] dark:border-white/[0.06] shadow-sm">
+                  <span className="text-[11px] font-semibold text-[#86868B] uppercase tracking-wider">Активные аккаунты</span>
+                  <p className="text-3xl font-extrabold mt-1 tracking-tight text-emerald-600 dark:text-emerald-400">{adminStats.active_users}</p>
                 </div>
-                <div className="bg-white dark:bg-[#25282D] p-4 rounded-2xl border border-[#DED4C5] dark:border-transparent shadow-sm">
-                  <span className="text-[10px] font-bold text-[#8A847B] uppercase">Слов в базе</span>
-                  <p className="text-2xl font-black text-indigo-600 mt-0.5">{adminStats.total_saved_words}</p>
+                <div className="bg-white/80 dark:bg-white/[0.04] p-5 rounded-[22px] border border-black/[0.04] dark:border-white/[0.06] shadow-sm">
+                  <span className="text-[11px] font-semibold text-[#86868B] uppercase tracking-wider">Сохранено в словаре</span>
+                  <p className="text-3xl font-extrabold mt-1 tracking-tight text-[#0071E3]">{adminStats.total_saved_words}</p>
                 </div>
               </div>
             )}
           </div>
         )}
 
-        {/* ================= СЕКЦИЯ 1: TRANSLATION ================= */}
-        <section className="space-y-3.5">
+        {/* ================= СЕКЦИЯ 1: TRANSLATION (APPLE STYLE) ================= */}
+        <section className="space-y-4">
+          
+          {/* Apple Segmented Language Bar */}
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-[#1C1A17] dark:text-white tracking-tight">
-              Translation
-            </h2>
-
             <div className="flex items-center gap-2">
+              <Languages size={18} className="text-[#0071E3]" />
+              <h2 className="text-lg font-bold tracking-tight text-[#1D1D1F] dark:text-white">
+                Translation
+              </h2>
+            </div>
+
+            {/* Apple Pill Language Switcher */}
+            <div className="flex items-center bg-black/[0.04] dark:bg-white/[0.06] p-1 rounded-2xl border border-black/[0.05] dark:border-white/[0.08] backdrop-blur-md">
               <div className="relative">
                 <select
                   value={sourceLang}
                   onChange={(e) => setSourceLang(e.target.value)}
-                  className="appearance-none bg-[#E7E0D5] dark:bg-[#202227] hover:bg-[#DFD7C9] text-xs font-semibold px-4 py-1.5 rounded-xl border border-[#D3C8B9] dark:border-[#2C2F36] cursor-pointer transition-colors pr-6 focus:outline-none"
+                  className="appearance-none bg-transparent hover:bg-black/[0.04] dark:hover:bg-white/[0.08] text-xs font-semibold px-3 py-1.5 rounded-xl cursor-pointer transition-colors pr-6 focus:outline-none text-[#1D1D1F] dark:text-white"
                 >
-                  {LANGUAGES.map(l => <option key={l.code} value={l.code}>[ {l.label} ]</option>)}
+                  {LANGUAGES.map(l => <option key={l.code} value={l.code} className="dark:bg-[#1C1C1E]">{l.flag} {l.label}</option>)}
                 </select>
-                <span className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[8px] text-[#8A847B]">▼</span>
+                <span className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-[9px] text-[#86868B]">▾</span>
               </div>
 
               <button
                 onClick={swapLanguages}
-                className="p-1.5 text-[#736E66] dark:text-[#9A968F] hover:text-[#1C1A17] dark:hover:text-white transition-colors"
+                className={`p-2 rounded-xl text-[#86868B] hover:text-[#0071E3] hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all ${isSwapping ? 'rotate-180 scale-90' : ''}`}
                 title="Поменять языки местами"
               >
                 <ArrowRightLeft size={14} />
@@ -503,109 +535,177 @@ export default function App() {
                 <select
                   value={targetLang}
                   onChange={(e) => setTargetLang(e.target.value)}
-                  className="appearance-none bg-[#E7E0D5] dark:bg-[#202227] hover:bg-[#DFD7C9] text-xs font-semibold px-4 py-1.5 rounded-xl border border-[#D3C8B9] dark:border-[#2C2F36] cursor-pointer transition-colors pr-6 focus:outline-none"
+                  className="appearance-none bg-transparent hover:bg-black/[0.04] dark:hover:bg-white/[0.08] text-xs font-semibold px-3 py-1.5 rounded-xl cursor-pointer transition-colors pr-6 focus:outline-none text-[#1D1D1F] dark:text-white"
                 >
-                  {LANGUAGES.map(l => <option key={l.code} value={l.code}>[ {l.label} ]</option>)}
+                  {LANGUAGES.map(l => <option key={l.code} value={l.code} className="dark:bg-[#1C1C1E]">{l.flag} {l.label}</option>)}
                 </select>
-                <span className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[8px] text-[#8A847B]">▼</span>
+                <span className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-[9px] text-[#86868B]">▾</span>
               </div>
             </div>
           </div>
 
+          {/* Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Левая карточка: Ввод */}
-            <div className="bg-white dark:bg-[#1E2024] rounded-[28px] p-6 min-h-[175px] shadow-[0_10px_35px_-5px_rgba(0,0,0,0.05)] border border-[#E5DDD0] dark:border-[#2C2F36] flex flex-col justify-between">
+            
+            {/* Source Card (Apple Frosted Glass) */}
+            <div className="apple-glass apple-card-glow rounded-[32px] p-6 min-h-[220px] flex flex-col justify-between transition-all duration-300 hover:shadow-2xl focus-within:ring-2 focus-within:ring-[#0071E3]/30">
               <div>
+                <div className="flex items-center justify-between pb-3 mb-2 border-b border-black/[0.04] dark:border-white/[0.06]">
+                  <span className="text-[11px] font-semibold text-[#86868B] uppercase tracking-wider flex items-center gap-1.5">
+                    {activeSourceLang.flag} {activeSourceLang.label}
+                  </span>
+                  {sourceText && (
+                    <button 
+                      onClick={() => setSourceText('')}
+                      className="text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-white p-1 rounded-full hover:bg-black/[0.05] dark:hover:bg-white/[0.08] transition-colors"
+                      title="Очистить"
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
+                </div>
+
                 <textarea
                   value={sourceText}
                   onChange={(e) => setSourceText(e.target.value)}
-                  placeholder="Text to Translate"
-                  rows={2}
-                  className="w-full text-3xl font-extrabold bg-transparent border-none resize-none focus:outline-none placeholder-[#B8B0A3] dark:placeholder-[#555861] leading-snug"
+                  placeholder="Введите текст для перевода..."
+                  rows={3}
+                  className="w-full text-2xl sm:text-3xl font-bold bg-transparent border-none resize-none focus:outline-none placeholder-[#A1A1A6] dark:placeholder-[#48484A] leading-snug tracking-tight text-[#1D1D1F] dark:text-white"
                 />
-                <span className="text-xs text-[#999285] dark:text-[#787A80] block mt-1 font-medium">
-                  Text to Translate
-                </span>
               </div>
 
-              <div className="flex items-center justify-between pt-3 border-t border-[#F5EFE4] dark:border-[#25282E]">
-                <span className="text-[10px] text-[#AAA396] dark:text-[#65676B] font-medium">
-                  {isTranslating ? 'Translating...' : 'Auto-translate active'}
-                </span>
+              <div className="flex items-center justify-between pt-4 border-t border-black/[0.04] dark:border-white/[0.06]">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => speak(sourceText, sourceLang, false)}
+                    disabled={!sourceText.trim()}
+                    className={`p-2 rounded-2xl transition-all duration-200 ${
+                      isSpeakingSource
+                        ? 'bg-[#0071E3] text-white shadow-md animate-pulse'
+                        : 'text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] disabled:opacity-20'
+                    }`}
+                    title="Озвучить оригинал"
+                  >
+                    <Volume2 size={18} />
+                  </button>
+                  <span className="text-[11px] font-medium text-[#86868B]">
+                    {sourceText.length} символов
+                  </span>
+                </div>
 
-                <button
-                  onClick={() => speak(sourceText, sourceLang)}
-                  disabled={!sourceText.trim()}
-                  className="text-[#999285] hover:text-[#1E1B18] dark:hover:text-white disabled:opacity-20 transition-colors p-1"
-                  title="Озвучить оригинал"
-                >
-                  <Volume2 size={20} />
-                </button>
+                <span className="text-[11px] font-semibold text-[#86868B] flex items-center gap-1.5">
+                  {isTranslating ? (
+                    <span className="flex items-center gap-1.5 text-[#0071E3]">
+                      <RefreshCw size={12} className="animate-spin" />
+                      Обработка...
+                    </span>
+                  ) : (
+                    <span className="text-[#86868B]/70">Авто-перевод</span>
+                  )}
+                </span>
               </div>
             </div>
 
-            {/* Правая карточка: Перевод */}
-            <div className="bg-[#ECE4D8] dark:bg-[#23262B] rounded-[28px] p-6 min-h-[175px] border border-[#DDD3C4] dark:border-[#2E3138] flex flex-col justify-between shadow-[0_8px_30px_-5px_rgba(0,0,0,0.04)]">
+            {/* Target Card (Apple Frosted Glass with Aurora Rim) */}
+            <div className="apple-glass apple-card-glow rounded-[32px] p-6 min-h-[220px] flex flex-col justify-between transition-all duration-300 hover:shadow-2xl relative overflow-hidden">
+              
+              {/* Apple Intelligence Shimmer bar on translation */}
+              {isTranslating && (
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#0071E3] to-purple-500 animate-shimmer" />
+              )}
+
               <div>
+                <div className="flex items-center justify-between pb-3 mb-2 border-b border-black/[0.04] dark:border-white/[0.06]">
+                  <span className="text-[11px] font-semibold text-[#86868B] uppercase tracking-wider flex items-center gap-1.5">
+                    {activeTargetLang.flag} {activeTargetLang.label}
+                  </span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#0071E3]/10 text-[#0071E3] uppercase tracking-wider">
+                    Результат
+                  </span>
+                </div>
+
                 {isTranslating ? (
-                  <div className="flex items-center gap-2 text-[#8A847B] py-1 font-medium text-sm">
-                    <RefreshCw size={16} className="animate-spin text-indigo-500" />
-                    <span>Переводим...</span>
+                  <div className="flex items-center gap-3 py-6 text-[#86868B]">
+                    <div className="w-5 h-5 rounded-full border-2 border-[#0071E3] border-t-transparent animate-spin" />
+                    <span className="text-lg font-medium text-[#86868B]">Переводим с MyMemory...</span>
                   </div>
                 ) : (
-                  <h3 className="text-3xl font-extrabold text-[#1C1A17] dark:text-white select-text leading-snug break-words">
-                    {translatedText || <span className="text-[#AEA596] dark:text-[#555861]">Перевод</span>}
+                  <h3 className="text-2xl sm:text-3xl font-bold text-[#1D1D1F] dark:text-white select-text leading-snug tracking-tight break-words">
+                    {translatedText || <span className="text-[#A1A1A6] dark:text-[#48484A] font-normal">Перевод</span>}
                   </h3>
                 )}
               </div>
 
-              <div className="flex items-center justify-between pt-3 border-t border-[#DFD5C5] dark:border-[#2B2E35]">
+              <div className="flex items-center justify-between pt-4 border-t border-black/[0.04] dark:border-white/[0.06]">
                 <div className="flex items-center gap-1.5">
                   <button
-                    onClick={() => speak(translatedText, targetLang)}
+                    onClick={() => speak(translatedText, targetLang, true)}
                     disabled={!translatedText}
-                    className="text-[#999285] hover:text-[#1E1B18] dark:hover:text-white disabled:opacity-20 transition-colors p-1"
+                    className={`p-2 rounded-2xl transition-all duration-200 ${
+                      isSpeakingTarget
+                        ? 'bg-[#0071E3] text-white shadow-md animate-pulse'
+                        : 'text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] disabled:opacity-20'
+                    }`}
                     title="Озвучить перевод"
                   >
-                    <Volume2 size={20} />
+                    <Volume2 size={18} />
                   </button>
                   <button
                     onClick={copyTranslation}
                     disabled={!translatedText}
-                    className="text-[#999285] hover:text-[#1E1B18] dark:hover:text-white disabled:opacity-20 transition-colors p-1"
+                    className="p-2 rounded-2xl text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] disabled:opacity-20 transition-all active:scale-90"
                     title="Скопировать"
                   >
                     {copied ? <Check size={18} className="text-emerald-500" /> : <Copy size={18} />}
                   </button>
+                  {copied && (
+                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 animate-in fade-in">
+                      Скопировано
+                    </span>
+                  )}
                 </div>
 
                 <button
                   onClick={toggleFavorite}
                   disabled={!translatedText}
-                  className={`p-1.5 rounded-full transition-all active:scale-90 ${
-                    isInDictionary ? 'text-amber-500 hover:scale-110' : 'text-[#999285] hover:text-amber-500'
+                  className={`p-2.5 rounded-full transition-all active:scale-90 ${
+                    isInDictionary 
+                      ? 'text-amber-500 bg-amber-500/10 shadow-sm scale-105' 
+                      : 'text-[#86868B] hover:text-amber-500 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]'
                   }`}
                   title={isInDictionary ? "Удалить из Favorites" : "Сохранить в Favorites"}
                 >
-                  <Star size={22} fill={isInDictionary ? "currentColor" : "none"} />
+                  <Star size={20} fill={isInDictionary ? "currentColor" : "none"} />
                 </button>
               </div>
             </div>
+
           </div>
         </section>
 
-        {/* ================= СЕКЦИЯ 2: FAVORITES ================= */}
-        <section className="space-y-3.5">
+        {/* ================= СЕКЦИЯ 2: FAVORITES (APPLE NOTES STYLE) ================= */}
+        <section className="space-y-4 pt-2">
+          
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-[#1C1A17] dark:text-white tracking-tight">
-              Favorites
-            </h2>
+            <div className="flex items-center gap-2.5">
+              <Star size={18} className="text-amber-500" fill="currentColor" />
+              <h2 className="text-lg font-bold tracking-tight text-[#1D1D1F] dark:text-white">
+                Favorites
+              </h2>
+              {totalEntries > 0 && (
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-[#86868B]">
+                  {totalEntries}
+                </span>
+              )}
+            </div>
 
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowSearch(!showSearch)}
-                className={`p-1.5 rounded-xl text-xs font-semibold transition-colors ${
-                  showSearch ? 'bg-[#DDD3C4] text-black' : 'text-[#8A847B] hover:text-black dark:hover:text-white'
+                className={`p-2 rounded-2xl text-xs font-semibold transition-all ${
+                  showSearch 
+                    ? 'bg-[#0071E3] text-white shadow-sm' 
+                    : 'text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-white bg-black/[0.04] dark:bg-white/[0.06]'
                 }`}
                 title="Поиск"
               >
@@ -613,86 +713,102 @@ export default function App() {
               </button>
 
               {categories.length > 0 && (
-                <select
-                  value={filterCat}
-                  onChange={(e) => { setFilterCat(e.target.value); setPage(1); }}
-                  className="bg-[#E7E0D5] dark:bg-[#202227] text-xs font-semibold px-3 py-1 rounded-xl border border-[#D3C8B9] dark:border-[#2C2F36] focus:outline-none"
-                >
-                  <option value="">Все теги</option>
-                  {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
+                <div className="relative">
+                  <select
+                    value={filterCat}
+                    onChange={(e) => { setFilterCat(e.target.value); setPage(1); }}
+                    className="appearance-none bg-black/[0.04] dark:bg-white/[0.06] text-xs font-semibold px-3.5 py-2 rounded-2xl border border-black/[0.04] dark:border-white/[0.06] focus:outline-none cursor-pointer pr-6 text-[#1D1D1F] dark:text-white"
+                  >
+                    <option value="" className="dark:bg-[#1C1C1E]">Все теги</option>
+                    {categories.map(c => <option key={c.id} value={c.id} className="dark:bg-[#1C1C1E]">{c.name}</option>)}
+                  </select>
+                  <span className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[8px] text-[#86868B]">▼</span>
+                </div>
               )}
 
               <button
                 onClick={() => setNewCatModal(true)}
-                className="text-xs font-bold text-[#736E66] dark:text-[#9A968F] hover:text-black dark:hover:text-white px-2.5 py-1 rounded-lg transition-colors whitespace-nowrap"
+                className="text-xs font-semibold text-[#0071E3] hover:text-[#0077ED] bg-[#0071E3]/10 hover:bg-[#0071E3]/15 px-3 py-2 rounded-2xl transition-all whitespace-nowrap"
               >
                 + Тег
               </button>
             </div>
           </div>
 
+          {/* Search Input */}
           {showSearch && (
-            <input
-              type="text"
-              placeholder="Поиск по сохраненным словам..."
-              value={search}
-              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-              className="w-full px-4 py-2.5 bg-white dark:bg-[#1E2024] border border-[#D8CEBF] dark:border-[#2C2F36] rounded-2xl text-sm focus:outline-none shadow-sm"
-            />
+            <div className="relative animate-in fade-in duration-200">
+              <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#86868B]" />
+              <input
+                type="text"
+                placeholder="Поиск по сохраненным словам..."
+                value={search}
+                onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                className="w-full pl-11 pr-4 py-3 bg-white/80 dark:bg-white/[0.06] backdrop-blur-xl border border-black/[0.06] dark:border-white/[0.08] rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0071E3]/40 shadow-sm"
+              />
+            </div>
           )}
 
-          <div className="bg-[#ECE4D8] dark:bg-[#1E2024] rounded-[28px] p-3 sm:p-3.5 border border-[#DDD3C4] dark:border-[#2C2F36] space-y-2 shadow-[0_8px_30px_-5px_rgba(0,0,0,0.03)]">
+          {/* Favorites List Card */}
+          <div className="apple-glass rounded-[32px] p-3 sm:p-4 space-y-2.5 shadow-md border border-black/[0.05] dark:border-white/[0.08]">
             {entries.length === 0 ? (
-              <div className="py-10 text-center text-xs font-medium text-[#999285]">
-                {user ? "Нет сохраненных слов в Favorites. Нажмите звездочку на карточке перевода!" : "Войдите в аккаунт, чтобы сохранять слова в Favorites"}
+              <div className="py-14 text-center space-y-2">
+                <div className="w-12 h-12 rounded-full bg-black/[0.04] dark:bg-white/[0.06] flex items-center justify-center mx-auto text-[#86868B]">
+                  <Star size={22} />
+                </div>
+                <p className="text-sm font-semibold text-[#1D1D1F] dark:text-white">
+                  {user ? "Нет слов в Favorites" : "Войдите в аккаунт"}
+                </p>
+                <p className="text-xs text-[#86868B] max-w-xs mx-auto">
+                  {user ? "Нажмите звездочку на карточке перевода, чтобы сохранить слово в свой личный словарь." : "Авторизуйтесь, чтобы синхронизировать карточки между устройствами."}
+                </p>
               </div>
             ) : (
               entries.map((item) => (
                 <div
                   key={item.id}
-                  className="bg-white dark:bg-[#25282D] px-6 py-4 rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex items-center justify-between gap-3 group hover:shadow-[0_4px_16px_rgba(0,0,0,0.05)] transition-all border border-[#EAE1D3]/70 dark:border-transparent"
+                  className="bg-white/90 dark:bg-white/[0.04] hover:bg-white dark:hover:bg-white/[0.07] px-5 py-3.5 rounded-2xl shadow-sm hover:shadow-md flex items-center justify-between gap-3 group transition-all duration-200 border border-black/[0.03] dark:border-white/[0.04]"
                 >
                   <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <span className="font-bold text-base text-[#1C1A17] dark:text-white truncate">
+                    <span className="font-bold text-base text-[#1D1D1F] dark:text-white truncate tracking-tight">
                       {item.source_text}
                     </span>
-                    <span className="text-[#8A847B] font-light flex-shrink-0">→</span>
-                    <span className="font-semibold text-base text-[#1C1A17] dark:text-white truncate">
+                    <span className="text-[#86868B] font-light flex-shrink-0">→</span>
+                    <span className="font-semibold text-base text-[#1D1D1F] dark:text-white truncate tracking-tight">
                       {item.translated_text}
                     </span>
 
                     {item.category_name && (
                       <span
-                        className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white flex-shrink-0"
-                        style={{ backgroundColor: item.category_color || '#6366F1' }}
+                        className="text-[10px] font-bold px-2.5 py-0.5 rounded-full text-white flex-shrink-0 shadow-sm"
+                        style={{ backgroundColor: item.category_color || '#0071E3' }}
                       >
                         {item.category_name}
                       </span>
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2 flex-shrink-0">
+                  <div className="flex items-center gap-1 flex-shrink-0">
                     <button
-                      onClick={() => speak(item.translated_text, item.target_lang)}
-                      className="text-[#999285] hover:text-black dark:hover:text-white p-1 transition-colors"
+                      onClick={() => speak(item.translated_text, item.target_lang, true)}
+                      className="text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-white p-2 rounded-xl hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors"
                       title="Озвучить"
                     >
                       <Volume2 size={16} />
                     </button>
                     <button
                       onClick={() => setEditingEntry(item)}
-                      className="text-[#999285] hover:text-indigo-600 p-1 opacity-60 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
+                      className="text-[#86868B] hover:text-[#0071E3] p-2 rounded-xl hover:bg-black/[0.04] dark:hover:bg-white/[0.06] opacity-70 sm:opacity-0 sm:group-hover:opacity-100 transition-all"
                       title="Редактировать"
                     >
                       <Edit3 size={15} />
                     </button>
                     <button
                       onClick={() => deleteFavorite(item.id)}
-                      className="text-amber-500 hover:text-rose-500 p-1 transition-colors"
+                      className="text-amber-500 hover:text-rose-500 p-2 rounded-xl hover:bg-rose-500/10 transition-colors"
                       title="Удалить из Favorites"
                     >
-                      <Star size={18} fill="currentColor" />
+                      <Star size={17} fill="currentColor" />
                     </button>
                   </div>
                 </div>
@@ -700,10 +816,10 @@ export default function App() {
             )}
 
             {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-3 py-2 text-xs font-semibold text-[#8A847B]">
-                <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="hover:text-black dark:hover:text-white disabled:opacity-30">← Назад</button>
-                <span>{page} / {totalPages}</span>
-                <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} className="hover:text-black dark:hover:text-white disabled:opacity-30">Вперед →</button>
+              <div className="flex items-center justify-center gap-4 py-3 text-xs font-semibold text-[#86868B] border-t border-black/[0.04] dark:border-white/[0.06]">
+                <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="hover:text-[#0071E3] disabled:opacity-20 px-2 py-1 transition-colors">← Назад</button>
+                <span className="bg-black/[0.04] dark:bg-white/[0.06] px-3 py-1 rounded-full">{page} из {totalPages}</span>
+                <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} className="hover:text-[#0071E3] disabled:opacity-20 px-2 py-1 transition-colors">Вперед →</button>
               </div>
             )}
 
@@ -712,116 +828,127 @@ export default function App() {
                 if (!user) { setAuthModal('login'); return; }
                 setManualModal(true);
               }}
-              className="w-full py-2.5 text-center text-xs font-bold text-[#6B665E] dark:text-[#9A968F] hover:text-[#1C1A17] dark:hover:text-white transition-colors"
+              className="w-full py-3 text-center text-xs font-semibold text-[#86868B] hover:text-[#0071E3] hover:bg-black/[0.02] dark:hover:bg-white/[0.02] rounded-2xl transition-all flex items-center justify-center gap-1.5"
             >
-              Add manual entry
+              <PlusCircle size={14} />
+              Добавить слово вручную
             </button>
           </div>
         </section>
 
       </main>
 
-      {/* ================= МОДАЛЬНЫЕ ОКНА ================= */}
+      {/* ================= APPLE SHEETS (MODALS) ================= */}
 
-      {/* Модалка логина / регистрации / Google Authenticator */}
+      {/* Auth Modal */}
       {authModal && (
-        <div className="fixed inset-0 z-50 bg-black/45 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#FAF7F2] dark:bg-[#1A1C1F] rounded-3xl p-6 w-full max-w-sm border border-[#D5CBBF] dark:border-[#2C2F36] shadow-2xl relative">
-            <button onClick={() => setAuthModal(null)} className="absolute right-4 top-4 text-[#8A847B] hover:text-black"><X size={18} /></button>
-            <h3 className="text-lg font-bold mb-3">
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="apple-glass rounded-[32px] p-7 w-full max-w-sm border border-black/10 dark:border-white/10 shadow-[0_30px_90px_rgba(0,0,0,0.3)] relative">
+            <button onClick={() => setAuthModal(null)} className="absolute right-5 top-5 text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-white p-1 rounded-full"><X size={18} /></button>
+            
+            <h3 className="text-xl font-bold tracking-tight mb-1 text-[#1D1D1F] dark:text-white">
               {authModal === 'login' ? 'Вход в аккаунт' : authModal === 'register' ? 'Регистрация' : 'Двухфакторная защита'}
             </h3>
+            <p className="text-xs text-[#86868B] mb-5">
+              {authModal === 'login' ? 'Войдите для доступа к персональному словарю' : authModal === 'register' ? 'Создайте аккаунт Flow Translate' : 'Подтвердите вход через Google Authenticator'}
+            </p>
 
-            {authError && <div className="p-2.5 mb-3 rounded-xl bg-rose-50 text-rose-600 text-xs font-semibold">{authError}</div>}
-            {authSuccess && <div className="p-2.5 mb-3 rounded-xl bg-emerald-50 text-emerald-600 text-xs font-semibold">{authSuccess}</div>}
+            {authError && <div className="p-3 mb-4 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 text-xs font-semibold border border-rose-500/20">{authError}</div>}
+            {authSuccess && <div className="p-3 mb-4 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-semibold border border-emerald-500/20">{authSuccess}</div>}
 
-            <form onSubmit={handleAuth} className="space-y-3">
+            <form onSubmit={handleAuth} className="space-y-3.5">
               {authModal !== 'verify' && (
                 <div>
-                  <label className="text-[10px] font-bold text-[#8A847B] uppercase">Email</label>
-                  <input type="email" required value={authEmail} onChange={e => setAuthEmail(e.target.value)} className="w-full mt-1 p-2.5 bg-white dark:bg-[#25282D] rounded-xl text-sm border border-[#D5CBBF] dark:border-[#33363D] focus:outline-none" placeholder="user@gmail.com" />
+                  <label className="text-[11px] font-semibold text-[#86868B] uppercase tracking-wider block mb-1">Email</label>
+                  <div className="relative">
+                    <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#86868B]" />
+                    <input type="email" required value={authEmail} onChange={e => setAuthEmail(e.target.value)} className="w-full pl-10 pr-3.5 py-2.5 bg-black/[0.04] dark:bg-white/[0.06] rounded-2xl text-sm border border-transparent focus:border-[#0071E3] focus:bg-white dark:focus:bg-[#1C1C1E] focus:outline-none transition-all text-[#1D1D1F] dark:text-white" placeholder="user@gmail.com" />
+                  </div>
                 </div>
               )}
               {authModal !== 'verify' && (
                 <div>
-                  <label className="text-[10px] font-bold text-[#8A847B] uppercase">Пароль (мин. 8 знаков, цифра, заглавная)</label>
-                  <input type="password" required value={authPassword} onChange={e => setAuthPassword(e.target.value)} className="w-full mt-1 p-2.5 bg-white dark:bg-[#25282D] rounded-xl text-sm border border-[#D5CBBF] dark:border-[#33363D] focus:outline-none" placeholder="••••••••" />
+                  <label className="text-[11px] font-semibold text-[#86868B] uppercase tracking-wider block mb-1">Пароль (мин. 8 знаков, цифра, заглавная)</label>
+                  <div className="relative">
+                    <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#86868B]" />
+                    <input type="password" required value={authPassword} onChange={e => setAuthPassword(e.target.value)} className="w-full pl-10 pr-3.5 py-2.5 bg-black/[0.04] dark:bg-white/[0.06] rounded-2xl text-sm border border-transparent focus:border-[#0071E3] focus:bg-white dark:focus:bg-[#1C1C1E] focus:outline-none transition-all text-[#1D1D1F] dark:text-white" placeholder="••••••••" />
+                  </div>
                 </div>
               )}
               {authModal === 'register' && (
                 <div>
-                  <label className="text-[10px] font-bold text-[#8A847B] uppercase">Повтор пароля</label>
-                  <input type="password" required value={authPasswordConfirm} onChange={e => setAuthPasswordConfirm(e.target.value)} className="w-full mt-1 p-2.5 bg-white dark:bg-[#25282D] rounded-xl text-sm border border-[#D5CBBF] dark:border-[#33363D] focus:outline-none" placeholder="••••••••" />
+                  <label className="text-[11px] font-semibold text-[#86868B] uppercase tracking-wider block mb-1">Повтор пароля</label>
+                  <div className="relative">
+                    <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#86868B]" />
+                    <input type="password" required value={authPasswordConfirm} onChange={e => setAuthPasswordConfirm(e.target.value)} className="w-full pl-10 pr-3.5 py-2.5 bg-black/[0.04] dark:bg-white/[0.06] rounded-2xl text-sm border border-transparent focus:border-[#0071E3] focus:bg-white dark:focus:bg-[#1C1C1E] focus:outline-none transition-all text-[#1D1D1F] dark:text-white" placeholder="••••••••" />
+                  </div>
                 </div>
               )}
 
-              {/* ПОКАЗ QR-КОДА ДЛЯ GOOGLE AUTHENTICATOR */}
+              {/* QR-CODE MODAL */}
               {authModal === 'verify' && (
-                <div className="space-y-3 text-center">
+                <div className="space-y-3.5 text-center">
                   {qrCodeUrl && (
-                    <div className="bg-white p-3 rounded-2xl inline-block border border-[#D5CBBF] shadow-sm">
-                      <img src={qrCodeUrl} alt="QR Code Google Authenticator" className="w-44 h-44 mx-auto" />
+                    <div className="bg-white p-4 rounded-3xl inline-block border border-black/[0.06] shadow-md">
+                      <img src={qrCodeUrl} alt="QR Code" className="w-44 h-44 mx-auto rounded-xl" />
                     </div>
                   )}
-                  <div className="text-xs text-[#736E66] dark:text-[#A09B93] leading-relaxed">
-                    Отсканируйте QR-код в <b>Google Authenticator</b> на смартфоне и введите 6-значный код:
-                  </div>
+                  <p className="text-xs text-[#86868B] leading-relaxed">
+                    Отсканируйте код в приложении <b>Google Authenticator</b> и введите 6-значный код:
+                  </p>
                   <div>
-                    <label className="text-[10px] font-bold text-[#8A847B] uppercase block text-left mb-1">
-                      Код из приложения (6 цифр):
-                    </label>
                     <input 
                       type="text" 
                       maxLength={6} 
                       required 
                       value={verifyCode} 
                       onChange={e => setVerifyCode(e.target.value)} 
-                      className="w-full p-3 bg-white dark:bg-[#25282D] rounded-xl text-center font-bold text-2xl tracking-widest border border-[#D5CBBF] dark:border-[#33363D] focus:outline-none" 
+                      className="w-full py-3 bg-black/[0.04] dark:bg-white/[0.06] rounded-2xl text-center font-bold text-2xl tracking-[0.4em] border border-transparent focus:border-[#0071E3] focus:outline-none text-[#1D1D1F] dark:text-white" 
                       placeholder="000000" 
                     />
                   </div>
                 </div>
               )}
 
-              <button type="submit" className="w-full bg-[#1C1A17] text-white dark:bg-white dark:text-black font-bold py-2.5 rounded-xl text-sm transition-opacity hover:opacity-90 mt-2 shadow-sm">
+              <button type="submit" className="w-full bg-[#0071E3] hover:bg-[#0077ED] text-white font-semibold py-3 rounded-2xl text-sm transition-all shadow-[0_4px_14px_rgba(0,113,227,0.35)] active:scale-[0.98] mt-3">
                 {authModal === 'login' ? 'Войти' : authModal === 'register' ? 'Создать аккаунт' : 'Подтвердить и войти'}
               </button>
             </form>
 
-            <div className="mt-3 text-center text-xs text-[#8A847B]">
+            <div className="mt-4 text-center text-xs text-[#86868B]">
               {authModal === 'login' ? (
-                <span>Нет аккаунта? <button onClick={() => { setAuthModal('register'); setAuthError(''); }} className="font-bold underline text-[#1C1A17] dark:text-white">Регистрация</button></span>
+                <span>Нет аккаунта? <button onClick={() => { setAuthModal('register'); setAuthError(''); }} className="font-semibold text-[#0071E3] hover:underline">Регистрация</button></span>
               ) : authModal === 'register' ? (
-                <span>Уже зарегистрированы? <button onClick={() => { setAuthModal('login'); setAuthError(''); }} className="font-bold underline text-[#1C1A17] dark:text-white">Войти</button></span>
+                <span>Уже есть аккаунт? <button onClick={() => { setAuthModal('login'); setAuthError(''); }} className="font-semibold text-[#0071E3] hover:underline">Войти</button></span>
               ) : null}
             </div>
           </div>
         </div>
       )}
 
-      {/* Модалка Add manual entry */}
+      {/* Manual Entry Modal */}
       {manualModal && (
-        <div className="fixed inset-0 z-50 bg-black/45 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#FAF7F2] dark:bg-[#1A1C1F] rounded-3xl p-6 w-full max-w-sm border border-[#D5CBBF] dark:border-[#2C2F36] shadow-xl relative">
-            <button onClick={() => setManualModal(false)} className="absolute right-4 top-4 text-[#8A847B]"><X size={18} /></button>
-            <h3 className="text-base font-bold mb-3">Добавить карточку в Favorites</h3>
-            <form onSubmit={handleManualAdd} className="space-y-3">
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="apple-glass rounded-[32px] p-7 w-full max-w-sm border border-black/10 dark:border-white/10 shadow-2xl relative">
+            <button onClick={() => setManualModal(false)} className="absolute right-5 top-5 text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-white p-1 rounded-full"><X size={18} /></button>
+            <h3 className="text-lg font-bold tracking-tight mb-4 text-[#1D1D1F] dark:text-white">Новая карточка словаря</h3>
+            <form onSubmit={handleManualAdd} className="space-y-3.5">
               <div>
-                <label className="text-[10px] font-bold text-[#8A847B] uppercase">Слово / Оригинал</label>
-                <input type="text" required value={manualForm.source_text} onChange={e => setManualForm({...manualForm, source_text: e.target.value})} className="w-full mt-1 p-2 bg-white dark:bg-[#25282D] rounded-xl text-sm border border-[#D5CBBF] focus:outline-none" />
+                <label className="text-[11px] font-semibold text-[#86868B] uppercase tracking-wider block mb-1">Слово / Оригинал</label>
+                <input type="text" required value={manualForm.source_text} onChange={e => setManualForm({...manualForm, source_text: e.target.value})} className="w-full px-3.5 py-2.5 bg-black/[0.04] dark:bg-white/[0.06] rounded-2xl text-sm border border-transparent focus:border-[#0071E3] focus:outline-none text-[#1D1D1F] dark:text-white" />
               </div>
               <div>
-                <label className="text-[10px] font-bold text-[#8A847B] uppercase">Перевод</label>
-                <input type="text" required value={manualForm.translated_text} onChange={e => setManualForm({...manualForm, translated_text: e.target.value})} className="w-full mt-1 p-2 bg-white dark:bg-[#25282D] rounded-xl text-sm border border-[#D5CBBF] focus:outline-none" />
+                <label className="text-[11px] font-semibold text-[#86868B] uppercase tracking-wider block mb-1">Перевод</label>
+                <input type="text" required value={manualForm.translated_text} onChange={e => setManualForm({...manualForm, translated_text: e.target.value})} className="w-full px-3.5 py-2.5 bg-black/[0.04] dark:bg-white/[0.06] rounded-2xl text-sm border border-transparent focus:border-[#0071E3] focus:outline-none text-[#1D1D1F] dark:text-white" />
               </div>
               <div>
-                <label className="text-[10px] font-bold text-[#8A847B] uppercase">Категория</label>
-                <select value={manualForm.category_id} onChange={e => setManualForm({...manualForm, category_id: e.target.value})} className="w-full mt-1 p-2 bg-white dark:bg-[#25282D] rounded-xl text-sm border border-[#D5CBBF] focus:outline-none">
-                  <option value="">Без категории</option>
-                  {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                <label className="text-[11px] font-semibold text-[#86868B] uppercase tracking-wider block mb-1">Категория</label>
+                <select value={manualForm.category_id} onChange={e => setManualForm({...manualForm, category_id: e.target.value})} className="w-full px-3.5 py-2.5 bg-black/[0.04] dark:bg-white/[0.06] rounded-2xl text-sm border border-transparent focus:border-[#0071E3] focus:outline-none text-[#1D1D1F] dark:text-white">
+                  <option value="" className="dark:bg-[#1C1C1E]">Без категории</option>
+                  {categories.map(c => <option key={c.id} value={c.id} className="dark:bg-[#1C1C1E]">{c.name}</option>)}
                 </select>
               </div>
-              <button type="submit" className="w-full bg-[#1C1A17] text-white dark:bg-white dark:text-black font-bold py-2.5 rounded-xl text-sm mt-2 shadow-sm">
+              <button type="submit" className="w-full bg-[#0071E3] hover:bg-[#0077ED] text-white font-semibold py-3 rounded-2xl text-sm transition-all shadow-md active:scale-[0.98] mt-2">
                 Сохранить в Favorites
               </button>
             </form>
@@ -829,19 +956,19 @@ export default function App() {
         </div>
       )}
 
-      {/* Модалка создания категории */}
+      {/* New Category Modal */}
       {newCatModal && (
-        <div className="fixed inset-0 z-50 bg-black/45 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#FAF7F2] dark:bg-[#1A1C1F] rounded-3xl p-6 w-full max-w-xs border border-[#D5CBBF] dark:border-[#2C2F36] shadow-xl relative">
-            <button onClick={() => setNewCatModal(false)} className="absolute right-4 top-4 text-[#8A847B]"><X size={18} /></button>
-            <h3 className="text-base font-bold mb-3">Новый тег</h3>
-            <form onSubmit={handleCreateCategory} className="space-y-3">
-              <input type="text" required placeholder="Например: Работа" value={newCatName} onChange={e => setNewCatName(e.target.value)} className="w-full p-2 bg-white dark:bg-[#25282D] rounded-xl text-sm border border-[#D5CBBF] focus:outline-none" />
-              <div className="flex items-center gap-2">
-                <input type="color" value={newCatColor} onChange={e => setNewCatColor(e.target.value)} className="h-8 w-12 border-none bg-transparent cursor-pointer" />
-                <span className="text-xs font-mono text-[#8A847B]">{newCatColor}</span>
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="apple-glass rounded-[32px] p-7 w-full max-w-xs border border-black/10 dark:border-white/10 shadow-2xl relative">
+            <button onClick={() => setNewCatModal(false)} className="absolute right-5 top-5 text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-white p-1 rounded-full"><X size={18} /></button>
+            <h3 className="text-lg font-bold tracking-tight mb-4 text-[#1D1D1F] dark:text-white">Новый тег</h3>
+            <form onSubmit={handleCreateCategory} className="space-y-3.5">
+              <input type="text" required placeholder="Например: Работа" value={newCatName} onChange={e => setNewCatName(e.target.value)} className="w-full px-3.5 py-2.5 bg-black/[0.04] dark:bg-white/[0.06] rounded-2xl text-sm border border-transparent focus:border-[#0071E3] focus:outline-none text-[#1D1D1F] dark:text-white" />
+              <div className="flex items-center gap-3 bg-black/[0.04] dark:bg-white/[0.06] p-2 rounded-2xl">
+                <input type="color" value={newCatColor} onChange={e => setNewCatColor(e.target.value)} className="h-8 w-10 border-none bg-transparent cursor-pointer rounded-lg" />
+                <span className="text-xs font-mono font-semibold text-[#86868B]">{newCatColor}</span>
               </div>
-              <button type="submit" className="w-full bg-[#1C1A17] text-white dark:bg-white dark:text-black font-bold py-2 rounded-xl text-sm shadow-sm">
+              <button type="submit" className="w-full bg-[#0071E3] hover:bg-[#0077ED] text-white font-semibold py-3 rounded-2xl text-sm transition-all shadow-md active:scale-[0.98] mt-2">
                 Создать
               </button>
             </form>
@@ -849,27 +976,27 @@ export default function App() {
         </div>
       )}
 
-      {/* [FIX #7] Модалка редактирования — теперь вызывает handleEditEntry вместо handleManualAdd */}
+      {/* Edit Entry Modal */}
       {editingEntry && (
-        <div className="fixed inset-0 z-50 bg-black/45 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#FAF7F2] dark:bg-[#1A1C1F] rounded-3xl p-6 w-full max-w-sm border border-[#D5CBBF] dark:border-[#2C2F36] shadow-xl relative">
-            <button onClick={() => setEditingEntry(null)} className="absolute right-4 top-4 text-[#8A847B]"><X size={18} /></button>
-            <h3 className="text-base font-bold mb-1">Редактировать</h3>
-            <p className="text-xs text-[#8A847B] mb-3">Оригинал: <span className="font-bold text-[#1C1A17] dark:text-white">{editingEntry.source_text}</span></p>
-            <form onSubmit={handleEditEntry} className="space-y-3">
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="apple-glass rounded-[32px] p-7 w-full max-w-sm border border-black/10 dark:border-white/10 shadow-2xl relative">
+            <button onClick={() => setEditingEntry(null)} className="absolute right-5 top-5 text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-white p-1 rounded-full"><X size={18} /></button>
+            <h3 className="text-lg font-bold tracking-tight mb-1 text-[#1D1D1F] dark:text-white">Редактировать</h3>
+            <p className="text-xs text-[#86868B] mb-4">Оригинал: <span className="font-semibold text-[#1D1D1F] dark:text-white">{editingEntry.source_text}</span></p>
+            <form onSubmit={handleEditEntry} className="space-y-3.5">
               <div>
-                <label className="text-[10px] font-bold text-[#8A847B] uppercase">Перевод</label>
-                <input type="text" required value={editingEntry.translated_text} onChange={e => setEditingEntry({...editingEntry, translated_text: e.target.value})} className="w-full mt-1 p-2 bg-white dark:bg-[#25282D] rounded-xl text-sm border border-[#D5CBBF] focus:outline-none" />
+                <label className="text-[11px] font-semibold text-[#86868B] uppercase tracking-wider block mb-1">Перевод</label>
+                <input type="text" required value={editingEntry.translated_text} onChange={e => setEditingEntry({...editingEntry, translated_text: e.target.value})} className="w-full px-3.5 py-2.5 bg-black/[0.04] dark:bg-white/[0.06] rounded-2xl text-sm border border-transparent focus:border-[#0071E3] focus:outline-none text-[#1D1D1F] dark:text-white" />
               </div>
               <div>
-                <label className="text-[10px] font-bold text-[#8A847B] uppercase">Категория</label>
-                <select value={editingEntry.category_id || ''} onChange={e => setEditingEntry({...editingEntry, category_id: e.target.value || null})} className="w-full mt-1 p-2 bg-white dark:bg-[#25282D] rounded-xl text-sm border border-[#D5CBBF] focus:outline-none">
-                  <option value="">Без категории</option>
-                  {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                <label className="text-[11px] font-semibold text-[#86868B] uppercase tracking-wider block mb-1">Категория</label>
+                <select value={editingEntry.category_id || ''} onChange={e => setEditingEntry({...editingEntry, category_id: e.target.value || null})} className="w-full px-3.5 py-2.5 bg-black/[0.04] dark:bg-white/[0.06] rounded-2xl text-sm border border-transparent focus:border-[#0071E3] focus:outline-none text-[#1D1D1F] dark:text-white">
+                  <option value="" className="dark:bg-[#1C1C1E]">Без категории</option>
+                  {categories.map(c => <option key={c.id} value={c.id} className="dark:bg-[#1C1C1E]">{c.name}</option>)}
                 </select>
               </div>
-              <button type="submit" className="w-full bg-[#1C1A17] text-white dark:bg-white dark:text-black font-bold py-2.5 rounded-xl text-sm shadow-sm">
-                Сохранить
+              <button type="submit" className="w-full bg-[#0071E3] hover:bg-[#0077ED] text-white font-semibold py-3 rounded-2xl text-sm transition-all shadow-md active:scale-[0.98] mt-2">
+                Сохранить изменения
               </button>
             </form>
           </div>
