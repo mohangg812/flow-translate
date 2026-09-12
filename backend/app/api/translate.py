@@ -37,10 +37,11 @@ async def translate_text(
     current_user: Optional[User] = Depends(get_optional_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    translated = await TranslationService.translate(
+    detail_res = await TranslationService.translate_with_details(
         text=payload.text,
         source_lang=payload.source_lang,
-        target_lang=payload.target_lang
+        target_lang=payload.target_lang,
+        tone=payload.tone or "neutral"
     )
 
     is_saved = False
@@ -61,9 +62,12 @@ async def translate_text(
 
     return TranslateResponse(
         source_text=payload.text,
-        translated_text=translated,
+        translated_text=detail_res["translated_text"],
         source_lang=payload.source_lang,
         target_lang=payload.target_lang,
+        tone=detail_res.get("tone", "neutral"),
+        alternatives=detail_res.get("alternatives", []),
+        examples=detail_res.get("examples", []),
         is_saved_in_dictionary=is_saved,
         saved_entry_id=saved_id
     )

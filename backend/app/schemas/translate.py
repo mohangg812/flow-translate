@@ -8,6 +8,7 @@ class TranslateRequest(BaseModel):
     text: str = Field(..., min_length=1, max_length=2000, description="Исходный текст")
     source_lang: str = Field(..., description="Исходный язык (ru, en, de, es)")
     target_lang: str = Field(..., description="Целевой язык (ru, en, de, es)")
+    tone: Optional[str] = Field("neutral", description="Тональность перевода: neutral, formal, informal")
 
     @field_validator("text")
     @classmethod
@@ -39,6 +40,9 @@ class TranslateResponse(BaseModel):
     translated_text: str
     source_lang: str
     target_lang: str
+    tone: Optional[str] = "neutral"
+    alternatives: list[str] = []
+    examples: list[dict] = []
     is_saved_in_dictionary: bool = False
     saved_entry_id: Optional[uuid.UUID] = None
 
