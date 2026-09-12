@@ -1838,34 +1838,10 @@ export default function App() {
               )}
 
               <div>
-                <div className="flex items-center justify-between pb-2.5 sm:pb-3 mb-2 sm:mb-2.5 border-b border-black/[0.04] dark:border-white/[0.06] gap-1 flex-wrap">
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <span className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider flex items-center gap-1.5">
-                      {activeTargetLang.flag} {activeTargetLang.label}
-                    </span>
-
-                    {/* AI Tone Switcher (DeepL style) */}
-                    <div className="flex items-center apple-glass-pill p-0.5 rounded-full text-[10px] font-semibold" title="Тон перевода: нейтральный, вежливый (Вы) или неформальный (ты)">
-                      <button
-                        onClick={() => setTone('neutral')}
-                        className={`px-2 py-0.5 rounded-full transition-all ${tone === 'neutral' ? 'apple-tab-active text-[#0071E3]' : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'}`}
-                      >
-                        Авто
-                      </button>
-                      <button
-                        onClick={() => setTone('formal')}
-                        className={`px-2 py-0.5 rounded-full transition-all ${tone === 'formal' ? 'apple-tab-active text-[#0071E3]' : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'}`}
-                      >
-                        Вы
-                      </button>
-                      <button
-                        onClick={() => setTone('informal')}
-                        className={`px-2 py-0.5 rounded-full transition-all ${tone === 'informal' ? 'apple-tab-active text-[#0071E3]' : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'}`}
-                      >
-                        ты
-                      </button>
-                    </div>
-                  </div>
+                <div className="flex items-center justify-between pb-2.5 sm:pb-3 mb-2 sm:mb-2.5 border-b border-black/[0.04] dark:border-white/[0.06] gap-1">
+                  <span className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider flex items-center gap-1.5 flex-shrink-0">
+                    {activeTargetLang.flag} {activeTargetLang.label}
+                  </span>
 
                   <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
                     {translatedText && (
