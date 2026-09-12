@@ -774,13 +774,13 @@ export default function App() {
           <div className="flex items-center gap-3">
             
             {/* Apple Segmented Theme Switcher */}
-            <div className="flex items-center bg-black/[0.05] dark:bg-white/[0.08] p-1 rounded-full border border-black/[0.04] dark:border-white/[0.06] shadow-inner">
+            <div className="flex items-center apple-glass-pill p-1 rounded-full">
               <button
                 onClick={() => toggleTheme('light')}
                 className={`p-1.5 rounded-full transition-all duration-200 ${
                   theme === 'light' 
-                    ? 'bg-white text-amber-500 shadow-[0_2px_8px_rgba(0,0,0,0.12)] scale-100' 
-                    : 'text-[#8E8E93] hover:text-[#1C1C1E] scale-95'
+                    ? 'apple-tab-active text-amber-500 scale-100' 
+                    : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white scale-95'
                 }`}
                 title="Светлая тема"
               >
@@ -790,8 +790,8 @@ export default function App() {
                 onClick={() => toggleTheme('dark')}
                 className={`p-1.5 rounded-full transition-all duration-200 ${
                   theme === 'dark' 
-                    ? 'bg-[#1C1C1E] text-indigo-400 shadow-[0_2px_8px_rgba(0,0,0,0.4)] scale-100' 
-                    : 'text-[#8E8E93] hover:text-white scale-95'
+                    ? 'apple-tab-active text-indigo-400 scale-100' 
+                    : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white scale-95'
                 }`}
                 title="Темная тема"
               >
@@ -805,18 +805,18 @@ export default function App() {
                 {user.role === 'admin' && (
                   <button
                     onClick={() => setShowAdmin(!showAdmin)}
-                    className={`p-2 rounded-2xl text-xs font-semibold transition-all ${
+                    className={`apple-icon-btn p-2 rounded-full text-xs font-semibold ${
                       showAdmin 
-                        ? 'bg-[#0071E3] text-white shadow-[0_4px_12px_rgba(0,113,227,0.35)]' 
-                        : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white bg-black/[0.04] dark:bg-white/[0.06]'
+                        ? 'apple-btn-primary !text-white' 
+                        : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
                     }`}
                     title="Панель администратора"
                   >
                     <Shield size={16} />
                   </button>
                 )}
-                <div className="hidden sm:flex items-center gap-2 bg-black/[0.04] dark:bg-white/[0.06] px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06]">
-                  <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-[10px] font-bold text-white uppercase">
+                <div className="hidden sm:flex items-center gap-2 apple-glass-pill px-3 py-1.5 rounded-full">
+                  <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-[10px] font-bold text-white uppercase shadow-sm">
                     {user.email[0]}
                   </div>
                   <span className="text-xs font-medium text-[#1C1C1E] dark:text-[#F5F5F7] max-w-[110px] truncate">
@@ -825,7 +825,7 @@ export default function App() {
                 </div>
                 <button
                   onClick={() => { localStorage.removeItem('flow_token'); setUser(null); }}
-                  className="text-[#8E8E93] hover:text-rose-500 p-2 rounded-full hover:bg-rose-500/10 transition-colors"
+                  className="apple-icon-btn text-[#8E8E93] hover:text-rose-500 p-2 rounded-full"
                   title="Выйти"
                 >
                   <LogOut size={16} />
@@ -834,7 +834,7 @@ export default function App() {
             ) : (
               <button
                 onClick={() => { setAuthModal('login'); setAuthError(''); }}
-                className="text-xs font-semibold tracking-tight bg-[#0071E3] hover:bg-[#0077ED] text-white px-4 py-2 rounded-full transition-all shadow-[0_4px_12px_rgba(0,113,227,0.3)] hover:shadow-[0_6px_18px_rgba(0,113,227,0.4)] active:scale-95"
+                className="text-xs font-semibold tracking-tight apple-btn-primary px-4 py-2 rounded-full"
               >
                 Войти
               </button>
@@ -1024,13 +1024,13 @@ export default function App() {
               </h2>
             </div>
 
-            {/* Language Switcher Pill */}
-            <div className="flex items-center bg-black/[0.04] dark:bg-white/[0.06] p-1 rounded-2xl border border-black/[0.05] dark:border-white/[0.08] backdrop-blur-md">
+            {/* Apple Glass Language Switcher Pill */}
+            <div className="flex items-center apple-glass-pill p-1 rounded-full shadow-sm">
               <div className="relative">
                 <select
                   value={sourceLang}
                   onChange={(e) => setSourceLang(e.target.value)}
-                  className="appearance-none bg-transparent hover:bg-black/[0.04] dark:hover:bg-white/[0.08] text-xs font-semibold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl cursor-pointer transition-colors pr-6 focus:outline-none text-[#1C1C1E] dark:text-white"
+                  className="appearance-none bg-transparent hover:bg-black/[0.04] dark:hover:bg-white/[0.08] text-xs font-semibold px-2.5 sm:px-3.5 py-1.5 rounded-full cursor-pointer transition-colors pr-6 focus:outline-none text-[#1C1C1E] dark:text-white"
                 >
                   {SOURCE_LANGUAGES.map(l => (
                     <option key={l.code} value={l.code} className="dark:bg-[#1C1C1E]">
@@ -1047,17 +1047,17 @@ export default function App() {
 
               <button
                 onClick={swapLanguages}
-                className={`p-2 rounded-xl text-[#8E8E93] hover:text-[#0071E3] hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all ${isSwapping ? 'rotate-180 scale-90' : ''}`}
+                className={`apple-icon-btn p-2 rounded-full text-[#8E8E93] hover:text-[#0071E3] transition-all ${isSwapping ? 'rotate-180 scale-90' : ''}`}
                 title="Поменять языки местами"
               >
-                <ArrowRightLeft size={14} />
+                <ArrowRightLeft size={13} />
               </button>
 
               <div className="relative">
                 <select
                   value={targetLang}
                   onChange={(e) => setTargetLang(e.target.value)}
-                  className="appearance-none bg-transparent hover:bg-black/[0.04] dark:hover:bg-white/[0.08] text-xs font-semibold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl cursor-pointer transition-colors pr-6 focus:outline-none text-[#1C1C1E] dark:text-white"
+                  className="appearance-none bg-transparent hover:bg-black/[0.04] dark:hover:bg-white/[0.08] text-xs font-semibold px-2.5 sm:px-3.5 py-1.5 rounded-full cursor-pointer transition-colors pr-6 focus:outline-none text-[#1C1C1E] dark:text-white"
                 >
                   {TARGET_LANGUAGES.map(l => (
                     <option key={l.code} value={l.code} className="dark:bg-[#1C1C1E]">
@@ -1135,7 +1135,7 @@ export default function App() {
                     {activeMode === 'image' && (
                       <button
                         onClick={() => imageInputRef.current?.click()}
-                        className="px-2 sm:px-2.5 py-1 text-[11px] sm:text-xs font-semibold text-[#0071E3] hover:bg-[#0071E3]/10 rounded-xl transition-colors flex items-center gap-1"
+                        className="px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-semibold text-[#0071E3] apple-btn-glass rounded-full transition-all flex items-center gap-1"
                         title="Выбрать другое фото"
                       >
                         <Camera size={13} /> <span>{imagePreviewUrl ? 'Заменить' : 'Выбрать'}</span>
@@ -1144,7 +1144,7 @@ export default function App() {
                     {activeMode === 'doc' && (
                       <button
                         onClick={() => docInputRef.current?.click()}
-                        className="px-2 sm:px-2.5 py-1 text-[11px] sm:text-xs font-semibold text-[#0071E3] hover:bg-[#0071E3]/10 rounded-xl transition-colors flex items-center gap-1"
+                        className="px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-semibold text-[#0071E3] apple-btn-glass rounded-full transition-all flex items-center gap-1"
                         title="Выбрать другой документ"
                       >
                         <UploadCloud size={13} /> <span>{loadedFile ? 'Заменить' : 'Выбрать'}</span>
@@ -1153,7 +1153,7 @@ export default function App() {
                     {activeMode === 'url' && (
                       <button
                         onClick={() => setUrlModal(true)}
-                        className="px-2 sm:px-2.5 py-1 text-[11px] sm:text-xs font-semibold text-[#0071E3] hover:bg-[#0071E3]/10 rounded-xl transition-colors flex items-center gap-1"
+                        className="px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-semibold text-[#0071E3] apple-btn-glass rounded-full transition-all flex items-center gap-1"
                         title="Ввести другой адрес"
                       >
                         <Globe size={13} /> <span>{loadedFile ? 'Сменить' : 'Ввести URL'}</span>
@@ -1162,7 +1162,7 @@ export default function App() {
                     {(sourceText || imagePreviewUrl || loadedFile) && (
                       <button 
                         onClick={handleClearLoadedContent}
-                        className="text-[#8E8E93] hover:text-rose-500 p-1.5 rounded-full hover:bg-black/[0.05] dark:hover:bg-white/[0.08] transition-colors"
+                        className="apple-icon-btn text-[#8E8E93] hover:text-rose-500 p-1.5 rounded-full"
                         title="Очистить"
                       >
                         <X size={14} />
@@ -1318,7 +1318,7 @@ export default function App() {
                         </div>
                         <button
                           onClick={() => setUrlModal(true)}
-                          className="text-xs font-semibold px-2.5 py-1 rounded-xl bg-[#0071E3]/10 text-[#0071E3] hover:bg-[#0071E3] hover:text-white transition-colors flex-shrink-0"
+                          className="text-xs font-semibold px-3 py-1 rounded-full apple-btn-glass text-[#0071E3] transition-all flex-shrink-0"
                         >
                           Сменить
                         </button>
@@ -1371,14 +1371,14 @@ export default function App() {
                   <button
                     onClick={() => speak(sourceText, sourceLang === 'auto' ? detectedLang : sourceLang, false)}
                     disabled={!sourceText.trim()}
-                    className={`p-2 rounded-2xl transition-all duration-200 ${
+                    className={`apple-icon-btn p-2 rounded-full transition-all duration-200 ${
                       isSpeakingSource
-                        ? 'bg-[#0071E3] text-white shadow-md scale-105'
-                        : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] disabled:opacity-20'
+                        ? 'apple-btn-primary !text-white scale-105'
+                        : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white disabled:opacity-20'
                     }`}
                     title="Озвучить оригинал"
                   >
-                    <Volume2 size={18} />
+                    <Volume2 size={17} />
                   </button>
                   <span className="text-[11px] font-medium text-[#8E8E93]">
                     {sourceText.length} <span className="hidden xs:inline">символов</span><span className="xs:hidden">симв.</span>
@@ -1414,10 +1414,10 @@ export default function App() {
                     {translatedText && (
                       <button
                         onClick={handleDownloadTranslation}
-                        className="text-[11px] sm:text-xs font-semibold px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-[#0071E3] hover:bg-[#0077ED] text-white transition-all shadow-[0_2px_10px_rgba(0,113,227,0.35)] hover:scale-105 active:scale-95 flex items-center gap-1"
+                        className="text-[11px] sm:text-xs font-semibold px-3 sm:px-3.5 py-1.5 rounded-full apple-btn-primary flex items-center gap-1.5"
                         title="Скачать перевод в файл .txt"
                       >
-                        <Download size={12} /> <span>Скачать</span><span className="hidden sm:inline">&nbsp;.txt</span>
+                        <Download size={13} /> <span>Скачать</span><span className="hidden sm:inline">&nbsp;.txt</span>
                       </button>
                     )}
                     <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#0071E3]/10 text-[#0071E3] uppercase tracking-wider">
@@ -1439,26 +1439,26 @@ export default function App() {
               </div>
 
               <div className="flex items-center justify-between pt-3 sm:pt-4 border-t border-black/[0.04] dark:border-white/[0.06]">
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 sm:gap-2">
                   <button
                     onClick={() => speak(translatedText, targetLang, true)}
                     disabled={!translatedText}
-                    className={`p-2 rounded-2xl transition-all duration-200 ${
+                    className={`apple-icon-btn p-2 rounded-full transition-all duration-200 ${
                       isSpeakingTarget
-                        ? 'bg-[#0071E3] text-white shadow-md scale-105'
-                        : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] disabled:opacity-20'
+                        ? 'apple-btn-primary !text-white scale-105'
+                        : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white disabled:opacity-20'
                     }`}
                     title="Озвучить перевод"
                   >
-                    <Volume2 size={18} />
+                    <Volume2 size={17} />
                   </button>
                   <button
                     onClick={copyTranslation}
                     disabled={!translatedText}
-                    className="p-2 rounded-2xl text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] disabled:opacity-20 transition-all active:scale-90"
+                    className="apple-icon-btn p-2 rounded-full text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white disabled:opacity-20 transition-all"
                     title="Скопировать"
                   >
-                    {copied ? <Check size={18} className="text-emerald-500" /> : <Copy size={18} />}
+                    {copied ? <Check size={17} className="text-emerald-500" /> : <Copy size={17} />}
                   </button>
                   {copied && (
                     <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 animate-in fade-in">
@@ -1470,14 +1470,14 @@ export default function App() {
                 <button
                   onClick={toggleFavorite}
                   disabled={!translatedText}
-                  className={`p-2.5 rounded-full transition-all active:scale-90 ${
+                  className={`apple-icon-btn p-2 rounded-full transition-all ${
                     isInDictionary 
-                      ? 'text-amber-500 bg-amber-500/10 shadow-sm scale-105' 
-                      : 'text-[#8E8E93] hover:text-amber-500 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]'
+                      ? 'text-amber-500 !border-amber-400/40 bg-amber-500/10 scale-105' 
+                      : 'text-[#8E8E93] hover:text-amber-500'
                   }`}
                   title={isInDictionary ? "Удалить из Favorites" : "Сохранить в Favorites"}
                 >
-                  <Star size={20} fill={isInDictionary ? "currentColor" : "none"} />
+                  <Star size={18} fill={isInDictionary ? "currentColor" : "none"} />
                 </button>
               </div>
             </div>
@@ -1558,24 +1558,24 @@ export default function App() {
               {entries.length > 0 && (
                 <button
                   onClick={() => { setCurrentCardIndex(0); setIsCardFlipped(false); setFlashcardModal(true); }}
-                  className="text-xs font-semibold text-white bg-gradient-to-r from-[#0071E3] to-[#5E5CE6] hover:opacity-90 px-3.5 py-1.5 rounded-2xl transition-all shadow-sm active:scale-95 flex items-center gap-1.5"
+                  className="text-xs font-semibold apple-btn-primary px-3.5 sm:px-4 py-1.5 rounded-full flex items-center gap-1.5"
                 >
                   <RotateCw size={13} /> Учить слова
                 </button>
               )}
 
               {/* View Mode Toggle */}
-              <div className="flex items-center bg-black/[0.04] dark:bg-white/[0.06] p-0.5 rounded-xl border border-black/[0.04] dark:border-white/[0.06]">
+              <div className="flex items-center apple-glass-pill p-1 rounded-full">
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`p-1.5 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white dark:bg-[#2C2C2E] text-[#0071E3] shadow-sm' : 'text-[#8E8E93]'}`}
+                  className={`p-1.5 rounded-full transition-all ${viewMode === 'list' ? 'apple-tab-active text-[#0071E3]' : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'}`}
                   title="Список"
                 >
                   <ListFilter size={14} />
                 </button>
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`p-1.5 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white dark:bg-[#2C2C2E] text-[#0071E3] shadow-sm' : 'text-[#8E8E93]'}`}
+                  className={`p-1.5 rounded-full transition-all ${viewMode === 'grid' ? 'apple-tab-active text-[#0071E3]' : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'}`}
                   title="Сетка"
                 >
                   <LayoutGrid size={14} />
@@ -1584,10 +1584,10 @@ export default function App() {
 
               <button
                 onClick={() => setShowSearch(!showSearch)}
-                className={`p-2 rounded-2xl text-xs font-semibold transition-all ${
+                className={`apple-icon-btn p-2 rounded-full text-xs font-semibold ${
                   showSearch 
-                    ? 'bg-[#0071E3] text-white shadow-sm' 
-                    : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white bg-black/[0.04] dark:bg-white/[0.06]'
+                    ? 'apple-btn-primary !text-white' 
+                    : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
                 }`}
                 title="Поиск"
               >
@@ -1599,18 +1599,18 @@ export default function App() {
                   <select
                     value={filterCat}
                     onChange={(e) => { setFilterCat(e.target.value); setPage(1); }}
-                    className="appearance-none bg-black/[0.04] dark:bg-white/[0.06] text-xs font-semibold px-3 py-1.5 rounded-2xl border border-black/[0.04] dark:border-white/[0.06] focus:outline-none cursor-pointer pr-6 text-[#1C1C1E] dark:text-white"
+                    className="appearance-none apple-btn-glass text-xs font-semibold px-3 py-1.5 rounded-full focus:outline-none cursor-pointer pr-6 text-[#1C1C1E] dark:text-white"
                   >
                     <option value="" className="dark:bg-[#1C1C1E]">Все теги</option>
                     {categories.map(c => <option key={c.id} value={c.id} className="dark:bg-[#1C1C1E]">{c.name}</option>)}
                   </select>
-                  <span className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-[8px] text-[#8E8E93]">▾</span>
+                  <span className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[8px] text-[#8E8E93]">▾</span>
                 </div>
               )}
 
               <button
                 onClick={() => setNewCatModal(true)}
-                className="text-xs font-semibold text-[#0071E3] hover:text-[#0077ED] bg-[#0071E3]/10 hover:bg-[#0071E3]/15 px-3 py-1.5 rounded-2xl transition-all whitespace-nowrap"
+                className="text-xs font-semibold text-[#0071E3] apple-btn-glass px-3.5 py-1.5 rounded-full transition-all whitespace-nowrap"
               >
                 + Тег
               </button>
@@ -1626,7 +1626,7 @@ export default function App() {
                 placeholder="Поиск по сохраненным карточкам..."
                 value={search}
                 onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-                className="w-full pl-11 pr-4 py-3 bg-white/80 dark:bg-white/[0.06] backdrop-blur-xl border border-black/[0.06] dark:border-white/[0.08] rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0071E3]/40 shadow-sm"
+                className="w-full pl-11 pr-4 py-3 apple-glass-input rounded-2xl text-sm focus:outline-none text-[#1C1C1E] dark:text-white"
               />
             </div>
           )}
@@ -1674,21 +1674,21 @@ export default function App() {
                     <div className="flex items-center gap-1 flex-shrink-0">
                       <button
                         onClick={() => speak(item.translated_text, item.target_lang, true)}
-                        className="text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-2 rounded-xl hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors"
+                        className="apple-icon-btn text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-2 rounded-full"
                         title="Озвучить"
                       >
                         <Volume2 size={16} />
                       </button>
                       <button
                         onClick={() => setEditingEntry(item)}
-                        className="text-[#8E8E93] hover:text-[#0071E3] p-2 rounded-xl hover:bg-black/[0.04] dark:hover:bg-white/[0.06] opacity-70 sm:opacity-0 sm:group-hover:opacity-100 transition-all"
+                        className="apple-icon-btn text-[#8E8E93] hover:text-[#0071E3] p-2 rounded-full opacity-70 sm:opacity-0 sm:group-hover:opacity-100"
                         title="Редактировать"
                       >
                         <Edit3 size={15} />
                       </button>
                       <button
                         onClick={() => deleteFavorite(item.id)}
-                        className="text-amber-500 hover:text-rose-500 p-2 rounded-xl hover:bg-rose-500/10 transition-colors"
+                        className="apple-icon-btn text-amber-500 hover:text-rose-500 p-2 rounded-full"
                         title="Удалить из Favorites"
                       >
                         <Star size={17} fill="currentColor" />
@@ -1716,7 +1716,8 @@ export default function App() {
                         ) : <span />}
                         <button
                           onClick={() => deleteFavorite(item.id)}
-                          className="text-amber-500 hover:text-rose-500 p-1"
+                          className="apple-icon-btn text-amber-500 hover:text-rose-500 p-1.5 rounded-full"
+                          title="Удалить из Favorites"
                         >
                           <Star size={16} fill="currentColor" />
                         </button>
@@ -1736,13 +1737,15 @@ export default function App() {
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => speak(item.translated_text, item.target_lang, true)}
-                          className="text-[#8E8E93] hover:text-[#0071E3] p-1.5 rounded-lg transition-colors"
+                          className="apple-icon-btn text-[#8E8E93] hover:text-[#0071E3] p-1.5 rounded-full"
+                          title="Озвучить"
                         >
                           <Volume2 size={16} />
                         </button>
                         <button
                           onClick={() => setEditingEntry(item)}
-                          className="text-[#8E8E93] hover:text-[#0071E3] p-1.5 rounded-lg transition-colors"
+                          className="apple-icon-btn text-[#8E8E93] hover:text-[#0071E3] p-1.5 rounded-full"
+                          title="Редактировать"
                         >
                           <Edit3 size={15} />
                         </button>
@@ -1755,9 +1758,9 @@ export default function App() {
 
             {totalPages > 1 && (
               <div className="flex items-center justify-center gap-4 py-3 text-xs font-semibold text-[#8E8E93] border-t border-black/[0.04] dark:border-white/[0.06]">
-                <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="hover:text-[#0071E3] disabled:opacity-20 px-2 py-1 transition-colors">← Назад</button>
-                <span className="bg-black/[0.04] dark:bg-white/[0.06] px-3 py-1 rounded-full">{page} из {totalPages}</span>
-                <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} className="hover:text-[#0071E3] disabled:opacity-20 px-2 py-1 transition-colors">Вперед →</button>
+                <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="apple-btn-glass rounded-full px-3 py-1 hover:text-[#0071E3] disabled:opacity-20 transition-all">← Назад</button>
+                <span className="apple-glass-pill px-3 py-1 rounded-full text-xs font-semibold">{page} из {totalPages}</span>
+                <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} className="apple-btn-glass rounded-full px-3 py-1 hover:text-[#0071E3] disabled:opacity-20 transition-all">Вперед →</button>
               </div>
             )}
 
@@ -1766,7 +1769,7 @@ export default function App() {
                 if (!user) { setAuthModal('login'); return; }
                 setManualModal(true);
               }}
-              className="w-full py-3 text-center text-xs font-semibold text-[#8E8E93] hover:text-[#0071E3] hover:bg-black/[0.02] dark:hover:bg-white/[0.02] rounded-2xl transition-all flex items-center justify-center gap-1.5"
+              className="w-full py-3 text-center text-xs font-semibold text-[#0071E3] apple-btn-glass rounded-2xl transition-all flex items-center justify-center gap-1.5"
             >
               <PlusCircle size={14} />
               Добавить карточку вручную
@@ -1797,9 +1800,9 @@ export default function App() {
               </div>
               <button 
                 onClick={() => setUrlModal(false)} 
-                className="text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1 rounded-full"
+                className="apple-icon-btn text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1 rounded-full"
               >
-                <X size={16} />
+                <X size={15} />
               </button>
             </div>
 
@@ -1820,7 +1823,7 @@ export default function App() {
 
             <form onSubmit={handleUrlExtract} className="space-y-3.5 sm:space-y-4">
               {/* Safari Smart Search Address Bar */}
-              <div className="relative flex items-center bg-black/[0.04] dark:bg-white/[0.06] rounded-2xl border border-black/[0.06] dark:border-white/[0.1] px-3 sm:px-3.5 py-2.5 focus-within:border-[#0071E3] focus-within:bg-white dark:focus-within:bg-[#1C1C1E] transition-all">
+              <div className="relative flex items-center apple-glass-input rounded-2xl px-3 sm:px-3.5 py-2.5 transition-all">
                 <Lock size={14} className="text-[#8E8E93] mr-1.5 sm:mr-2 flex-shrink-0" />
                 <span className="text-xs font-mono text-[#8E8E93] mr-1 select-none">https://</span>
                 <input
@@ -1838,9 +1841,9 @@ export default function App() {
                   <button
                     type="button"
                     onClick={() => setInputUrl('')}
-                    className="text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1 ml-1"
+                    className="apple-icon-btn text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1 ml-1"
                   >
-                    <X size={13} />
+                    <X size={12} />
                   </button>
                 )}
                 <div className="ml-2 pl-2 border-l border-black/[0.08] dark:border-white/[0.1] text-[#0071E3] font-bold text-[11px] select-none">
@@ -1859,8 +1862,8 @@ export default function App() {
                       onClick={() => setInputUrl(p.url)}
                       className={`p-2.5 sm:p-3 rounded-2xl border text-left transition-all flex items-start gap-2.5 ${
                         inputUrl === p.url 
-                          ? 'bg-[#0071E3]/10 border-[#0071E3] text-[#0071E3]' 
-                          : 'bg-black/[0.03] dark:bg-white/[0.04] border-black/[0.04] dark:border-white/[0.06] hover:bg-black/[0.06] dark:hover:bg-white/[0.08]'
+                          ? 'apple-btn-glass !border-[#0071E3] !text-[#0071E3]' 
+                          : 'apple-btn-glass'
                       }`}
                     >
                       <span className="text-base sm:text-lg">{p.icon}</span>
@@ -1876,7 +1879,7 @@ export default function App() {
               <button
                 type="submit"
                 disabled={isUrlLoading || !inputUrl.trim()}
-                className="w-full bg-[#0071E3] hover:bg-[#0077ED] text-white font-semibold py-3 sm:py-3.5 rounded-2xl text-xs sm:text-sm transition-all shadow-[0_4px_14px_rgba(0,113,227,0.35)] active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full apple-btn-primary font-semibold py-3 sm:py-3.5 rounded-2xl text-xs sm:text-sm flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {isUrlLoading ? (
                   <>
@@ -1904,10 +1907,10 @@ export default function App() {
                 Карточка {currentCardIndex + 1} из {entries.length}
               </span>
               <button 
-                onClick={() => setFlashcardModal(false)}
-                className="p-1 rounded-full hover:bg-white/20 transition-colors"
+                onClick={() => setFlashcardModal(false)} 
+                className="apple-icon-btn p-1.5 rounded-full text-white"
               >
-                <X size={20} />
+                <X size={18} />
               </button>
             </div>
 
@@ -1926,9 +1929,9 @@ export default function App() {
                     </span>
                     <button
                       onClick={(e) => { e.stopPropagation(); speak(currentFlashcard.source_text, currentFlashcard.source_lang); }}
-                      className="p-2 rounded-full hover:bg-black/[0.05] dark:hover:bg-white/[0.08]"
+                      className="apple-icon-btn p-2 rounded-full"
                     >
-                      <Volume2 size={20} className="text-[#8E8E93]" />
+                      <Volume2 size={18} className="text-[#8E8E93]" />
                     </button>
                   </div>
 
@@ -1951,9 +1954,9 @@ export default function App() {
                     </span>
                     <button
                       onClick={(e) => { e.stopPropagation(); speak(currentFlashcard.translated_text, currentFlashcard.target_lang, true); }}
-                      className="p-2 rounded-full hover:bg-black/[0.05] dark:hover:bg-white/[0.08]"
+                      className="apple-icon-btn p-2 rounded-full"
                     >
-                      <Volume2 size={20} className="text-[#8E8E93]" />
+                      <Volume2 size={18} className="text-[#8E8E93]" />
                     </button>
                   </div>
 
@@ -1986,7 +1989,7 @@ export default function App() {
               <button
                 disabled={currentCardIndex <= 0}
                 onClick={() => { setCurrentCardIndex(i => i - 1); setIsCardFlipped(false); }}
-                className="ios-glass flex-1 py-3 sm:py-3.5 rounded-2xl font-semibold text-xs sm:text-sm disabled:opacity-30 flex items-center justify-center gap-1 text-[#1C1C1E] dark:text-white active:scale-95 transition-all"
+                className="apple-btn-glass flex-1 py-3 sm:py-3.5 rounded-2xl font-semibold text-xs sm:text-sm disabled:opacity-30 flex items-center justify-center gap-1 text-[#1C1C1E] dark:text-white transition-all"
               >
                 <ChevronLeft size={16} /> Назад
               </button>
@@ -1999,7 +2002,7 @@ export default function App() {
                     setFlashcardModal(false);
                   }
                 }}
-                className="bg-[#0071E3] hover:bg-[#0077ED] text-white flex-1 py-3 sm:py-3.5 rounded-2xl font-semibold text-xs sm:text-sm shadow-md flex items-center justify-center gap-1 transition-all active:scale-95"
+                className="apple-btn-primary flex-1 py-3 sm:py-3.5 rounded-2xl font-semibold text-xs sm:text-sm flex items-center justify-center gap-1 transition-all"
               >
                 {currentCardIndex < entries.length - 1 ? 'Дальше' : 'Завершить'} <ChevronRight size={16} />
               </button>
@@ -2014,7 +2017,7 @@ export default function App() {
       {authModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xl flex items-center justify-center p-3.5 sm:p-4 animate-in fade-in duration-200">
           <div className="ios-glass ios-card-specular rounded-[28px] sm:rounded-[36px] p-5 sm:p-7 w-full max-w-sm border border-black/10 dark:border-white/10 shadow-2xl relative max-h-[92vh] overflow-y-auto no-scrollbar">
-            <button onClick={() => setAuthModal(null)} className="absolute right-4 top-4 sm:right-5 sm:top-5 text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1 rounded-full"><X size={18} /></button>
+            <button onClick={() => setAuthModal(null)} className="apple-icon-btn absolute right-4 top-4 sm:right-5 sm:top-5 text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1.5 rounded-full"><X size={16} /></button>
             
             <h3 className="text-lg sm:text-xl font-bold tracking-tight mb-1 text-[#1C1C1E] dark:text-white">
               {authModal === 'login' ? 'Вход в аккаунт' : authModal === 'register' ? 'Регистрация' : 'Двухфакторная защита'}
@@ -2032,7 +2035,7 @@ export default function App() {
                   <label className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider block mb-1">Email</label>
                   <div className="relative">
                     <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8E8E93]" />
-                    <input type="email" required value={authEmail} onChange={e => setAuthEmail(e.target.value)} className="w-full pl-10 pr-3.5 py-2.5 bg-black/[0.04] dark:bg-white/[0.06] rounded-2xl text-sm border border-transparent focus:border-[#0071E3] focus:bg-white dark:focus:bg-[#1C1C1E] focus:outline-none transition-all text-[#1C1C1E] dark:text-white" placeholder="user@gmail.com" />
+                    <input type="email" required value={authEmail} onChange={e => setAuthEmail(e.target.value)} className="w-full pl-10 pr-3.5 py-2.5 apple-glass-input rounded-2xl text-sm focus:outline-none text-[#1C1C1E] dark:text-white" placeholder="user@gmail.com" />
                   </div>
                 </div>
               )}
@@ -2041,7 +2044,7 @@ export default function App() {
                   <label className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider block mb-1">Пароль (мин. 8 знаков, цифра, заглавная)</label>
                   <div className="relative">
                     <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8E8E93]" />
-                    <input type="password" required value={authPassword} onChange={e => setAuthPassword(e.target.value)} className="w-full pl-10 pr-3.5 py-2.5 bg-black/[0.04] dark:bg-white/[0.06] rounded-2xl text-sm border border-transparent focus:border-[#0071E3] focus:bg-white dark:focus:bg-[#1C1C1E] focus:outline-none transition-all text-[#1C1C1E] dark:text-white" placeholder="••••••••" />
+                    <input type="password" required value={authPassword} onChange={e => setAuthPassword(e.target.value)} className="w-full pl-10 pr-3.5 py-2.5 apple-glass-input rounded-2xl text-sm focus:outline-none text-[#1C1C1E] dark:text-white" placeholder="••••••••" />
                   </div>
                 </div>
               )}
@@ -2050,7 +2053,7 @@ export default function App() {
                   <label className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider block mb-1">Повтор пароля</label>
                   <div className="relative">
                     <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8E8E93]" />
-                    <input type="password" required value={authPasswordConfirm} onChange={e => setAuthPasswordConfirm(e.target.value)} className="w-full pl-10 pr-3.5 py-2.5 bg-black/[0.04] dark:bg-white/[0.06] rounded-2xl text-sm border border-transparent focus:border-[#0071E3] focus:bg-white dark:focus:bg-[#1C1C1E] focus:outline-none transition-all text-[#1C1C1E] dark:text-white" placeholder="••••••••" />
+                    <input type="password" required value={authPasswordConfirm} onChange={e => setAuthPasswordConfirm(e.target.value)} className="w-full pl-10 pr-3.5 py-2.5 apple-glass-input rounded-2xl text-sm focus:outline-none text-[#1C1C1E] dark:text-white" placeholder="••••••••" />
                   </div>
                 </div>
               )}
@@ -2072,14 +2075,14 @@ export default function App() {
                       required 
                       value={verifyCode} 
                       onChange={e => setVerifyCode(e.target.value)} 
-                      className="w-full py-3 bg-black/[0.04] dark:bg-white/[0.06] rounded-2xl text-center font-bold text-2xl tracking-[0.4em] border border-transparent focus:border-[#0071E3] focus:outline-none text-[#1C1C1E] dark:text-white" 
+                      className="w-full py-3 apple-glass-input rounded-2xl text-center font-bold text-2xl tracking-[0.4em] focus:outline-none text-[#1C1C1E] dark:text-white" 
                       placeholder="000000" 
                     />
                   </div>
                 </div>
               )}
 
-              <button type="submit" className="w-full bg-[#0071E3] hover:bg-[#0077ED] text-white font-semibold py-3 rounded-2xl text-sm transition-all shadow-[0_4px_14px_rgba(0,113,227,0.35)] active:scale-[0.98] mt-3">
+              <button type="submit" className="w-full apple-btn-primary font-semibold py-3 rounded-2xl text-sm mt-3">
                 {authModal === 'login' ? 'Войти' : authModal === 'register' ? 'Создать аккаунт' : 'Подтвердить и войти'}
               </button>
             </form>
@@ -2099,25 +2102,25 @@ export default function App() {
       {manualModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xl flex items-center justify-center p-3.5 sm:p-4 animate-in fade-in duration-200">
           <div className="ios-glass ios-card-specular rounded-[28px] sm:rounded-[36px] p-5 sm:p-7 w-full max-w-sm border border-black/10 dark:border-white/10 shadow-2xl relative max-h-[92vh] overflow-y-auto no-scrollbar">
-            <button onClick={() => setManualModal(false)} className="absolute right-4 top-4 sm:right-5 sm:top-5 text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1 rounded-full"><X size={18} /></button>
+            <button onClick={() => setManualModal(false)} className="apple-icon-btn absolute right-4 top-4 sm:right-5 sm:top-5 text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1.5 rounded-full"><X size={16} /></button>
             <h3 className="text-base sm:text-lg font-bold tracking-tight mb-3.5 text-[#1C1C1E] dark:text-white">Новая карточка словаря</h3>
             <form onSubmit={handleManualAdd} className="space-y-3 sm:space-y-3.5">
               <div>
                 <label className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider block mb-1">Слово / Оригинал</label>
-                <input type="text" required value={manualForm.source_text} onChange={e => setManualForm({...manualForm, source_text: e.target.value})} className="w-full px-3.5 py-2.5 bg-black/[0.04] dark:bg-white/[0.06] rounded-2xl text-sm border border-transparent focus:border-[#0071E3] focus:outline-none text-[#1C1C1E] dark:text-white" />
+                <input type="text" required value={manualForm.source_text} onChange={e => setManualForm({...manualForm, source_text: e.target.value})} className="w-full px-3.5 py-2.5 apple-glass-input rounded-2xl text-sm focus:outline-none text-[#1C1C1E] dark:text-white" />
               </div>
               <div>
                 <label className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider block mb-1">Перевод</label>
-                <input type="text" required value={manualForm.translated_text} onChange={e => setManualForm({...manualForm, translated_text: e.target.value})} className="w-full px-3.5 py-2.5 bg-black/[0.04] dark:bg-white/[0.06] rounded-2xl text-sm border border-transparent focus:border-[#0071E3] focus:outline-none text-[#1C1C1E] dark:text-white" />
+                <input type="text" required value={manualForm.translated_text} onChange={e => setManualForm({...manualForm, translated_text: e.target.value})} className="w-full px-3.5 py-2.5 apple-glass-input rounded-2xl text-sm focus:outline-none text-[#1C1C1E] dark:text-white" />
               </div>
               <div>
                 <label className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider block mb-1">Категория</label>
-                <select value={manualForm.category_id} onChange={e => setManualForm({...manualForm, category_id: e.target.value})} className="w-full px-3.5 py-2.5 bg-black/[0.04] dark:bg-white/[0.06] rounded-2xl text-sm border border-transparent focus:border-[#0071E3] focus:outline-none text-[#1C1C1E] dark:text-white">
+                <select value={manualForm.category_id} onChange={e => setManualForm({...manualForm, category_id: e.target.value})} className="w-full px-3.5 py-2.5 apple-glass-input rounded-2xl text-sm focus:outline-none text-[#1C1C1E] dark:text-white">
                   <option value="" className="dark:bg-[#1C1C1E]">Без категории</option>
                   {categories.map(c => <option key={c.id} value={c.id} className="dark:bg-[#1C1C1E]">{c.name}</option>)}
                 </select>
               </div>
-              <button type="submit" className="w-full bg-[#0071E3] hover:bg-[#0077ED] text-white font-semibold py-3 rounded-2xl text-sm transition-all shadow-md active:scale-[0.98] mt-2">
+              <button type="submit" className="w-full apple-btn-primary font-semibold py-3 rounded-2xl text-sm mt-2">
                 Сохранить в Favorites
               </button>
             </form>
@@ -2129,15 +2132,15 @@ export default function App() {
       {newCatModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xl flex items-center justify-center p-3.5 sm:p-4 animate-in fade-in duration-200">
           <div className="ios-glass ios-card-specular rounded-[28px] sm:rounded-[36px] p-5 sm:p-7 w-full max-w-xs border border-black/10 dark:border-white/10 shadow-2xl relative max-h-[92vh] overflow-y-auto no-scrollbar">
-            <button onClick={() => setNewCatModal(false)} className="absolute right-4 top-4 sm:right-5 sm:top-5 text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1 rounded-full"><X size={18} /></button>
+            <button onClick={() => setNewCatModal(false)} className="apple-icon-btn absolute right-4 top-4 sm:right-5 sm:top-5 text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1.5 rounded-full"><X size={16} /></button>
             <h3 className="text-base sm:text-lg font-bold tracking-tight mb-3.5 text-[#1C1C1E] dark:text-white">Новый тег</h3>
             <form onSubmit={handleCreateCategory} className="space-y-3 sm:space-y-3.5">
-              <input type="text" required placeholder="Например: Работа" value={newCatName} onChange={e => setNewCatName(e.target.value)} className="w-full px-3.5 py-2.5 bg-black/[0.04] dark:bg-white/[0.06] rounded-2xl text-sm border border-transparent focus:border-[#0071E3] focus:outline-none text-[#1C1C1E] dark:text-white" />
-              <div className="flex items-center gap-3 bg-black/[0.04] dark:bg-white/[0.06] p-2 rounded-2xl">
+              <input type="text" required placeholder="Например: Работа" value={newCatName} onChange={e => setNewCatName(e.target.value)} className="w-full px-3.5 py-2.5 apple-glass-input rounded-2xl text-sm focus:outline-none text-[#1C1C1E] dark:text-white" />
+              <div className="flex items-center gap-3 apple-btn-glass p-2 rounded-2xl">
                 <input type="color" value={newCatColor} onChange={e => setNewCatColor(e.target.value)} className="h-8 w-10 border-none bg-transparent cursor-pointer rounded-lg" />
                 <span className="text-xs font-mono font-semibold text-[#8E8E93]">{newCatColor}</span>
               </div>
-              <button type="submit" className="w-full bg-[#0071E3] hover:bg-[#0077ED] text-white font-semibold py-3 rounded-2xl text-sm transition-all shadow-md active:scale-[0.98] mt-2">
+              <button type="submit" className="w-full apple-btn-primary font-semibold py-3 rounded-2xl text-sm mt-2">
                 Создать
               </button>
             </form>
@@ -2149,22 +2152,22 @@ export default function App() {
       {editingEntry && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xl flex items-center justify-center p-3.5 sm:p-4 animate-in fade-in duration-200">
           <div className="ios-glass ios-card-specular rounded-[28px] sm:rounded-[36px] p-5 sm:p-7 w-full max-w-sm border border-black/10 dark:border-white/10 shadow-2xl relative max-h-[92vh] overflow-y-auto no-scrollbar">
-            <button onClick={() => setEditingEntry(null)} className="absolute right-4 top-4 sm:right-5 sm:top-5 text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1 rounded-full"><X size={18} /></button>
+            <button onClick={() => setEditingEntry(null)} className="apple-icon-btn absolute right-4 top-4 sm:right-5 sm:top-5 text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1.5 rounded-full"><X size={16} /></button>
             <h3 className="text-base sm:text-lg font-bold tracking-tight mb-1 text-[#1C1C1E] dark:text-white">Редактировать</h3>
             <p className="text-xs text-[#8E8E93] mb-3.5">Оригинал: <span className="font-semibold text-[#1C1C1E] dark:text-white">{editingEntry.source_text}</span></p>
             <form onSubmit={handleEditEntry} className="space-y-3 sm:space-y-3.5">
               <div>
                 <label className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider block mb-1">Перевод</label>
-                <input type="text" required value={editingEntry.translated_text} onChange={e => setEditingEntry({...editingEntry, translated_text: e.target.value})} className="w-full px-3.5 py-2.5 bg-black/[0.04] dark:bg-white/[0.06] rounded-2xl text-sm border border-transparent focus:border-[#0071E3] focus:outline-none text-[#1C1C1E] dark:text-white" />
+                <input type="text" required value={editingEntry.translated_text} onChange={e => setEditingEntry({...editingEntry, translated_text: e.target.value})} className="w-full px-3.5 py-2.5 apple-glass-input rounded-2xl text-sm focus:outline-none text-[#1C1C1E] dark:text-white" />
               </div>
               <div>
                 <label className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider block mb-1">Категория</label>
-                <select value={editingEntry.category_id || ''} onChange={e => setEditingEntry({...editingEntry, category_id: e.target.value || null})} className="w-full px-3.5 py-2.5 bg-black/[0.04] dark:bg-white/[0.06] rounded-2xl text-sm border border-transparent focus:border-[#0071E3] focus:outline-none text-[#1C1C1E] dark:text-white">
+                <select value={editingEntry.category_id || ''} onChange={e => setEditingEntry({...editingEntry, category_id: e.target.value || null})} className="w-full px-3.5 py-2.5 apple-glass-input rounded-2xl text-sm focus:outline-none text-[#1C1C1E] dark:text-white">
                   <option value="" className="dark:bg-[#1C1C1E]">Без категории</option>
                   {categories.map(c => <option key={c.id} value={c.id} className="dark:bg-[#1C1C1E]">{c.name}</option>)}
                 </select>
               </div>
-              <button type="submit" className="w-full bg-[#0071E3] hover:bg-[#0077ED] text-white font-semibold py-3 rounded-2xl text-sm transition-all shadow-md active:scale-[0.98] mt-2">
+              <button type="submit" className="w-full apple-btn-primary font-semibold py-3 rounded-2xl text-sm mt-2">
                 Сохранить изменения
               </button>
             </form>

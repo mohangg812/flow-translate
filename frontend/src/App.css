@@ -219,33 +219,203 @@
 .apple-segmented-pill {
   position: relative;
   background: rgba(118, 118, 128, 0.12);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  padding: 3px;
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  padding: 3.5px;
   border-radius: 9999px;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 10px rgba(0, 0, 0, 0.03);
 }
 
 .dark .apple-segmented-pill {
-  background: rgba(118, 118, 128, 0.24);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+  background: rgba(118, 118, 128, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .apple-tab-active {
-  background: #FFFFFF;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   color: #1C1C1E;
+  border: 1px solid rgba(255, 255, 255, 0.95);
   box-shadow: 
-    0 3px 8px rgba(0, 0, 0, 0.12),
-    0 1px 2px rgba(0, 0, 0, 0.06);
+    0 3px 10px rgba(0, 0, 0, 0.12),
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    inset 0 1px 1px rgba(255, 255, 255, 1);
 }
 
 .dark .apple-tab-active {
-  background: #2C2C2E;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.25);
   box-shadow: 
     0 4px 14px rgba(0, 0, 0, 0.45),
     0 1px 3px rgba(0, 0, 0, 0.2),
+    inset 0 1px 1px rgba(255, 255, 255, 0.25);
+}
+
+/* ================= APPLE GLASS EFFECT COMPONENTS ================= */
+
+/* Apple Primary Glass Button (e.g., Download, Submit, Login, Reader Action) */
+.apple-btn-primary {
+  background: linear-gradient(180deg, rgba(0, 125, 250, 0.92) 0%, rgba(0, 105, 225, 0.96) 100%);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 
+    0 4px 16px rgba(0, 113, 227, 0.35),
+    0 1px 2px rgba(0, 0, 0, 0.1),
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.5);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.apple-btn-primary:hover:not(:disabled) {
+  background: linear-gradient(180deg, rgba(20, 138, 255, 0.98) 0%, rgba(0, 113, 227, 1) 100%);
+  box-shadow: 
+    0 6px 22px rgba(0, 113, 227, 0.48),
+    0 2px 4px rgba(0, 0, 0, 0.12),
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.65);
+  transform: translateY(-0.5px);
+}
+
+.apple-btn-primary:active:not(:disabled) {
+  transform: scale(0.97);
+  box-shadow: 
+    0 2px 8px rgba(0, 113, 227, 0.3),
+    inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Apple Secondary Frosted Glass Button */
+.apple-btn-glass {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 
+    0 3px 12px -2px rgba(0, 0, 0, 0.05),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.95);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark .apple-btn-glass {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 
+    0 4px 16px -2px rgba(0, 0, 0, 0.35),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.apple-btn-glass:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.88);
+  border-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 
+    0 6px 18px -2px rgba(0, 0, 0, 0.08),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 1);
+  transform: translateY(-0.5px);
+}
+
+.dark .apple-btn-glass:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow: 
+    0 6px 20px -2px rgba(0, 0, 0, 0.5),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.24);
+  transform: translateY(-0.5px);
+}
+
+.apple-btn-glass:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+/* Apple Circular Glass Icon Button */
+.apple-icon-btn {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(20px) saturate(190%);
+  -webkit-backdrop-filter: blur(20px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    inset 0 1px 1px rgba(255, 255, 255, 0.9);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark .apple-icon-btn {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 
+    0 2px 10px rgba(0, 0, 0, 0.3),
+    inset 0 1px 1px rgba(255, 255, 255, 0.14);
+}
+
+.apple-icon-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 
+    0 4px 14px rgba(0, 0, 0, 0.08),
+    inset 0 1px 1px rgba(255, 255, 255, 1);
+  transform: scale(1.08);
+}
+
+.dark .apple-icon-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.22);
+  transform: scale(1.08);
+}
+
+.apple-icon-btn:active:not(:disabled) {
+  transform: scale(0.92);
+}
+
+/* Apple Glass Pill Container (Language Switcher, Theme Switcher, Tag Filters) */
+.apple-glass-pill {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 
+    0 4px 16px -2px rgba(0, 0, 0, 0.04),
+    inset 0 1px 1px rgba(255, 255, 255, 0.9);
+}
+
+.dark .apple-glass-pill {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 6px 20px -2px rgba(0, 0, 0, 0.35),
     inset 0 1px 1px rgba(255, 255, 255, 0.12);
+}
+
+/* Apple Glass Form Input */
+.apple-glass-input {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s ease;
+}
+
+.dark .apple-glass-input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.apple-glass-input:focus-within, .apple-glass-input:focus {
+  border-color: #0071E3;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.2), inset 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.dark .apple-glass-input:focus-within, .dark .apple-glass-input:focus {
+  border-color: #0071E3;
+  background: rgba(255, 255, 255, 0.09);
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.35), inset 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 /* Mobile & Touch Optimizations */
