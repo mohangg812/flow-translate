@@ -7,7 +7,7 @@ import {
   Sparkles, Languages, PlusCircle, CheckCircle2,
   Lock, Mail, LayoutGrid, ListFilter, RotateCw, ChevronLeft, ChevronRight,
   Zap, Lightbulb, Play, Camera, FileText, Globe, Download, UploadCloud,
-  FileCheck, ExternalLink, Loader2, ArrowUpRight
+  FileCheck, ExternalLink, Loader2, ArrowUpRight, Scan, BookOpen, Compass, Bookmark
 } from 'lucide-react';
 
 const LANGUAGES = [
@@ -26,9 +26,10 @@ const QUICK_CHIPS = [
 ];
 
 const URL_PRESETS = [
-  { label: 'Wikipedia (AI)', url: 'https://en.wikipedia.org/wiki/Artificial_intelligence' },
-  { label: 'TechCrunch', url: 'https://techcrunch.com' },
-  { label: 'BBC News', url: 'https://www.bbc.com/news' },
+  { label: 'Wikipedia', domain: 'wikipedia.org', icon: '🌐', desc: 'Искусственный интеллект', url: 'https://en.wikipedia.org/wiki/Artificial_intelligence' },
+  { label: 'TechCrunch', domain: 'techcrunch.com', icon: '⚡', desc: 'Стартапы и технологии', url: 'https://techcrunch.com' },
+  { label: 'BBC News', domain: 'bbc.com', icon: '📰', desc: 'Мировые события', url: 'https://www.bbc.com/news' },
+  { label: 'The Verge', domain: 'theverge.com', icon: '💻', desc: 'Обзоры гаджетов и софта', url: 'https://www.theverge.com' },
 ];
 
 function useDebounce(value, delay) {
@@ -74,6 +75,7 @@ export default function App() {
   const [ocrProgress, setOcrProgress] = useState(0);
   const [ocrStatusText, setOcrStatusText] = useState('');
   const [loadedFile, setLoadedFile] = useState(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
 
   // URL modal state
@@ -197,7 +199,16 @@ export default function App() {
     window.speechSynthesis.speak(utterance);
   };
 
-  // OCR Processing Function via Tesseract.js
+  const handleClearLoadedContent = () => {
+    if (imagePreviewUrl) {
+      URL.revokeObjectURL(imagePreviewUrl);
+      setImagePreviewUrl(null);
+    }
+    setLoadedFile(null);
+    setSourceText('');
+  };
+
+  // OCR Processing Function via Tesseract.js (Apple Live Text / Google Lens)
   const processImageFile = async (file) => {
     if (!file) return;
     setIsOcrProcessing(true);
@@ -205,11 +216,17 @@ export default function App() {
     setOcrStatusText('Подготовка изображения...');
     setActiveMode('image');
 
+    if (imagePreviewUrl) {
+      URL.revokeObjectURL(imagePreviewUrl);
+    }
+    const previewUrl = URL.createObjectURL(file);
+    setImagePreviewUrl(previewUrl);
+
     try {
       const langMap = { en: 'eng', ru: 'rus', de: 'deu', es: 'spa' };
       const ocrLang = langMap[sourceLang] || 'eng';
 
-      setOcrStatusText('Инициализация OCR...');
+      setOcrStatusText('Инициализация нейросети...');
       const { data: { text } } = await Tesseract.recognize(
         file,
         ocrLang,
@@ -227,7 +244,7 @@ export default function App() {
       const cleanText = text.replace(/\n\s*\n/g, '\n').trim();
       if (cleanText) {
         setSourceText(cleanText);
-        setLoadedFile({ name: file.name || 'Скриншот', size: (file.size / 1024).toFixed(1) + ' KB', type: 'image' });
+        setLoadedFile({ name: file.name || 'Снимок экрана', size: (file.size / 1024).toFixed(1) + ' KB', type: 'image' });
       } else {
         alert('Текст на изображении не обнаружен. Попробуйте более четкое фото.');
       }
@@ -240,9 +257,13 @@ export default function App() {
     }
   };
 
-  // Document Processing Function
+  // Document Processing Function (Apple Files / Google Docs)
   const processDocumentFile = async (file) => {
     if (!file) return;
+    if (imagePreviewUrl) {
+      URL.revokeObjectURL(imagePreviewUrl);
+      setImagePreviewUrl(null);
+    }
     setActiveMode('doc');
     const ext = file.name.split('.').pop().toLowerCase();
 
@@ -251,8 +272,8 @@ export default function App() {
       const reader = new FileReader();
       reader.onload = (e) => {
         const text = e.target.result;
-        setSourceText(text.slice(0, 2000));
-        setLoadedFile({ name: file.name, size: (file.size / 1024).toFixed(1) + ' KB', type: 'doc' });
+        setSourceText(text.slice(0, 3000));
+        setLoadedFile({ name: file.name, size: (file.size / 1024).toFixed(1) + ' KB', type: 'doc', ext: ext.toUpperCase() });
       };
       reader.readAsText(file, 'UTF-8');
     } else if (ext === 'pdf') {
@@ -266,13 +287,13 @@ export default function App() {
         const matches = content.match(/\((.*?)\)\s*Tj/g) || content.match(/\[(.*?)\]\s*TJ/g);
         if (matches && matches.length > 0) {
           const extracted = matches.map(m => m.replace(/[\(\)\[\]]|Tj|TJ/g, '').trim()).join(' ');
-          setSourceText(extracted.slice(0, 2000));
+          setSourceText(extracted.slice(0, 3000));
         } else {
           // Fallback: search for readable chunks
           const chunks = content.match(/[A-Za-zА-Яа-я0-9\s.,!?-]{20,}/g);
-          setSourceText(chunks ? chunks.slice(0, 5).join('\n\n').slice(0, 2000) : 'Не удалось автоматически извлечь текст из PDF.');
+          setSourceText(chunks ? chunks.slice(0, 5).join('\n\n').slice(0, 3000) : 'Не удалось автоматически извлечь текст из PDF.');
         }
-        setLoadedFile({ name: file.name, size: (file.size / 1024).toFixed(1) + ' KB', type: 'pdf' });
+        setLoadedFile({ name: file.name, size: (file.size / 1024).toFixed(1) + ' KB', type: 'pdf', ext: 'PDF' });
       };
       reader.readAsArrayBuffer(file);
     } else {
@@ -774,35 +795,66 @@ export default function App() {
           </div>
         </div>
 
-        {/* Mode Selector (Text / Photo / Document / Website) */}
-        <div className="flex items-center justify-center gap-2">
-          <div className="ios-glass p-1 rounded-2xl flex items-center gap-1 border border-black/[0.04] dark:border-white/[0.06] shadow-sm">
+        {/* Apple Segmented Mode Switcher */}
+        <div className="flex items-center justify-center">
+          <div className="apple-segmented-pill flex items-center gap-1 border border-black/[0.04] dark:border-white/[0.08] p-1.5 rounded-full">
             <button
-              onClick={() => { setActiveMode('text'); setLoadedFile(null); }}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${activeMode === 'text' ? 'bg-[#0071E3] text-white shadow-sm' : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'}`}
+              onClick={() => { setActiveMode('text'); }}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 ${
+                activeMode === 'text' 
+                  ? 'apple-tab-active scale-[1.02]' 
+                  : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
+              }`}
             >
-              ✍️ Текст
+              <Edit3 size={13} className={activeMode === 'text' ? 'text-[#0071E3]' : ''} />
+              <span>Текст</span>
             </button>
             <button
-              onClick={() => imageInputRef.current?.click()}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${activeMode === 'image' ? 'bg-[#0071E3] text-white shadow-sm' : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'}`}
-              title="Загрузить фото, скриншот или нажать Ctrl+V"
+              onClick={() => {
+                setActiveMode('image');
+                if (!imagePreviewUrl) imageInputRef.current?.click();
+              }}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 ${
+                activeMode === 'image' 
+                  ? 'apple-tab-active scale-[1.02]' 
+                  : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
+              }`}
+              title="Загрузить фото или вставить скриншот (Ctrl+V)"
             >
-              <Camera size={14} /> Фото / Скан
+              <Camera size={13} className={activeMode === 'image' ? 'text-[#0071E3]' : ''} />
+              <span>Фото & Скан</span>
+              <span className="text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-[#0071E3]/15 text-[#0071E3]">Live Text</span>
             </button>
             <button
-              onClick={() => docInputRef.current?.click()}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${activeMode === 'doc' ? 'bg-[#0071E3] text-white shadow-sm' : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'}`}
-              title="Загрузить файл: .txt, .md, .pdf, .json, .csv, .srt"
+              onClick={() => {
+                setActiveMode('doc');
+                if (!loadedFile || loadedFile.type !== 'doc') docInputRef.current?.click();
+              }}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 ${
+                activeMode === 'doc' 
+                  ? 'apple-tab-active scale-[1.02]' 
+                  : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
+              }`}
+              title="Загрузить файл: PDF, TXT, MD, JSON, CSV, SRT"
             >
-              <FileText size={14} /> Документ
+              <FileText size={13} className={activeMode === 'doc' ? 'text-[#0071E3]' : ''} />
+              <span>Документы</span>
             </button>
             <button
-              onClick={() => setUrlModal(true)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${activeMode === 'url' ? 'bg-[#0071E3] text-white shadow-sm' : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'}`}
-              title="Перевести страницу по ссылке"
+              onClick={() => {
+                setActiveMode('url');
+                setUrlModal(true);
+              }}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 ${
+                activeMode === 'url' 
+                  ? 'apple-tab-active scale-[1.02]' 
+                  : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
+              }`}
+              title="Перевести страницу в Safari Reader Mode"
             >
-              <Globe size={14} /> Веб-сайт
+              <Globe size={13} className={activeMode === 'url' ? 'text-[#0071E3]' : ''} />
+              <span>Веб-страница</span>
+              <span className="text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-purple-500/15 text-purple-600 dark:text-purple-400">Reader</span>
             </button>
           </div>
         </div>
@@ -919,7 +971,7 @@ export default function App() {
           {/* Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             
-            {/* Source Card (with Drag & Drop support) */}
+            {/* Source Card (Apple & Google UI with Live Text, Files, and Safari Reader) */}
             <div 
               onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
               onDragLeave={() => setIsDragging(false)}
@@ -932,39 +984,73 @@ export default function App() {
                   else processDocumentFile(file);
                 }
               }}
-              className={`ios-glass ios-card-specular rounded-[32px] p-6 min-h-[220px] flex flex-col justify-between transition-all duration-300 hover:shadow-2xl focus-within:ring-2 focus-within:ring-[#0071E3]/40 relative ${isDragging ? 'ring-4 ring-[#0071E3] bg-[#0071E3]/10 scale-[1.01]' : ''}`}
+              className={`ios-glass ios-card-specular rounded-[32px] p-6 min-h-[260px] flex flex-col justify-between transition-all duration-300 hover:shadow-2xl focus-within:ring-2 focus-within:ring-[#0071E3]/40 relative ${isDragging ? 'ring-4 ring-[#0071E3] bg-[#0071E3]/10 scale-[1.01]' : ''}`}
             >
               {isDragging && (
-                <div className="absolute inset-0 z-20 backdrop-blur-sm bg-white/70 dark:bg-black/70 rounded-[32px] flex flex-col items-center justify-center gap-2 text-[#0071E3] font-bold">
-                  <UploadCloud size={36} className="animate-bounce" />
-                  <span>Отпустите файл для распознавания</span>
+                <div className="absolute inset-0 z-30 backdrop-blur-md bg-white/80 dark:bg-black/80 rounded-[32px] flex flex-col items-center justify-center gap-3 text-[#0071E3] font-bold animate-in fade-in">
+                  <div className="w-16 h-16 rounded-full bg-[#0071E3]/10 flex items-center justify-center animate-bounce">
+                    <UploadCloud size={36} />
+                  </div>
+                  <span className="text-sm tracking-tight">Отпустите для мгновенного анализа и распознавания</span>
                 </div>
               )}
 
               <div>
-                <div className="flex items-center justify-between pb-3 mb-2 border-b border-black/[0.04] dark:border-white/[0.06]">
-                  <span className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider flex items-center gap-1.5">
-                    {activeSourceLang.flag} {activeSourceLang.label}
-                  </span>
+                {/* Source Card Header with Mode Badges */}
+                <div className="flex items-center justify-between pb-3 mb-3 border-b border-black/[0.04] dark:border-white/[0.06]">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider flex items-center gap-1.5">
+                      {activeSourceLang.flag} {activeSourceLang.label}
+                    </span>
+                    {activeMode === 'image' && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#0071E3]/10 text-[#0071E3] flex items-center gap-1 border border-[#0071E3]/20">
+                        <Scan size={10} /> Apple Live Text
+                      </span>
+                    )}
+                    {activeMode === 'doc' && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center gap-1 border border-indigo-500/20">
+                        <FileText size={10} /> Apple Files
+                      </span>
+                    )}
+                    {activeMode === 'url' && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center gap-1 border border-purple-500/20">
+                        <Compass size={10} /> Safari Reader View
+                      </span>
+                    )}
+                  </div>
+
                   <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => imageInputRef.current?.click()}
-                      className="p-1 text-[#8E8E93] hover:text-[#0071E3] rounded-lg transition-colors"
-                      title="Фото / Скриншот (или нажмите Ctrl+V)"
-                    >
-                      <Camera size={15} />
-                    </button>
-                    <button
-                      onClick={() => docInputRef.current?.click()}
-                      className="p-1 text-[#8E8E93] hover:text-[#0071E3] rounded-lg transition-colors"
-                      title="Загрузить документ"
-                    >
-                      <FileText size={15} />
-                    </button>
-                    {sourceText && (
+                    {activeMode === 'image' && (
+                      <button
+                        onClick={() => imageInputRef.current?.click()}
+                        className="px-2.5 py-1 text-xs font-semibold text-[#0071E3] hover:bg-[#0071E3]/10 rounded-xl transition-colors flex items-center gap-1"
+                        title="Выбрать другое фото"
+                      >
+                        <Camera size={13} /> {imagePreviewUrl ? 'Заменить' : 'Выбрать фото'}
+                      </button>
+                    )}
+                    {activeMode === 'doc' && (
+                      <button
+                        onClick={() => docInputRef.current?.click()}
+                        className="px-2.5 py-1 text-xs font-semibold text-[#0071E3] hover:bg-[#0071E3]/10 rounded-xl transition-colors flex items-center gap-1"
+                        title="Выбрать другой документ"
+                      >
+                        <UploadCloud size={13} /> {loadedFile ? 'Заменить' : 'Выбрать файл'}
+                      </button>
+                    )}
+                    {activeMode === 'url' && (
+                      <button
+                        onClick={() => setUrlModal(true)}
+                        className="px-2.5 py-1 text-xs font-semibold text-[#0071E3] hover:bg-[#0071E3]/10 rounded-xl transition-colors flex items-center gap-1"
+                        title="Ввести другой адрес"
+                      >
+                        <Globe size={13} /> {loadedFile ? 'Сменить URL' : 'Ввести URL'}
+                      </button>
+                    )}
+                    {(sourceText || imagePreviewUrl || loadedFile) && (
                       <button 
-                        onClick={() => { setSourceText(''); setLoadedFile(null); }}
-                        className="text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1 rounded-full hover:bg-black/[0.05] dark:hover:bg-white/[0.08] transition-colors"
+                        onClick={handleClearLoadedContent}
+                        className="text-[#8E8E93] hover:text-rose-500 p-1.5 rounded-full hover:bg-black/[0.05] dark:hover:bg-white/[0.08] transition-colors"
                         title="Очистить"
                       >
                         <X size={14} />
@@ -973,15 +1059,200 @@ export default function App() {
                   </div>
                 </div>
 
-                <textarea
-                  value={sourceText}
-                  onChange={(e) => setSourceText(e.target.value)}
-                  placeholder="Введите текст или перетащите фото / документ сюда..."
-                  rows={3}
-                  className="w-full text-2xl sm:text-3xl font-bold bg-transparent border-none resize-none focus:outline-none placeholder-[#AEAEB2] dark:placeholder-[#48484A] leading-snug tracking-tight text-[#1C1C1E] dark:text-white"
-                />
+                {/* MODE: IMAGE (Apple Live Text / Google Lens Viewfinder) */}
+                {activeMode === 'image' && (
+                  <div className="space-y-3 mb-2">
+                    {imagePreviewUrl ? (
+                      <div className="relative rounded-2xl overflow-hidden bg-black/[0.03] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 p-2 flex items-center justify-center max-h-52">
+                        {/* 4 Apple Camera Viewfinder Corner Brackets */}
+                        <span className="viewfinder-bracket top-2 left-2 border-t-2 border-l-2 rounded-tl" />
+                        <span className="viewfinder-bracket top-2 right-2 border-t-2 border-r-2 rounded-tr" />
+                        <span className="viewfinder-bracket bottom-2 left-2 border-b-2 border-l-2 rounded-bl" />
+                        <span className="viewfinder-bracket bottom-2 right-2 border-b-2 border-r-2 rounded-br" />
+
+                        {/* Laser Scan Beam */}
+                        {isOcrProcessing && <div className="animate-scan-beam" />}
+
+                        <img 
+                          src={imagePreviewUrl} 
+                          alt="Live Text Scan" 
+                          className={`max-h-48 rounded-xl object-contain transition-all duration-300 ${isOcrProcessing ? 'opacity-70 blur-[1px]' : ''}`} 
+                        />
+
+                        {isOcrProcessing && (
+                          <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex flex-col items-center justify-center gap-2 text-white">
+                            <div className="flex items-center gap-2 bg-black/70 px-3.5 py-1.5 rounded-full border border-white/20 shadow-lg">
+                              <Loader2 size={16} className="animate-spin text-[#0071E3]" />
+                              <span className="text-xs font-semibold">{ocrStatusText || 'Нейросеть считывает...'}</span>
+                            </div>
+                          </div>
+                        )}
+
+                        {!isOcrProcessing && (
+                          <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-bold text-white flex items-center gap-1 border border-white/15 shadow-sm">
+                            <Sparkles size={11} className="text-[#0071E3]" /> Live Text активен
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div 
+                        onClick={() => imageInputRef.current?.click()}
+                        className="relative rounded-2xl border-2 border-dashed border-black/10 dark:border-white/15 hover:border-[#0071E3]/60 p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all bg-black/[0.02] dark:bg-white/[0.02] group"
+                      >
+                        <span className="viewfinder-bracket top-3 left-3 border-t-2 border-l-2 rounded-tl group-hover:border-[#0071E3]" />
+                        <span className="viewfinder-bracket top-3 right-3 border-t-2 border-r-2 rounded-tr group-hover:border-[#0071E3]" />
+                        <span className="viewfinder-bracket bottom-3 left-3 border-b-2 border-l-2 rounded-bl group-hover:border-[#0071E3]" />
+                        <span className="viewfinder-bracket bottom-3 right-3 border-b-2 border-r-2 rounded-br group-hover:border-[#0071E3]" />
+
+                        <div className="w-12 h-12 rounded-2xl bg-[#0071E3]/10 text-[#0071E3] flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
+                          <Camera size={24} />
+                        </div>
+                        <h4 className="text-sm font-bold text-[#1C1C1E] dark:text-white mb-1">
+                          Apple Live Text & Google Lens
+                        </h4>
+                        <p className="text-xs text-[#8E8E93] max-w-xs mb-3 leading-relaxed">
+                          Перетащите фото сюда, выберите файл или нажмите <kbd className="px-1.5 py-0.5 rounded bg-black/[0.06] dark:bg-white/[0.1] font-mono text-[10px]">Ctrl+V</kbd> для скриншота
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-[#8E8E93]">
+                            PNG · JPG · WEBP · Скриншоты
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    <textarea
+                      value={sourceText}
+                      onChange={(e) => setSourceText(e.target.value)}
+                      placeholder="Распознанный текст появится здесь..."
+                      rows={imagePreviewUrl ? 2 : 3}
+                      className="w-full text-xl sm:text-2xl font-bold bg-transparent border-none resize-none focus:outline-none placeholder-[#AEAEB2] dark:placeholder-[#48484A] leading-snug tracking-tight text-[#1C1C1E] dark:text-white"
+                    />
+                  </div>
+                )}
+
+                {/* MODE: DOCUMENT (Apple Files / Google Drive) */}
+                {activeMode === 'doc' && (
+                  <div className="space-y-3 mb-2">
+                    {loadedFile && (loadedFile.type === 'doc' || loadedFile.type === 'pdf') ? (
+                      <div className="p-3.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0071E3] to-[#5E5CE6] text-white flex items-center justify-center font-bold text-xs shadow-md">
+                            {loadedFile.ext || 'DOC'}
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold text-[#1C1C1E] dark:text-white truncate max-w-[180px] sm:max-w-xs">{loadedFile.name}</p>
+                            <p className="text-[10px] text-[#8E8E93]">{loadedFile.size} · {sourceText.length} символов</p>
+                          </div>
+                        </div>
+                        <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center gap-1 border border-emerald-500/20">
+                          <Check size={11} /> Готово к переводу
+                        </span>
+                      </div>
+                    ) : (
+                      <div 
+                        onClick={() => docInputRef.current?.click()}
+                        className="rounded-2xl border-2 border-dashed border-black/10 dark:border-white/15 hover:border-[#0071E3]/60 p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all bg-black/[0.02] dark:bg-white/[0.02] group"
+                      >
+                        <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
+                          <FileText size={24} />
+                        </div>
+                        <h4 className="text-sm font-bold text-[#1C1C1E] dark:text-white mb-1">
+                          Apple Files · Чтение документов
+                        </h4>
+                        <p className="text-xs text-[#8E8E93] max-w-xs mb-3 leading-relaxed">
+                          Перетащите документ сюда или нажмите для выбора файла на устройстве
+                        </p>
+                        <div className="flex flex-wrap items-center justify-center gap-1.5">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400">PDF</span>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400">TXT</span>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">MD</span>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400">JSON</span>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">CSV</span>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400">SRT</span>
+                        </div>
+                      </div>
+                    )}
+
+                    <textarea
+                      value={sourceText}
+                      onChange={(e) => setSourceText(e.target.value)}
+                      placeholder="Текст документа для перевода..."
+                      rows={loadedFile ? 2 : 3}
+                      className="w-full text-xl sm:text-2xl font-bold bg-transparent border-none resize-none focus:outline-none placeholder-[#AEAEB2] dark:placeholder-[#48484A] leading-snug tracking-tight text-[#1C1C1E] dark:text-white"
+                    />
+                  </div>
+                )}
+
+                {/* MODE: URL (Apple Safari Reader Mode) */}
+                {activeMode === 'url' && (
+                  <div className="space-y-3 mb-2">
+                    {loadedFile && loadedFile.type === 'url' ? (
+                      <div className="p-3.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-[#0071E3]/10 text-[#0071E3] flex items-center justify-center font-bold text-sm">
+                            <Compass size={20} />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-xs font-bold text-[#1C1C1E] dark:text-white truncate max-w-[180px] sm:max-w-xs">{loadedFile.name}</span>
+                              <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-purple-500/15 text-purple-600 dark:text-purple-400">Reader View</span>
+                            </div>
+                            <p className="text-[10px] text-[#8E8E93]">
+                              ~{Math.max(1, Math.round(sourceText.split(/\s+/).filter(Boolean).length / 150))} мин чтения · {sourceText.split(/\s+/).filter(Boolean).length} слов
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => setUrlModal(true)}
+                          className="text-xs font-semibold px-2.5 py-1 rounded-xl bg-[#0071E3]/10 text-[#0071E3] hover:bg-[#0071E3] hover:text-white transition-colors"
+                        >
+                          Сменить URL
+                        </button>
+                      </div>
+                    ) : (
+                      <div 
+                        onClick={() => setUrlModal(true)}
+                        className="rounded-2xl border-2 border-dashed border-black/10 dark:border-white/15 hover:border-[#0071E3]/60 p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all bg-black/[0.02] dark:bg-white/[0.02] group"
+                      >
+                        <div className="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
+                          <Globe size={24} />
+                        </div>
+                        <h4 className="text-sm font-bold text-[#1C1C1E] dark:text-white mb-1">
+                          Safari Reader Mode · Веб-страницы
+                        </h4>
+                        <p className="text-xs text-[#8E8E93] max-w-xs mb-3 leading-relaxed">
+                          Нажмите, чтобы ввести ссылку на любую статью или новость без рекламы и лишних блоков
+                        </p>
+                        <div className="flex items-center gap-1.5 text-xs text-[#0071E3] font-semibold">
+                          <span>Ввести адрес страницы</span> <ArrowUpRight size={14} />
+                        </div>
+                      </div>
+                    )}
+
+                    <textarea
+                      value={sourceText}
+                      onChange={(e) => setSourceText(e.target.value)}
+                      placeholder="Текст статьи для перевода..."
+                      rows={loadedFile ? 2 : 3}
+                      className="w-full text-xl sm:text-2xl font-bold bg-transparent border-none resize-none focus:outline-none placeholder-[#AEAEB2] dark:placeholder-[#48484A] leading-snug tracking-tight text-[#1C1C1E] dark:text-white"
+                    />
+                  </div>
+                )}
+
+                {/* MODE: STANDARD TEXT */}
+                {activeMode === 'text' && (
+                  <textarea
+                    value={sourceText}
+                    onChange={(e) => setSourceText(e.target.value)}
+                    placeholder="Введите текст или перетащите фото / документ сюда..."
+                    rows={3}
+                    className="w-full text-2xl sm:text-3xl font-bold bg-transparent border-none resize-none focus:outline-none placeholder-[#AEAEB2] dark:placeholder-[#48484A] leading-snug tracking-tight text-[#1C1C1E] dark:text-white"
+                  />
+                )}
               </div>
 
+              {/* Source Card Footer */}
               <div className="flex items-center justify-between pt-4 border-t border-black/[0.04] dark:border-white/[0.06]">
                 <div className="flex items-center gap-2">
                   <button
@@ -1026,14 +1297,14 @@ export default function App() {
                   <span className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider flex items-center gap-1.5">
                     {activeTargetLang.flag} {activeTargetLang.label}
                   </span>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-2">
                     {translatedText && (
                       <button
                         onClick={handleDownloadTranslation}
-                        className="text-xs font-semibold px-2.5 py-1 rounded-xl bg-black/[0.04] dark:bg-white/[0.06] hover:bg-[#0071E3] hover:text-white transition-all flex items-center gap-1 text-[#8E8E93]"
-                        title="Скачать перевод в файл"
+                        className="text-xs font-semibold px-3.5 py-1.5 rounded-full bg-[#0071E3] hover:bg-[#0077ED] text-white transition-all shadow-[0_2px_10px_rgba(0,113,227,0.35)] hover:scale-105 active:scale-95 flex items-center gap-1.5"
+                        title="Скачать перевод в файл .txt"
                       >
-                        <Download size={13} /> Скачать
+                        <Download size={13} /> Скачать .txt
                       </button>
                     )}
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#0071E3]/10 text-[#0071E3] uppercase tracking-wider">
@@ -1100,20 +1371,66 @@ export default function App() {
 
           </div>
 
-          {/* Quick Suggestion Chips */}
+          {/* Quick Context-Aware Suggestion Chips */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 no-scrollbar">
-            <span className="text-[11px] font-semibold text-[#8E8E93] flex items-center gap-1 flex-shrink-0 pl-1">
-              <Zap size={13} className="text-amber-500" /> Быстрые фразы:
-            </span>
-            {QUICK_CHIPS.map((chip, idx) => (
-              <button
-                key={idx}
-                onClick={() => setSourceText(chip.text)}
-                className="ios-glass hover:bg-white dark:hover:bg-white/[0.1] text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 transition-all hover:scale-105 active:scale-95 text-[#1C1C1E] dark:text-[#F5F5F7]"
-              >
-                {chip.label}
-              </button>
-            ))}
+            {activeMode === 'text' && (
+              <>
+                <span className="text-[11px] font-semibold text-[#8E8E93] flex items-center gap-1 flex-shrink-0 pl-1">
+                  <Zap size={13} className="text-amber-500" /> Быстрые фразы:
+                </span>
+                {QUICK_CHIPS.map((chip, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setSourceText(chip.text)}
+                    className="ios-glass hover:bg-white dark:hover:bg-white/[0.1] text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 transition-all hover:scale-105 active:scale-95 text-[#1C1C1E] dark:text-[#F5F5F7]"
+                  >
+                    {chip.label}
+                  </button>
+                ))}
+              </>
+            )}
+
+            {activeMode === 'image' && (
+              <>
+                <span className="text-[11px] font-semibold text-[#8E8E93] flex items-center gap-1 flex-shrink-0 pl-1">
+                  <Camera size={13} className="text-[#0071E3]" /> Советы по фото:
+                </span>
+                <span className="ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
+                  📋 Нажмите Win+Shift+S и затем Ctrl+V для вставки скриншота
+                </span>
+                <span className="ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
+                  ✨ Apple Live Text распознает как печатный, так и рукописный текст
+                </span>
+              </>
+            )}
+
+            {activeMode === 'doc' && (
+              <>
+                <span className="text-[11px] font-semibold text-[#8E8E93] flex items-center gap-1 flex-shrink-0 pl-1">
+                  <FileText size={13} className="text-indigo-500" /> Советы по файлам:
+                </span>
+                <span className="ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
+                  📄 Поддерживаются .pdf, .txt, .md, .json, .csv, .srt
+                </span>
+                <span className="ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
+                  💾 Кнопка «Скачать .txt» мгновенно сохраняет готовый файл
+                </span>
+              </>
+            )}
+
+            {activeMode === 'url' && (
+              <>
+                <span className="text-[11px] font-semibold text-[#8E8E93] flex items-center gap-1 flex-shrink-0 pl-1">
+                  <Compass size={13} className="text-purple-500" /> Советы по сайтам:
+                </span>
+                <span className="ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
+                  🌐 Safari Reader View удаляет баннеры, меню и скрипты со страницы
+                </span>
+                <span className="ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
+                  📖 Подходят статьи, блоги, новости и публикации
+                </span>
+              </>
+            )}
           </div>
 
         </section>
@@ -1358,52 +1675,98 @@ export default function App() {
 
       </main>
 
-      {/* ================= URL TRANSLATION MODAL ================= */}
+      {/* ================= URL TRANSLATION MODAL (Apple Safari Browser Window) ================= */}
       {urlModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="ios-glass ios-card-specular rounded-[36px] p-7 w-full max-w-md border border-black/10 dark:border-white/10 shadow-2xl relative">
-            <button onClick={() => setUrlModal(false)} className="absolute right-5 top-5 text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1 rounded-full"><X size={18} /></button>
+          <div className="ios-glass ios-card-specular rounded-[36px] p-6 sm:p-7 w-full max-w-lg border border-black/10 dark:border-white/10 shadow-2xl relative">
             
-            <div className="flex items-center gap-2 mb-1">
-              <Globe size={20} className="text-[#0071E3]" />
+            {/* Safari macOS Traffic Lights Window Header */}
+            <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-black/[0.05] dark:border-white/[0.08]">
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => setUrlModal(false)} 
+                  className="w-3 h-3 rounded-full bg-[#FF5F56] border border-[#E0443E] hover:opacity-80 transition-opacity" 
+                  title="Закрыть" 
+                />
+                <span className="w-3 h-3 rounded-full bg-[#FFBD2E] border border-[#DEA123]" />
+                <span className="w-3 h-3 rounded-full bg-[#27C93F] border border-[#1AAB29]" />
+                <span className="text-xs font-semibold text-[#8E8E93] ml-2 flex items-center gap-1.5">
+                  <Compass size={13} className="text-[#0071E3]" /> Safari Reader View
+                </span>
+              </div>
+              <button 
+                onClick={() => setUrlModal(false)} 
+                className="text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1 rounded-full"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="mb-4">
               <h3 className="text-lg font-bold tracking-tight text-[#1C1C1E] dark:text-white">
                 Перевод веб-страницы
               </h3>
+              <p className="text-xs text-[#8E8E93]">
+                Интеллектуальное извлечение основного текста статьи без рекламы, меню и баннеров
+              </p>
             </div>
-            <p className="text-xs text-[#8E8E93] mb-4">
-              Вставьте ссылку на любую статью, новость или пост:
-            </p>
 
             {urlError && (
-              <div className="p-3 mb-3 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 text-xs font-semibold border border-rose-500/20">
+              <div className="p-3 mb-3 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 text-xs font-semibold border border-rose-500/20 animate-in fade-in">
                 {urlError}
               </div>
             )}
 
             <form onSubmit={handleUrlExtract} className="space-y-4">
-              <div className="relative">
+              {/* Safari Smart Search Address Bar */}
+              <div className="relative flex items-center bg-black/[0.04] dark:bg-white/[0.06] rounded-2xl border border-black/[0.06] dark:border-white/[0.1] px-3.5 py-2.5 focus-within:border-[#0071E3] focus-within:bg-white dark:focus-within:bg-[#1C1C1E] transition-all">
+                <Lock size={14} className="text-[#8E8E93] mr-2 flex-shrink-0" />
+                <span className="text-xs font-mono text-[#8E8E93] mr-1 select-none">https://</span>
                 <input
-                  type="url"
+                  type="text"
                   required
-                  placeholder="https://en.wikipedia.org/wiki/..."
-                  value={inputUrl}
-                  onChange={(e) => setInputUrl(e.target.value)}
-                  className="w-full pl-4 pr-10 py-3 bg-black/[0.04] dark:bg-white/[0.06] rounded-2xl text-sm border border-transparent focus:border-[#0071E3] focus:outline-none transition-all text-[#1C1C1E] dark:text-white"
+                  placeholder="en.wikipedia.org/wiki/..."
+                  value={inputUrl.replace(/^https?:\/\//, '')}
+                  onChange={(e) => {
+                    const val = e.target.value.trim();
+                    setInputUrl(val.startsWith('http') ? val : `https://${val}`);
+                  }}
+                  className="w-full bg-transparent text-xs font-mono font-medium focus:outline-none text-[#1C1C1E] dark:text-white"
                 />
+                {inputUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setInputUrl('')}
+                    className="text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1 ml-1"
+                  >
+                    <X size={13} />
+                  </button>
+                )}
+                <div className="ml-2 pl-2 border-l border-black/[0.08] dark:border-white/[0.1] text-[#0071E3] font-bold text-[11px] select-none">
+                  aA
+                </div>
               </div>
 
-              {/* Quick Preset Links */}
+              {/* Safari Bookmarks / Speed Dial Grid */}
               <div>
-                <span className="text-[11px] font-semibold text-[#8E8E93] uppercase block mb-1.5">Примеры для теста:</span>
-                <div className="flex flex-wrap gap-1.5">
+                <span className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider block mb-2">Избранные закладки:</span>
+                <div className="grid grid-cols-2 gap-2">
                   {URL_PRESETS.map((p, idx) => (
                     <button
                       key={idx}
                       type="button"
                       onClick={() => setInputUrl(p.url)}
-                      className="text-xs px-2.5 py-1 rounded-xl bg-black/[0.04] dark:bg-white/[0.06] hover:bg-[#0071E3]/15 text-[#8E8E93] hover:text-[#0071E3] transition-colors flex items-center gap-1"
+                      className={`p-3 rounded-2xl border text-left transition-all flex items-start gap-2.5 ${
+                        inputUrl === p.url 
+                          ? 'bg-[#0071E3]/10 border-[#0071E3] text-[#0071E3]' 
+                          : 'bg-black/[0.03] dark:bg-white/[0.04] border-black/[0.04] dark:border-white/[0.06] hover:bg-black/[0.06] dark:hover:bg-white/[0.08]'
+                      }`}
                     >
-                      {p.label} <ArrowUpRight size={12} />
+                      <span className="text-lg">{p.icon}</span>
+                      <div className="min-w-0">
+                        <span className="text-xs font-bold block text-[#1C1C1E] dark:text-white truncate">{p.label}</span>
+                        <span className="text-[10px] text-[#8E8E93] block truncate">{p.desc}</span>
+                      </div>
                     </button>
                   ))}
                 </div>
@@ -1412,15 +1775,18 @@ export default function App() {
               <button
                 type="submit"
                 disabled={isUrlLoading || !inputUrl.trim()}
-                className="w-full bg-[#0071E3] hover:bg-[#0077ED] text-white font-semibold py-3 rounded-2xl text-sm transition-all shadow-md active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full bg-[#0071E3] hover:bg-[#0077ED] text-white font-semibold py-3.5 rounded-2xl text-xs transition-all shadow-[0_4px_14px_rgba(0,113,227,0.35)] active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {isUrlLoading ? (
                   <>
                     <Loader2 size={16} className="animate-spin" />
-                    Извлекаем текст статьи...
+                    <span>Загрузка и очистка статьи...</span>
                   </>
                 ) : (
-                  'Извлечь и перевести'
+                  <>
+                    <BookOpen size={15} />
+                    <span>Открыть в Reader Mode</span>
+                  </>
                 )}
               </button>
             </form>
