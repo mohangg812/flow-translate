@@ -755,52 +755,52 @@ export default function App() {
       </header>
 
       {/* ================= MAIN CONTAINER ================= */}
-      <main className="max-w-4xl mx-auto px-6 mt-6 space-y-7">
+      <main className="max-w-4xl mx-auto px-3.5 sm:px-6 mt-3 sm:mt-6 space-y-4 sm:space-y-7">
 
         {/* Dynamic Island Status Capsule */}
         <div className="flex justify-center">
-          <div className="ios-glass px-4 py-2 rounded-full flex items-center gap-2.5 shadow-sm border border-black/[0.05] dark:border-white/[0.08] text-xs font-medium transition-all duration-300 hover:scale-105">
+          <div className="ios-glass px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full flex items-center gap-2 sm:gap-2.5 shadow-sm border border-black/[0.05] dark:border-white/[0.08] text-[11px] sm:text-xs font-medium transition-all duration-300 hover:scale-105 max-w-full truncate">
             {isOcrProcessing ? (
               <>
-                <div className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping" />
-                <span className="text-amber-600 dark:text-amber-400 font-semibold flex items-center gap-1.5">
-                  <Camera size={13} className="animate-pulse" /> {ocrStatusText || 'OCR Сканирование...'}
+                <div className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping flex-shrink-0" />
+                <span className="text-amber-600 dark:text-amber-400 font-semibold flex items-center gap-1.5 truncate">
+                  <Camera size={13} className="animate-pulse flex-shrink-0" /> {ocrStatusText || 'OCR Сканирование...'}
                 </span>
               </>
             ) : isTranslating ? (
               <>
-                <div className="w-2.5 h-2.5 rounded-full bg-[#0071E3] animate-ping" />
-                <span className="text-[#0071E3] font-semibold flex items-center gap-1.5">
-                  <RefreshCw size={12} className="animate-spin" /> Обработка MyMemory...
+                <div className="w-2.5 h-2.5 rounded-full bg-[#0071E3] animate-ping flex-shrink-0" />
+                <span className="text-[#0071E3] font-semibold flex items-center gap-1.5 truncate">
+                  <RefreshCw size={12} className="animate-spin flex-shrink-0" /> Обработка MyMemory...
                 </span>
               </>
             ) : (isSpeakingSource || isSpeakingTarget) ? (
               <>
-                <div className="flex items-center gap-0.5 h-4 px-1">
+                <div className="flex items-center gap-0.5 h-4 px-1 flex-shrink-0">
                   <span className="w-1 bg-[#0071E3] rounded-full sound-bar" />
                   <span className="w-1 bg-[#5E5CE6] rounded-full sound-bar" />
                   <span className="w-1 bg-[#AF52DE] rounded-full sound-bar" />
                   <span className="w-1 bg-[#0071E3] rounded-full sound-bar" />
                 </div>
-                <span className="text-[#0071E3] font-semibold">Озвучивание текста</span>
+                <span className="text-[#0071E3] font-semibold truncate">Озвучивание текста</span>
               </>
             ) : (
               <>
-                <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]" />
-                <span className="text-[#8E8E93] dark:text-[#AEAEB2]">
-                  Интеллектуальный перевод · Готово к работе
+                <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)] flex-shrink-0" />
+                <span className="text-[#8E8E93] dark:text-[#AEAEB2] truncate">
+                  Интеллектуальный перевод <span className="hidden sm:inline">· Готово к работе</span>
                 </span>
               </>
             )}
           </div>
         </div>
 
-        {/* Apple Segmented Mode Switcher */}
-        <div className="flex items-center justify-center">
-          <div className="apple-segmented-pill flex items-center gap-1 border border-black/[0.04] dark:border-white/[0.08] p-1.5 rounded-full">
+        {/* Apple Segmented Mode Switcher (Fully Responsive for Mobile) */}
+        <div className="flex items-center justify-center w-full overflow-x-auto no-scrollbar py-0.5 px-1">
+          <div className="apple-segmented-pill flex items-center gap-1 border border-black/[0.04] dark:border-white/[0.08] p-1 rounded-full flex-nowrap">
             <button
               onClick={() => { setActiveMode('text'); }}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 ${
+              className={`px-3 sm:px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 flex-shrink-0 active:scale-95 ${
                 activeMode === 'text' 
                   ? 'apple-tab-active scale-[1.02]' 
                   : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
@@ -814,23 +814,23 @@ export default function App() {
                 setActiveMode('image');
                 if (!imagePreviewUrl) imageInputRef.current?.click();
               }}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 ${
+              className={`px-3 sm:px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 flex-shrink-0 active:scale-95 ${
                 activeMode === 'image' 
                   ? 'apple-tab-active scale-[1.02]' 
                   : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
               }`}
-              title="Загрузить фото или вставить скриншот (Ctrl+V)"
+              title="Загрузить фото или сфотографировать"
             >
               <Camera size={13} className={activeMode === 'image' ? 'text-[#0071E3]' : ''} />
-              <span>Фото & Скан</span>
-              <span className="text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-[#0071E3]/15 text-[#0071E3]">Live Text</span>
+              <span>Фото<span className="hidden sm:inline">&nbsp;& Скан</span></span>
+              <span className="hidden md:inline-block text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-[#0071E3]/15 text-[#0071E3]">Live Text</span>
             </button>
             <button
               onClick={() => {
                 setActiveMode('doc');
                 if (!loadedFile || loadedFile.type !== 'doc') docInputRef.current?.click();
               }}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 ${
+              className={`px-3 sm:px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 flex-shrink-0 active:scale-95 ${
                 activeMode === 'doc' 
                   ? 'apple-tab-active scale-[1.02]' 
                   : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
@@ -838,14 +838,14 @@ export default function App() {
               title="Загрузить файл: PDF, TXT, MD, JSON, CSV, SRT"
             >
               <FileText size={13} className={activeMode === 'doc' ? 'text-[#0071E3]' : ''} />
-              <span>Документы</span>
+              <span>Файлы<span className="hidden sm:inline">&nbsp;и документы</span></span>
             </button>
             <button
               onClick={() => {
                 setActiveMode('url');
                 setUrlModal(true);
               }}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 ${
+              className={`px-3 sm:px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 flex-shrink-0 active:scale-95 ${
                 activeMode === 'url' 
                   ? 'apple-tab-active scale-[1.02]' 
                   : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
@@ -853,23 +853,23 @@ export default function App() {
               title="Перевести страницу в Safari Reader Mode"
             >
               <Globe size={13} className={activeMode === 'url' ? 'text-[#0071E3]' : ''} />
-              <span>Веб-страница</span>
-              <span className="text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-purple-500/15 text-purple-600 dark:text-purple-400">Reader</span>
+              <span>Сайт<span className="hidden sm:inline">&nbsp;/ Ссылка</span></span>
+              <span className="hidden md:inline-block text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-purple-500/15 text-purple-600 dark:text-purple-400">Reader</span>
             </button>
           </div>
         </div>
 
         {/* Uploaded File Banner */}
         {loadedFile && (
-          <div className="ios-glass px-4 py-2.5 rounded-2xl flex items-center justify-between border border-[#0071E3]/30 bg-[#0071E3]/5 animate-in fade-in">
-            <div className="flex items-center gap-2.5">
-              {loadedFile.type === 'image' ? <Camera size={16} className="text-[#0071E3]" /> : loadedFile.type === 'url' ? <Globe size={16} className="text-[#0071E3]" /> : <FileCheck size={16} className="text-[#0071E3]" />}
-              <span className="text-xs font-bold text-[#1C1C1E] dark:text-white truncate max-w-xs">{loadedFile.name}</span>
-              <span className="text-[10px] text-[#8E8E93] bg-black/[0.05] dark:bg-white/[0.08] px-2 py-0.5 rounded-full">{loadedFile.size}</span>
+          <div className="ios-glass px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-2xl flex items-center justify-between border border-[#0071E3]/30 bg-[#0071E3]/5 animate-in fade-in">
+            <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+              {loadedFile.type === 'image' ? <Camera size={16} className="text-[#0071E3] flex-shrink-0" /> : loadedFile.type === 'url' ? <Globe size={16} className="text-[#0071E3] flex-shrink-0" /> : <FileCheck size={16} className="text-[#0071E3] flex-shrink-0" />}
+              <span className="text-xs font-bold text-[#1C1C1E] dark:text-white truncate max-w-[160px] sm:max-w-xs">{loadedFile.name}</span>
+              <span className="text-[10px] text-[#8E8E93] bg-black/[0.05] dark:bg-white/[0.08] px-2 py-0.5 rounded-full flex-shrink-0">{loadedFile.size}</span>
             </div>
             <button 
-              onClick={() => { setLoadedFile(null); setSourceText(''); }}
-              className="text-[#8E8E93] hover:text-rose-500 p-1 rounded-full transition-colors"
+              onClick={handleClearLoadedContent}
+              className="text-[#8E8E93] hover:text-rose-500 p-1 rounded-full transition-colors flex-shrink-0"
               title="Удалить файл"
             >
               <X size={15} />
@@ -984,67 +984,67 @@ export default function App() {
                   else processDocumentFile(file);
                 }
               }}
-              className={`ios-glass ios-card-specular rounded-[32px] p-6 min-h-[260px] flex flex-col justify-between transition-all duration-300 hover:shadow-2xl focus-within:ring-2 focus-within:ring-[#0071E3]/40 relative ${isDragging ? 'ring-4 ring-[#0071E3] bg-[#0071E3]/10 scale-[1.01]' : ''}`}
+              className={`ios-glass ios-card-specular rounded-[28px] sm:rounded-[32px] p-4 sm:p-6 min-h-[220px] sm:min-h-[260px] flex flex-col justify-between transition-all duration-300 hover:shadow-2xl focus-within:ring-2 focus-within:ring-[#0071E3]/40 relative ${isDragging ? 'ring-4 ring-[#0071E3] bg-[#0071E3]/10 scale-[1.01]' : ''}`}
             >
               {isDragging && (
-                <div className="absolute inset-0 z-30 backdrop-blur-md bg-white/80 dark:bg-black/80 rounded-[32px] flex flex-col items-center justify-center gap-3 text-[#0071E3] font-bold animate-in fade-in">
-                  <div className="w-16 h-16 rounded-full bg-[#0071E3]/10 flex items-center justify-center animate-bounce">
-                    <UploadCloud size={36} />
+                <div className="absolute inset-0 z-30 backdrop-blur-md bg-white/80 dark:bg-black/80 rounded-[28px] sm:rounded-[32px] flex flex-col items-center justify-center gap-2 sm:gap-3 text-[#0071E3] font-bold animate-in fade-in p-4 text-center">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-[#0071E3]/10 flex items-center justify-center animate-bounce">
+                    <UploadCloud size={28} className="sm:size-9" />
                   </div>
-                  <span className="text-sm tracking-tight">Отпустите для мгновенного анализа и распознавания</span>
+                  <span className="text-xs sm:text-sm tracking-tight">Отпустите для анализа и перевода</span>
                 </div>
               )}
 
               <div>
                 {/* Source Card Header with Mode Badges */}
-                <div className="flex items-center justify-between pb-3 mb-3 border-b border-black/[0.04] dark:border-white/[0.06]">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider flex items-center gap-1.5">
+                <div className="flex items-center justify-between pb-2.5 sm:pb-3 mb-2.5 sm:mb-3 border-b border-black/[0.04] dark:border-white/[0.06] gap-1">
+                  <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                    <span className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider flex items-center gap-1 flex-shrink-0">
                       {activeSourceLang.flag} {activeSourceLang.label}
                     </span>
                     {activeMode === 'image' && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#0071E3]/10 text-[#0071E3] flex items-center gap-1 border border-[#0071E3]/20">
-                        <Scan size={10} /> Apple Live Text
+                      <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#0071E3]/10 text-[#0071E3] flex items-center gap-1 border border-[#0071E3]/20 flex-shrink-0">
+                        <Scan size={10} /> Live Text
                       </span>
                     )}
                     {activeMode === 'doc' && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center gap-1 border border-indigo-500/20">
-                        <FileText size={10} /> Apple Files
+                      <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center gap-1 border border-indigo-500/20 flex-shrink-0">
+                        <FileText size={10} /> Файлы
                       </span>
                     )}
                     {activeMode === 'url' && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center gap-1 border border-purple-500/20">
-                        <Compass size={10} /> Safari Reader View
+                      <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center gap-1 border border-purple-500/20 flex-shrink-0">
+                        <Compass size={10} /> Reader
                       </span>
                     )}
                   </div>
 
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 flex-shrink-0">
                     {activeMode === 'image' && (
                       <button
                         onClick={() => imageInputRef.current?.click()}
-                        className="px-2.5 py-1 text-xs font-semibold text-[#0071E3] hover:bg-[#0071E3]/10 rounded-xl transition-colors flex items-center gap-1"
+                        className="px-2 sm:px-2.5 py-1 text-[11px] sm:text-xs font-semibold text-[#0071E3] hover:bg-[#0071E3]/10 rounded-xl transition-colors flex items-center gap-1"
                         title="Выбрать другое фото"
                       >
-                        <Camera size={13} /> {imagePreviewUrl ? 'Заменить' : 'Выбрать фото'}
+                        <Camera size={13} /> <span>{imagePreviewUrl ? 'Заменить' : 'Выбрать'}</span>
                       </button>
                     )}
                     {activeMode === 'doc' && (
                       <button
                         onClick={() => docInputRef.current?.click()}
-                        className="px-2.5 py-1 text-xs font-semibold text-[#0071E3] hover:bg-[#0071E3]/10 rounded-xl transition-colors flex items-center gap-1"
+                        className="px-2 sm:px-2.5 py-1 text-[11px] sm:text-xs font-semibold text-[#0071E3] hover:bg-[#0071E3]/10 rounded-xl transition-colors flex items-center gap-1"
                         title="Выбрать другой документ"
                       >
-                        <UploadCloud size={13} /> {loadedFile ? 'Заменить' : 'Выбрать файл'}
+                        <UploadCloud size={13} /> <span>{loadedFile ? 'Заменить' : 'Выбрать'}</span>
                       </button>
                     )}
                     {activeMode === 'url' && (
                       <button
                         onClick={() => setUrlModal(true)}
-                        className="px-2.5 py-1 text-xs font-semibold text-[#0071E3] hover:bg-[#0071E3]/10 rounded-xl transition-colors flex items-center gap-1"
+                        className="px-2 sm:px-2.5 py-1 text-[11px] sm:text-xs font-semibold text-[#0071E3] hover:bg-[#0071E3]/10 rounded-xl transition-colors flex items-center gap-1"
                         title="Ввести другой адрес"
                       >
-                        <Globe size={13} /> {loadedFile ? 'Сменить URL' : 'Ввести URL'}
+                        <Globe size={13} /> <span>{loadedFile ? 'Сменить' : 'Ввести URL'}</span>
                       </button>
                     )}
                     {(sourceText || imagePreviewUrl || loadedFile) && (
@@ -1061,9 +1061,9 @@ export default function App() {
 
                 {/* MODE: IMAGE (Apple Live Text / Google Lens Viewfinder) */}
                 {activeMode === 'image' && (
-                  <div className="space-y-3 mb-2">
+                  <div className="space-y-2.5 sm:space-y-3 mb-2">
                     {imagePreviewUrl ? (
-                      <div className="relative rounded-2xl overflow-hidden bg-black/[0.03] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 p-2 flex items-center justify-center max-h-52">
+                      <div className="relative rounded-2xl overflow-hidden bg-black/[0.03] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 p-2 flex items-center justify-center max-h-44 sm:max-h-52">
                         {/* 4 Apple Camera Viewfinder Corner Brackets */}
                         <span className="viewfinder-bracket top-2 left-2 border-t-2 border-l-2 rounded-tl" />
                         <span className="viewfinder-bracket top-2 right-2 border-t-2 border-r-2 rounded-tr" />
@@ -1076,46 +1076,47 @@ export default function App() {
                         <img 
                           src={imagePreviewUrl} 
                           alt="Live Text Scan" 
-                          className={`max-h-48 rounded-xl object-contain transition-all duration-300 ${isOcrProcessing ? 'opacity-70 blur-[1px]' : ''}`} 
+                          className={`max-h-40 sm:max-h-48 rounded-xl object-contain transition-all duration-300 ${isOcrProcessing ? 'opacity-70 blur-[1px]' : ''}`} 
                         />
 
                         {isOcrProcessing && (
-                          <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex flex-col items-center justify-center gap-2 text-white">
+                          <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex flex-col items-center justify-center gap-2 text-white p-2 text-center">
                             <div className="flex items-center gap-2 bg-black/70 px-3.5 py-1.5 rounded-full border border-white/20 shadow-lg">
                               <Loader2 size={16} className="animate-spin text-[#0071E3]" />
-                              <span className="text-xs font-semibold">{ocrStatusText || 'Нейросеть считывает...'}</span>
+                              <span className="text-xs font-semibold truncate">{ocrStatusText || 'Нейросеть считывает...'}</span>
                             </div>
                           </div>
                         )}
 
                         {!isOcrProcessing && (
-                          <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-bold text-white flex items-center gap-1 border border-white/15 shadow-sm">
-                            <Sparkles size={11} className="text-[#0071E3]" /> Live Text активен
+                          <div className="absolute bottom-2.5 right-2.5 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-bold text-white flex items-center gap-1 border border-white/15 shadow-sm">
+                            <Sparkles size={11} className="text-[#0071E3]" /> Live Text
                           </div>
                         )}
                       </div>
                     ) : (
                       <div 
                         onClick={() => imageInputRef.current?.click()}
-                        className="relative rounded-2xl border-2 border-dashed border-black/10 dark:border-white/15 hover:border-[#0071E3]/60 p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all bg-black/[0.02] dark:bg-white/[0.02] group"
+                        className="relative rounded-2xl border-2 border-dashed border-black/10 dark:border-white/15 hover:border-[#0071E3]/60 p-4 sm:p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all bg-black/[0.02] dark:bg-white/[0.02] group active:scale-[0.99]"
                       >
-                        <span className="viewfinder-bracket top-3 left-3 border-t-2 border-l-2 rounded-tl group-hover:border-[#0071E3]" />
-                        <span className="viewfinder-bracket top-3 right-3 border-t-2 border-r-2 rounded-tr group-hover:border-[#0071E3]" />
-                        <span className="viewfinder-bracket bottom-3 left-3 border-b-2 border-l-2 rounded-bl group-hover:border-[#0071E3]" />
-                        <span className="viewfinder-bracket bottom-3 right-3 border-b-2 border-r-2 rounded-br group-hover:border-[#0071E3]" />
+                        <span className="viewfinder-bracket top-2.5 left-2.5 border-t-2 border-l-2 rounded-tl group-hover:border-[#0071E3]" />
+                        <span className="viewfinder-bracket top-2.5 right-2.5 border-t-2 border-r-2 rounded-tr group-hover:border-[#0071E3]" />
+                        <span className="viewfinder-bracket bottom-2.5 left-2.5 border-b-2 border-l-2 rounded-bl group-hover:border-[#0071E3]" />
+                        <span className="viewfinder-bracket bottom-2.5 right-2.5 border-b-2 border-r-2 rounded-br group-hover:border-[#0071E3]" />
 
-                        <div className="w-12 h-12 rounded-2xl bg-[#0071E3]/10 text-[#0071E3] flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
-                          <Camera size={24} />
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-[#0071E3]/10 text-[#0071E3] flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-transform">
+                          <Camera size={22} className="sm:size-6" />
                         </div>
-                        <h4 className="text-sm font-bold text-[#1C1C1E] dark:text-white mb-1">
-                          Apple Live Text & Google Lens
+                        <h4 className="text-xs sm:text-sm font-bold text-[#1C1C1E] dark:text-white mb-1">
+                          Live Text · Распознавание фото
                         </h4>
-                        <p className="text-xs text-[#8E8E93] max-w-xs mb-3 leading-relaxed">
-                          Перетащите фото сюда, выберите файл или нажмите <kbd className="px-1.5 py-0.5 rounded bg-black/[0.06] dark:bg-white/[0.1] font-mono text-[10px]">Ctrl+V</kbd> для скриншота
+                        <p className="text-[11px] sm:text-xs text-[#8E8E93] max-w-xs mb-2 sm:mb-3 leading-relaxed">
+                          <span className="sm:hidden">Нажмите, чтобы сделать фото камерой или выбрать из медиатеки</span>
+                          <span className="hidden sm:inline">Перетащите фото сюда, выберите файл или нажмите <kbd className="px-1.5 py-0.5 rounded bg-black/[0.06] dark:bg-white/[0.1] font-mono text-[10px]">Ctrl+V</kbd> для скриншота</span>
                         </p>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-[#8E8E93]">
-                            PNG · JPG · WEBP · Скриншоты
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[9px] sm:text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-[#8E8E93]">
+                            Камера · Галерея · Скриншоты
                           </span>
                         </div>
                       </div>
@@ -1126,50 +1127,50 @@ export default function App() {
                       onChange={(e) => setSourceText(e.target.value)}
                       placeholder="Распознанный текст появится здесь..."
                       rows={imagePreviewUrl ? 2 : 3}
-                      className="w-full text-xl sm:text-2xl font-bold bg-transparent border-none resize-none focus:outline-none placeholder-[#AEAEB2] dark:placeholder-[#48484A] leading-snug tracking-tight text-[#1C1C1E] dark:text-white"
+                      className="w-full text-lg sm:text-2xl md:text-3xl font-bold bg-transparent border-none resize-none focus:outline-none placeholder-[#AEAEB2] dark:placeholder-[#48484A] leading-snug tracking-tight text-[#1C1C1E] dark:text-white"
                     />
                   </div>
                 )}
 
-                {/* MODE: DOCUMENT (Apple Files / Google Drive) */}
+                {/* MODE: DOCUMENT */}
                 {activeMode === 'doc' && (
-                  <div className="space-y-3 mb-2">
+                  <div className="space-y-2.5 sm:space-y-3 mb-2">
                     {loadedFile && (loadedFile.type === 'doc' || loadedFile.type === 'pdf') ? (
-                      <div className="p-3.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0071E3] to-[#5E5CE6] text-white flex items-center justify-center font-bold text-xs shadow-md">
+                      <div className="p-3 sm:p-3.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-[#0071E3] to-[#5E5CE6] text-white flex items-center justify-center font-bold text-xs shadow-md flex-shrink-0">
                             {loadedFile.ext || 'DOC'}
                           </div>
-                          <div>
-                            <p className="text-xs font-bold text-[#1C1C1E] dark:text-white truncate max-w-[180px] sm:max-w-xs">{loadedFile.name}</p>
-                            <p className="text-[10px] text-[#8E8E93]">{loadedFile.size} · {sourceText.length} символов</p>
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold text-[#1C1C1E] dark:text-white truncate max-w-[140px] sm:max-w-xs">{loadedFile.name}</p>
+                            <p className="text-[10px] text-[#8E8E93]">{loadedFile.size} · {sourceText.length} симв.</p>
                           </div>
                         </div>
-                        <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center gap-1 border border-emerald-500/20">
-                          <Check size={11} /> Готово к переводу
+                        <span className="text-[9px] sm:text-[10px] font-bold px-2 sm:px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center gap-1 border border-emerald-500/20 flex-shrink-0">
+                          <Check size={11} /> <span className="hidden xs:inline">Готово к переводу</span><span className="xs:hidden">Готово</span>
                         </span>
                       </div>
                     ) : (
                       <div 
                         onClick={() => docInputRef.current?.click()}
-                        className="rounded-2xl border-2 border-dashed border-black/10 dark:border-white/15 hover:border-[#0071E3]/60 p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all bg-black/[0.02] dark:bg-white/[0.02] group"
+                        className="rounded-2xl border-2 border-dashed border-black/10 dark:border-white/15 hover:border-[#0071E3]/60 p-4 sm:p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all bg-black/[0.02] dark:bg-white/[0.02] group active:scale-[0.99]"
                       >
-                        <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
-                          <FileText size={24} />
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-transform">
+                          <FileText size={22} className="sm:size-6" />
                         </div>
-                        <h4 className="text-sm font-bold text-[#1C1C1E] dark:text-white mb-1">
-                          Apple Files · Чтение документов
+                        <h4 className="text-xs sm:text-sm font-bold text-[#1C1C1E] dark:text-white mb-1">
+                          Чтение и перевод документов
                         </h4>
-                        <p className="text-xs text-[#8E8E93] max-w-xs mb-3 leading-relaxed">
-                          Перетащите документ сюда или нажмите для выбора файла на устройстве
+                        <p className="text-[11px] sm:text-xs text-[#8E8E93] max-w-xs mb-2.5 sm:mb-3 leading-relaxed">
+                          Нажмите, чтобы выбрать документ на телефоне или компьютере
                         </p>
-                        <div className="flex flex-wrap items-center justify-center gap-1.5">
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400">PDF</span>
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400">TXT</span>
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">MD</span>
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400">JSON</span>
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">CSV</span>
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400">SRT</span>
+                        <div className="flex flex-wrap items-center justify-center gap-1 sm:gap-1.5">
+                          <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400">PDF</span>
+                          <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400">TXT</span>
+                          <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">MD</span>
+                          <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400">JSON</span>
+                          <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">CSV</span>
+                          <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400">SRT</span>
                         </div>
                       </div>
                     )}
@@ -1179,53 +1180,53 @@ export default function App() {
                       onChange={(e) => setSourceText(e.target.value)}
                       placeholder="Текст документа для перевода..."
                       rows={loadedFile ? 2 : 3}
-                      className="w-full text-xl sm:text-2xl font-bold bg-transparent border-none resize-none focus:outline-none placeholder-[#AEAEB2] dark:placeholder-[#48484A] leading-snug tracking-tight text-[#1C1C1E] dark:text-white"
+                      className="w-full text-lg sm:text-2xl md:text-3xl font-bold bg-transparent border-none resize-none focus:outline-none placeholder-[#AEAEB2] dark:placeholder-[#48484A] leading-snug tracking-tight text-[#1C1C1E] dark:text-white"
                     />
                   </div>
                 )}
 
                 {/* MODE: URL (Apple Safari Reader Mode) */}
                 {activeMode === 'url' && (
-                  <div className="space-y-3 mb-2">
+                  <div className="space-y-2.5 sm:space-y-3 mb-2">
                     {loadedFile && loadedFile.type === 'url' ? (
-                      <div className="p-3.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-[#0071E3]/10 text-[#0071E3] flex items-center justify-center font-bold text-sm">
-                            <Compass size={20} />
+                      <div className="p-3 sm:p-3.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#0071E3]/10 text-[#0071E3] flex items-center justify-center font-bold text-sm flex-shrink-0">
+                            <Compass size={18} className="sm:size-5" />
                           </div>
-                          <div>
+                          <div className="min-w-0">
                             <div className="flex items-center gap-1.5">
-                              <span className="text-xs font-bold text-[#1C1C1E] dark:text-white truncate max-w-[180px] sm:max-w-xs">{loadedFile.name}</span>
-                              <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-purple-500/15 text-purple-600 dark:text-purple-400">Reader View</span>
+                              <span className="text-xs font-bold text-[#1C1C1E] dark:text-white truncate max-w-[140px] sm:max-w-xs">{loadedFile.name}</span>
+                              <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-purple-500/15 text-purple-600 dark:text-purple-400 flex-shrink-0">Reader</span>
                             </div>
                             <p className="text-[10px] text-[#8E8E93]">
-                              ~{Math.max(1, Math.round(sourceText.split(/\s+/).filter(Boolean).length / 150))} мин чтения · {sourceText.split(/\s+/).filter(Boolean).length} слов
+                              ~{Math.max(1, Math.round(sourceText.split(/\s+/).filter(Boolean).length / 150))} мин · {sourceText.split(/\s+/).filter(Boolean).length} слов
                             </p>
                           </div>
                         </div>
                         <button
                           onClick={() => setUrlModal(true)}
-                          className="text-xs font-semibold px-2.5 py-1 rounded-xl bg-[#0071E3]/10 text-[#0071E3] hover:bg-[#0071E3] hover:text-white transition-colors"
+                          className="text-xs font-semibold px-2.5 py-1 rounded-xl bg-[#0071E3]/10 text-[#0071E3] hover:bg-[#0071E3] hover:text-white transition-colors flex-shrink-0"
                         >
-                          Сменить URL
+                          Сменить
                         </button>
                       </div>
                     ) : (
                       <div 
                         onClick={() => setUrlModal(true)}
-                        className="rounded-2xl border-2 border-dashed border-black/10 dark:border-white/15 hover:border-[#0071E3]/60 p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all bg-black/[0.02] dark:bg-white/[0.02] group"
+                        className="rounded-2xl border-2 border-dashed border-black/10 dark:border-white/15 hover:border-[#0071E3]/60 p-4 sm:p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all bg-black/[0.02] dark:bg-white/[0.02] group active:scale-[0.99]"
                       >
-                        <div className="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
-                          <Globe size={24} />
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-transform">
+                          <Globe size={22} className="sm:size-6" />
                         </div>
-                        <h4 className="text-sm font-bold text-[#1C1C1E] dark:text-white mb-1">
+                        <h4 className="text-xs sm:text-sm font-bold text-[#1C1C1E] dark:text-white mb-1">
                           Safari Reader Mode · Веб-страницы
                         </h4>
-                        <p className="text-xs text-[#8E8E93] max-w-xs mb-3 leading-relaxed">
-                          Нажмите, чтобы ввести ссылку на любую статью или новость без рекламы и лишних блоков
+                        <p className="text-[11px] sm:text-xs text-[#8E8E93] max-w-xs mb-2.5 sm:mb-3 leading-relaxed">
+                          Нажмите, чтобы ввести ссылку на любую статью или новость без рекламы
                         </p>
                         <div className="flex items-center gap-1.5 text-xs text-[#0071E3] font-semibold">
-                          <span>Ввести адрес страницы</span> <ArrowUpRight size={14} />
+                          <span>Ввести адрес страницы</span> <ArrowUpRight size={13} />
                         </div>
                       </div>
                     )}
@@ -1235,7 +1236,7 @@ export default function App() {
                       onChange={(e) => setSourceText(e.target.value)}
                       placeholder="Текст статьи для перевода..."
                       rows={loadedFile ? 2 : 3}
-                      className="w-full text-xl sm:text-2xl font-bold bg-transparent border-none resize-none focus:outline-none placeholder-[#AEAEB2] dark:placeholder-[#48484A] leading-snug tracking-tight text-[#1C1C1E] dark:text-white"
+                      className="w-full text-lg sm:text-2xl md:text-3xl font-bold bg-transparent border-none resize-none focus:outline-none placeholder-[#AEAEB2] dark:placeholder-[#48484A] leading-snug tracking-tight text-[#1C1C1E] dark:text-white"
                     />
                   </div>
                 )}
@@ -1247,14 +1248,14 @@ export default function App() {
                     onChange={(e) => setSourceText(e.target.value)}
                     placeholder="Введите текст или перетащите фото / документ сюда..."
                     rows={3}
-                    className="w-full text-2xl sm:text-3xl font-bold bg-transparent border-none resize-none focus:outline-none placeholder-[#AEAEB2] dark:placeholder-[#48484A] leading-snug tracking-tight text-[#1C1C1E] dark:text-white"
+                    className="w-full text-lg sm:text-2xl md:text-3xl font-bold bg-transparent border-none resize-none focus:outline-none placeholder-[#AEAEB2] dark:placeholder-[#48484A] leading-snug tracking-tight text-[#1C1C1E] dark:text-white"
                   />
                 )}
               </div>
 
               {/* Source Card Footer */}
-              <div className="flex items-center justify-between pt-4 border-t border-black/[0.04] dark:border-white/[0.06]">
-                <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between pt-3 sm:pt-4 border-t border-black/[0.04] dark:border-white/[0.06]">
+                <div className="flex items-center gap-1.5 sm:gap-2">
                   <button
                     onClick={() => speak(sourceText, sourceLang, false)}
                     disabled={!sourceText.trim()}
@@ -1268,7 +1269,7 @@ export default function App() {
                     <Volume2 size={18} />
                   </button>
                   <span className="text-[11px] font-medium text-[#8E8E93]">
-                    {sourceText.length} символов
+                    {sourceText.length} <span className="hidden xs:inline">символов</span><span className="xs:hidden">симв.</span>
                   </span>
                 </div>
 
@@ -1286,28 +1287,28 @@ export default function App() {
             </div>
 
             {/* Target Card */}
-            <div className="ios-glass ios-card-specular rounded-[32px] p-6 min-h-[220px] flex flex-col justify-between transition-all duration-300 hover:shadow-2xl relative overflow-hidden">
+            <div className="ios-glass ios-card-specular rounded-[28px] sm:rounded-[32px] p-4 sm:p-6 min-h-[220px] sm:min-h-[260px] flex flex-col justify-between transition-all duration-300 hover:shadow-2xl relative overflow-hidden">
               
               {isTranslating && (
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#0071E3] to-purple-500 animate-shimmer" />
               )}
 
               <div>
-                <div className="flex items-center justify-between pb-3 mb-2 border-b border-black/[0.04] dark:border-white/[0.06]">
-                  <span className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider flex items-center gap-1.5">
+                <div className="flex items-center justify-between pb-2.5 sm:pb-3 mb-2 sm:mb-2.5 border-b border-black/[0.04] dark:border-white/[0.06] gap-1">
+                  <span className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider flex items-center gap-1.5 flex-shrink-0">
                     {activeTargetLang.flag} {activeTargetLang.label}
                   </span>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
                     {translatedText && (
                       <button
                         onClick={handleDownloadTranslation}
-                        className="text-xs font-semibold px-3.5 py-1.5 rounded-full bg-[#0071E3] hover:bg-[#0077ED] text-white transition-all shadow-[0_2px_10px_rgba(0,113,227,0.35)] hover:scale-105 active:scale-95 flex items-center gap-1.5"
+                        className="text-[11px] sm:text-xs font-semibold px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-[#0071E3] hover:bg-[#0077ED] text-white transition-all shadow-[0_2px_10px_rgba(0,113,227,0.35)] hover:scale-105 active:scale-95 flex items-center gap-1"
                         title="Скачать перевод в файл .txt"
                       >
-                        <Download size={13} /> Скачать .txt
+                        <Download size={12} /> <span>Скачать</span><span className="hidden sm:inline">&nbsp;.txt</span>
                       </button>
                     )}
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#0071E3]/10 text-[#0071E3] uppercase tracking-wider">
+                    <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#0071E3]/10 text-[#0071E3] uppercase tracking-wider">
                       Результат
                     </span>
                   </div>
@@ -1316,16 +1317,16 @@ export default function App() {
                 {isTranslating ? (
                   <div className="flex items-center gap-3 py-6 text-[#8E8E93]">
                     <div className="w-5 h-5 rounded-full border-2 border-[#0071E3] border-t-transparent animate-spin" />
-                    <span className="text-lg font-medium text-[#8E8E93]">Переводим текст...</span>
+                    <span className="text-base sm:text-lg font-medium text-[#8E8E93]">Переводим текст...</span>
                   </div>
                 ) : (
-                  <h3 className="text-2xl sm:text-3xl font-bold text-[#1C1C1E] dark:text-white select-text leading-snug tracking-tight break-words">
+                  <h3 className="text-lg sm:text-2xl md:text-3xl font-bold text-[#1C1C1E] dark:text-white select-text leading-snug tracking-tight break-words">
                     {translatedText || <span className="text-[#AEAEB2] dark:text-[#48484A] font-normal">Перевод</span>}
                   </h3>
                 )}
               </div>
 
-              <div className="flex items-center justify-between pt-4 border-t border-black/[0.04] dark:border-white/[0.06]">
+              <div className="flex items-center justify-between pt-3 sm:pt-4 border-t border-black/[0.04] dark:border-white/[0.06]">
                 <div className="flex items-center gap-1.5">
                   <button
                     onClick={() => speak(translatedText, targetLang, true)}
@@ -1396,10 +1397,13 @@ export default function App() {
                   <Camera size={13} className="text-[#0071E3]" /> Советы по фото:
                 </span>
                 <span className="ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
-                  📋 Нажмите Win+Shift+S и затем Ctrl+V для вставки скриншота
+                  📸 Сделайте фото камерой или выберите из галереи
+                </span>
+                <span className="hidden sm:inline-flex ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
+                  📋 На ПК: вставка скриншота через Ctrl+V
                 </span>
                 <span className="ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
-                  ✨ Apple Live Text распознает как печатный, так и рукописный текст
+                  ✨ Распознавание как печатного, так и рукописного текста
                 </span>
               </>
             )}
@@ -1424,7 +1428,7 @@ export default function App() {
                   <Compass size={13} className="text-purple-500" /> Советы по сайтам:
                 </span>
                 <span className="ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
-                  🌐 Safari Reader View удаляет баннеры, меню и скрипты со страницы
+                  🌐 Режим Reader View удаляет рекламу, меню и баннеры со страницы
                 </span>
                 <span className="ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
                   📖 Подходят статьи, блоги, новости и публикации
@@ -1675,13 +1679,13 @@ export default function App() {
 
       </main>
 
-      {/* ================= URL TRANSLATION MODAL (Apple Safari Browser Window) ================= */}
+      {/* ================= URL TRANSLATION MODAL (Safari Browser Window) ================= */}
       {urlModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="ios-glass ios-card-specular rounded-[36px] p-6 sm:p-7 w-full max-w-lg border border-black/10 dark:border-white/10 shadow-2xl relative">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xl flex items-center justify-center p-3.5 sm:p-4 animate-in fade-in duration-200">
+          <div className="ios-glass ios-card-specular rounded-[28px] sm:rounded-[36px] p-5 sm:p-7 w-full max-w-lg border border-black/10 dark:border-white/10 shadow-2xl relative max-h-[92vh] overflow-y-auto no-scrollbar">
             
-            {/* Safari macOS Traffic Lights Window Header */}
-            <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-black/[0.05] dark:border-white/[0.08]">
+            {/* Safari Window Header */}
+            <div className="flex items-center justify-between pb-3 sm:pb-3.5 mb-3.5 sm:mb-4 border-b border-black/[0.05] dark:border-white/[0.08]">
               <div className="flex items-center gap-2">
                 <button 
                   onClick={() => setUrlModal(false)} 
@@ -1690,7 +1694,7 @@ export default function App() {
                 />
                 <span className="w-3 h-3 rounded-full bg-[#FFBD2E] border border-[#DEA123]" />
                 <span className="w-3 h-3 rounded-full bg-[#27C93F] border border-[#1AAB29]" />
-                <span className="text-xs font-semibold text-[#8E8E93] ml-2 flex items-center gap-1.5">
+                <span className="text-xs font-semibold text-[#8E8E93] ml-1.5 flex items-center gap-1.5">
                   <Compass size={13} className="text-[#0071E3]" /> Safari Reader View
                 </span>
               </div>
@@ -1702,11 +1706,11 @@ export default function App() {
               </button>
             </div>
 
-            <div className="mb-4">
-              <h3 className="text-lg font-bold tracking-tight text-[#1C1C1E] dark:text-white">
+            <div className="mb-3.5 sm:mb-4">
+              <h3 className="text-base sm:text-lg font-bold tracking-tight text-[#1C1C1E] dark:text-white">
                 Перевод веб-страницы
               </h3>
-              <p className="text-xs text-[#8E8E93]">
+              <p className="text-[11px] sm:text-xs text-[#8E8E93]">
                 Интеллектуальное извлечение основного текста статьи без рекламы, меню и баннеров
               </p>
             </div>
@@ -1717,10 +1721,10 @@ export default function App() {
               </div>
             )}
 
-            <form onSubmit={handleUrlExtract} className="space-y-4">
+            <form onSubmit={handleUrlExtract} className="space-y-3.5 sm:space-y-4">
               {/* Safari Smart Search Address Bar */}
-              <div className="relative flex items-center bg-black/[0.04] dark:bg-white/[0.06] rounded-2xl border border-black/[0.06] dark:border-white/[0.1] px-3.5 py-2.5 focus-within:border-[#0071E3] focus-within:bg-white dark:focus-within:bg-[#1C1C1E] transition-all">
-                <Lock size={14} className="text-[#8E8E93] mr-2 flex-shrink-0" />
+              <div className="relative flex items-center bg-black/[0.04] dark:bg-white/[0.06] rounded-2xl border border-black/[0.06] dark:border-white/[0.1] px-3 sm:px-3.5 py-2.5 focus-within:border-[#0071E3] focus-within:bg-white dark:focus-within:bg-[#1C1C1E] transition-all">
+                <Lock size={14} className="text-[#8E8E93] mr-1.5 sm:mr-2 flex-shrink-0" />
                 <span className="text-xs font-mono text-[#8E8E93] mr-1 select-none">https://</span>
                 <input
                   type="text"
@@ -1731,7 +1735,7 @@ export default function App() {
                     const val = e.target.value.trim();
                     setInputUrl(val.startsWith('http') ? val : `https://${val}`);
                   }}
-                  className="w-full bg-transparent text-xs font-mono font-medium focus:outline-none text-[#1C1C1E] dark:text-white"
+                  className="w-full bg-transparent text-sm sm:text-xs font-mono font-medium focus:outline-none text-[#1C1C1E] dark:text-white"
                 />
                 {inputUrl && (
                   <button
@@ -1750,19 +1754,19 @@ export default function App() {
               {/* Safari Bookmarks / Speed Dial Grid */}
               <div>
                 <span className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider block mb-2">Избранные закладки:</span>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {URL_PRESETS.map((p, idx) => (
                     <button
                       key={idx}
                       type="button"
                       onClick={() => setInputUrl(p.url)}
-                      className={`p-3 rounded-2xl border text-left transition-all flex items-start gap-2.5 ${
+                      className={`p-2.5 sm:p-3 rounded-2xl border text-left transition-all flex items-start gap-2.5 ${
                         inputUrl === p.url 
                           ? 'bg-[#0071E3]/10 border-[#0071E3] text-[#0071E3]' 
                           : 'bg-black/[0.03] dark:bg-white/[0.04] border-black/[0.04] dark:border-white/[0.06] hover:bg-black/[0.06] dark:hover:bg-white/[0.08]'
                       }`}
                     >
-                      <span className="text-lg">{p.icon}</span>
+                      <span className="text-base sm:text-lg">{p.icon}</span>
                       <div className="min-w-0">
                         <span className="text-xs font-bold block text-[#1C1C1E] dark:text-white truncate">{p.label}</span>
                         <span className="text-[10px] text-[#8E8E93] block truncate">{p.desc}</span>
@@ -1775,7 +1779,7 @@ export default function App() {
               <button
                 type="submit"
                 disabled={isUrlLoading || !inputUrl.trim()}
-                className="w-full bg-[#0071E3] hover:bg-[#0077ED] text-white font-semibold py-3.5 rounded-2xl text-xs transition-all shadow-[0_4px_14px_rgba(0,113,227,0.35)] active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full bg-[#0071E3] hover:bg-[#0077ED] text-white font-semibold py-3 sm:py-3.5 rounded-2xl text-xs sm:text-sm transition-all shadow-[0_4px_14px_rgba(0,113,227,0.35)] active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {isUrlLoading ? (
                   <>
@@ -1796,8 +1800,8 @@ export default function App() {
 
       {/* ================= FLASHCARDS STUDY MODAL ================= */}
       {flashcardModal && currentFlashcard && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="w-full max-w-md space-y-4">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xl flex items-center justify-center p-3.5 sm:p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-md space-y-3 sm:space-y-4">
             <div className="flex items-center justify-between text-white px-2">
               <span className="text-xs font-bold tracking-wider uppercase opacity-80">
                 Карточка {currentCardIndex + 1} из {entries.length}
@@ -1813,12 +1817,12 @@ export default function App() {
             {/* 3D Flip Card */}
             <div 
               onClick={() => setIsCardFlipped(!isCardFlipped)}
-              className="perspective-1000 w-full h-72 cursor-pointer select-none"
+              className="perspective-1000 w-full h-64 sm:h-72 cursor-pointer select-none"
             >
               <div className={`w-full h-full duration-500 transform-style-3d relative transition-transform ${isCardFlipped ? 'rotate-y-180' : ''}`}>
                 
                 {/* Front Side */}
-                <div className="ios-glass ios-card-specular rounded-[36px] p-8 w-full h-full flex flex-col justify-between absolute inset-0 backface-hidden shadow-2xl">
+                <div className="ios-glass ios-card-specular rounded-[28px] sm:rounded-[36px] p-5 sm:p-8 w-full h-full flex flex-col justify-between absolute inset-0 backface-hidden shadow-2xl">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#0071E3]/10 text-[#0071E3] uppercase tracking-wider">
                       Оригинал ({currentFlashcard.source_lang})
@@ -1831,8 +1835,8 @@ export default function App() {
                     </button>
                   </div>
 
-                  <div className="text-center py-4">
-                    <p className="text-3xl font-extrabold tracking-tight text-[#1C1C1E] dark:text-white">
+                  <div className="text-center py-2 sm:py-4">
+                    <p className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#1C1C1E] dark:text-white break-words">
                       {currentFlashcard.source_text}
                     </p>
                   </div>
@@ -1843,7 +1847,7 @@ export default function App() {
                 </div>
 
                 {/* Back Side */}
-                <div className="ios-glass ios-card-specular rounded-[36px] p-8 w-full h-full flex flex-col justify-between absolute inset-0 backface-hidden rotate-y-180 shadow-2xl border-2 border-[#0071E3]/30">
+                <div className="ios-glass ios-card-specular rounded-[28px] sm:rounded-[36px] p-5 sm:p-8 w-full h-full flex flex-col justify-between absolute inset-0 backface-hidden rotate-y-180 shadow-2xl border-2 border-[#0071E3]/30">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
                       Перевод ({currentFlashcard.target_lang})
@@ -1856,8 +1860,8 @@ export default function App() {
                     </button>
                   </div>
 
-                  <div className="text-center py-4">
-                    <p className="text-3xl font-extrabold tracking-tight text-[#0071E3]">
+                  <div className="text-center py-2 sm:py-4">
+                    <p className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0071E3] break-words">
                       {currentFlashcard.translated_text}
                     </p>
                     {currentFlashcard.notes && (
@@ -1885,7 +1889,7 @@ export default function App() {
               <button
                 disabled={currentCardIndex <= 0}
                 onClick={() => { setCurrentCardIndex(i => i - 1); setIsCardFlipped(false); }}
-                className="ios-glass flex-1 py-3.5 rounded-2xl font-semibold text-sm disabled:opacity-30 flex items-center justify-center gap-1 text-[#1C1C1E] dark:text-white"
+                className="ios-glass flex-1 py-3 sm:py-3.5 rounded-2xl font-semibold text-xs sm:text-sm disabled:opacity-30 flex items-center justify-center gap-1 text-[#1C1C1E] dark:text-white active:scale-95 transition-all"
               >
                 <ChevronLeft size={16} /> Назад
               </button>
@@ -1898,7 +1902,7 @@ export default function App() {
                     setFlashcardModal(false);
                   }
                 }}
-                className="bg-[#0071E3] hover:bg-[#0077ED] text-white flex-1 py-3.5 rounded-2xl font-semibold text-sm shadow-md flex items-center justify-center gap-1 transition-all"
+                className="bg-[#0071E3] hover:bg-[#0077ED] text-white flex-1 py-3 sm:py-3.5 rounded-2xl font-semibold text-xs sm:text-sm shadow-md flex items-center justify-center gap-1 transition-all active:scale-95"
               >
                 {currentCardIndex < entries.length - 1 ? 'Дальше' : 'Завершить'} <ChevronRight size={16} />
               </button>
@@ -1911,14 +1915,14 @@ export default function App() {
 
       {/* Auth Modal */}
       {authModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="ios-glass ios-card-specular rounded-[36px] p-7 w-full max-w-sm border border-black/10 dark:border-white/10 shadow-2xl relative">
-            <button onClick={() => setAuthModal(null)} className="absolute right-5 top-5 text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1 rounded-full"><X size={18} /></button>
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xl flex items-center justify-center p-3.5 sm:p-4 animate-in fade-in duration-200">
+          <div className="ios-glass ios-card-specular rounded-[28px] sm:rounded-[36px] p-5 sm:p-7 w-full max-w-sm border border-black/10 dark:border-white/10 shadow-2xl relative max-h-[92vh] overflow-y-auto no-scrollbar">
+            <button onClick={() => setAuthModal(null)} className="absolute right-4 top-4 sm:right-5 sm:top-5 text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1 rounded-full"><X size={18} /></button>
             
-            <h3 className="text-xl font-bold tracking-tight mb-1 text-[#1C1C1E] dark:text-white">
+            <h3 className="text-lg sm:text-xl font-bold tracking-tight mb-1 text-[#1C1C1E] dark:text-white">
               {authModal === 'login' ? 'Вход в аккаунт' : authModal === 'register' ? 'Регистрация' : 'Двухфакторная защита'}
             </h3>
-            <p className="text-xs text-[#8E8E93] mb-5">
+            <p className="text-xs text-[#8E8E93] mb-4 sm:mb-5">
               {authModal === 'login' ? 'Войдите для доступа к персональному словарю' : authModal === 'register' ? 'Создайте аккаунт Flow Translate' : 'Подтвердите вход через Google Authenticator'}
             </p>
 
@@ -1996,11 +2000,11 @@ export default function App() {
 
       {/* Manual Entry Modal */}
       {manualModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="ios-glass ios-card-specular rounded-[36px] p-7 w-full max-w-sm border border-black/10 dark:border-white/10 shadow-2xl relative">
-            <button onClick={() => setManualModal(false)} className="absolute right-5 top-5 text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1 rounded-full"><X size={18} /></button>
-            <h3 className="text-lg font-bold tracking-tight mb-4 text-[#1C1C1E] dark:text-white">Новая карточка словаря</h3>
-            <form onSubmit={handleManualAdd} className="space-y-3.5">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xl flex items-center justify-center p-3.5 sm:p-4 animate-in fade-in duration-200">
+          <div className="ios-glass ios-card-specular rounded-[28px] sm:rounded-[36px] p-5 sm:p-7 w-full max-w-sm border border-black/10 dark:border-white/10 shadow-2xl relative max-h-[92vh] overflow-y-auto no-scrollbar">
+            <button onClick={() => setManualModal(false)} className="absolute right-4 top-4 sm:right-5 sm:top-5 text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1 rounded-full"><X size={18} /></button>
+            <h3 className="text-base sm:text-lg font-bold tracking-tight mb-3.5 text-[#1C1C1E] dark:text-white">Новая карточка словаря</h3>
+            <form onSubmit={handleManualAdd} className="space-y-3 sm:space-y-3.5">
               <div>
                 <label className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider block mb-1">Слово / Оригинал</label>
                 <input type="text" required value={manualForm.source_text} onChange={e => setManualForm({...manualForm, source_text: e.target.value})} className="w-full px-3.5 py-2.5 bg-black/[0.04] dark:bg-white/[0.06] rounded-2xl text-sm border border-transparent focus:border-[#0071E3] focus:outline-none text-[#1C1C1E] dark:text-white" />
@@ -2026,11 +2030,11 @@ export default function App() {
 
       {/* New Category Modal */}
       {newCatModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="ios-glass ios-card-specular rounded-[36px] p-7 w-full max-w-xs border border-black/10 dark:border-white/10 shadow-2xl relative">
-            <button onClick={() => setNewCatModal(false)} className="absolute right-5 top-5 text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1 rounded-full"><X size={18} /></button>
-            <h3 className="text-lg font-bold tracking-tight mb-4 text-[#1C1C1E] dark:text-white">Новый тег</h3>
-            <form onSubmit={handleCreateCategory} className="space-y-3.5">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xl flex items-center justify-center p-3.5 sm:p-4 animate-in fade-in duration-200">
+          <div className="ios-glass ios-card-specular rounded-[28px] sm:rounded-[36px] p-5 sm:p-7 w-full max-w-xs border border-black/10 dark:border-white/10 shadow-2xl relative max-h-[92vh] overflow-y-auto no-scrollbar">
+            <button onClick={() => setNewCatModal(false)} className="absolute right-4 top-4 sm:right-5 sm:top-5 text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1 rounded-full"><X size={18} /></button>
+            <h3 className="text-base sm:text-lg font-bold tracking-tight mb-3.5 text-[#1C1C1E] dark:text-white">Новый тег</h3>
+            <form onSubmit={handleCreateCategory} className="space-y-3 sm:space-y-3.5">
               <input type="text" required placeholder="Например: Работа" value={newCatName} onChange={e => setNewCatName(e.target.value)} className="w-full px-3.5 py-2.5 bg-black/[0.04] dark:bg-white/[0.06] rounded-2xl text-sm border border-transparent focus:border-[#0071E3] focus:outline-none text-[#1C1C1E] dark:text-white" />
               <div className="flex items-center gap-3 bg-black/[0.04] dark:bg-white/[0.06] p-2 rounded-2xl">
                 <input type="color" value={newCatColor} onChange={e => setNewCatColor(e.target.value)} className="h-8 w-10 border-none bg-transparent cursor-pointer rounded-lg" />
@@ -2046,12 +2050,12 @@ export default function App() {
 
       {/* Edit Entry Modal */}
       {editingEntry && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="ios-glass ios-card-specular rounded-[36px] p-7 w-full max-w-sm border border-black/10 dark:border-white/10 shadow-2xl relative">
-            <button onClick={() => setEditingEntry(null)} className="absolute right-5 top-5 text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1 rounded-full"><X size={18} /></button>
-            <h3 className="text-lg font-bold tracking-tight mb-1 text-[#1C1C1E] dark:text-white">Редактировать</h3>
-            <p className="text-xs text-[#8E8E93] mb-4">Оригинал: <span className="font-semibold text-[#1C1C1E] dark:text-white">{editingEntry.source_text}</span></p>
-            <form onSubmit={handleEditEntry} className="space-y-3.5">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xl flex items-center justify-center p-3.5 sm:p-4 animate-in fade-in duration-200">
+          <div className="ios-glass ios-card-specular rounded-[28px] sm:rounded-[36px] p-5 sm:p-7 w-full max-w-sm border border-black/10 dark:border-white/10 shadow-2xl relative max-h-[92vh] overflow-y-auto no-scrollbar">
+            <button onClick={() => setEditingEntry(null)} className="absolute right-4 top-4 sm:right-5 sm:top-5 text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1 rounded-full"><X size={18} /></button>
+            <h3 className="text-base sm:text-lg font-bold tracking-tight mb-1 text-[#1C1C1E] dark:text-white">Редактировать</h3>
+            <p className="text-xs text-[#8E8E93] mb-3.5">Оригинал: <span className="font-semibold text-[#1C1C1E] dark:text-white">{editingEntry.source_text}</span></p>
+            <form onSubmit={handleEditEntry} className="space-y-3 sm:space-y-3.5">
               <div>
                 <label className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider block mb-1">Перевод</label>
                 <input type="text" required value={editingEntry.translated_text} onChange={e => setEditingEntry({...editingEntry, translated_text: e.target.value})} className="w-full px-3.5 py-2.5 bg-black/[0.04] dark:bg-white/[0.06] rounded-2xl text-sm border border-transparent focus:border-[#0071E3] focus:outline-none text-[#1C1C1E] dark:text-white" />

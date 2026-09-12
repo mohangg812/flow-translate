@@ -247,3 +247,27 @@
     0 1px 3px rgba(0, 0, 0, 0.2),
     inset 0 1px 1px rgba(255, 255, 255, 0.12);
 }
+
+/* Mobile & Touch Optimizations */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 640px) {
+  .viewfinder-bracket {
+    width: 14px;
+    height: 14px;
+  }
+  
+  /* Touch target sizes & spacing for mobile */
+  .apple-segmented-pill {
+    padding: 2.5px;
+  }
+}
+
