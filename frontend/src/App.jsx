@@ -16,7 +16,7 @@ const LANGUAGES = [
 ];
 
 const QUICK_CHIPS = [
-  { text: 'Apple design is pure perfection', label: '🍎 Apple Design' },
+  { text: 'Simplicity is the ultimate sophistication', label: '✨ Простота и стиль' },
   { text: 'Could I get an iced oat flat white, please?', label: '☕ Заказать кофе' },
   { text: 'Where is terminal 3 for departure?', label: '✈️ В аэропорту' },
   { text: 'It was a great pleasure working with you', label: '💼 Деловое письмо' },
@@ -50,8 +50,8 @@ export default function App() {
   // Translator state
   const [sourceLang, setSourceLang] = useState('en');
   const [targetLang, setTargetLang] = useState('ru');
-  const [sourceText, setSourceText] = useState('Apple design is pure perfection');
-  const [translatedText, setTranslatedText] = useState('Дизайн Apple — это совершенство');
+  const [sourceText, setSourceText] = useState('Simplicity is the ultimate sophistication');
+  const [translatedText, setTranslatedText] = useState('Простота — это высшая форма утонченности');
   const [isTranslating, setIsTranslating] = useState(false);
   const [isInDictionary, setIsInDictionary] = useState(false);
   const [savedEntryId, setSavedEntryId] = useState(null);
@@ -415,41 +415,46 @@ export default function App() {
   const currentFlashcard = entries[currentCardIndex];
 
   return (
-    <div className="relative min-h-screen bg-[#F2F2F7] dark:bg-[#000000] text-[#1C1C1E] dark:text-[#F5F5F7] transition-colors duration-500 font-sans pb-32 overflow-x-hidden selection:bg-[#0071E3]/25 selection:text-[#0071E3]">
+    <div className="relative min-h-screen bg-gradient-to-br from-[#E8EEFF] via-[#F3F4F8] to-[#FCE7F3] dark:bg-gradient-to-b dark:from-[#090A10] dark:via-[#05060A] dark:to-[#020204] text-[#1C1C1E] dark:text-[#F5F5F7] transition-colors duration-500 font-sans pb-32 overflow-x-hidden selection:bg-[#0071E3]/25 selection:text-[#0071E3]">
       
-      {/* ================= iOS 18 INTERACTIVE AURORA & SPOTLIGHT ================= */}
+      {/* ================= VIBRANT AMBIENT AURORA BACKGROUND ================= */}
       <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
         
         {/* Dynamic Cursor Spotlight */}
         <div 
-          className="absolute inset-0 transition-opacity duration-300 opacity-60 dark:opacity-40"
+          className="absolute inset-0 transition-opacity duration-300 opacity-70 dark:opacity-50"
           style={{
-            background: `radial-gradient(650px circle at ${mousePos.x}px ${mousePos.y}px, ${theme === 'dark' ? 'rgba(99, 102, 241, 0.12)' : 'rgba(0, 113, 227, 0.08)'}, transparent 70%)`
+            background: `radial-gradient(650px circle at ${mousePos.x}px ${mousePos.y}px, ${theme === 'dark' ? 'rgba(99, 102, 241, 0.22)' : 'rgba(0, 113, 227, 0.15)'}, transparent 65%)`
           }}
         />
 
-        {/* Apple Intelligence Aurora orbs */}
-        <div className="absolute -top-40 -left-32 w-[52rem] h-[52rem] rounded-full bg-gradient-to-tr from-indigo-500/25 via-blue-500/20 to-cyan-400/25 dark:from-indigo-600/20 dark:via-blue-600/15 dark:to-cyan-500/15 blur-[150px] animate-orb-1" />
-        <div className="absolute top-1/4 -right-40 w-[56rem] h-[56rem] rounded-full bg-gradient-to-bl from-purple-500/25 via-pink-500/20 to-orange-400/20 dark:from-purple-900/30 dark:via-fuchsia-950/20 dark:to-indigo-950/20 blur-[160px] animate-orb-2" />
-        <div className="absolute -bottom-40 left-1/4 w-[48rem] h-[48rem] rounded-full bg-gradient-to-t from-emerald-400/20 via-teal-400/15 to-sky-400/20 dark:from-emerald-950/20 dark:via-teal-950/15 dark:to-blue-950/20 blur-[140px] animate-orb-3" />
+        {/* Floating Glowing Aurora Orbs - High Visibility */}
+        <div className="absolute -top-32 -left-20 w-[44rem] h-[44rem] rounded-full bg-gradient-to-br from-[#4F46E5]/45 via-[#3B82F6]/40 to-[#06B6D4]/35 dark:from-[#4338CA]/40 dark:via-[#1D4ED8]/35 dark:to-[#0891B2]/30 blur-[75px] animate-orb-1" />
+        
+        <div className="absolute top-1/6 -right-28 w-[46rem] h-[46rem] rounded-full bg-gradient-to-bl from-[#9333EA]/40 via-[#EC4899]/35 to-[#F97316]/30 dark:from-[#7E22CE]/35 dark:via-[#BE185D]/30 dark:to-[#C2410C]/25 blur-[85px] animate-orb-2" />
+        
+        <div className="absolute -bottom-24 left-1/5 w-[40rem] h-[40rem] rounded-full bg-gradient-to-tr from-[#10B981]/35 via-[#06B6D4]/30 to-[#3B82F6]/35 dark:from-[#047857]/30 dark:via-[#0E7490]/25 dark:to-[#1E40AF]/30 blur-[80px] animate-orb-3" />
+
+        {/* Ambient Center Glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[55rem] h-[35rem] rounded-full bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-pink-400/20 dark:from-indigo-900/20 dark:via-purple-900/20 dark:to-pink-900/15 blur-[90px] pointer-events-none" />
 
         {/* Micro-dot grid */}
-        <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] bg-[radial-gradient(#000_1px,transparent_1px)] dark:bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:24px_24px]" />
+        <div className="absolute inset-0 opacity-[0.035] dark:opacity-[0.055] bg-[radial-gradient(#000_1px,transparent_1px)] dark:bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:24px_24px]" />
       </div>
 
-      {/* ================= iOS 18 FROSTED GLASS BAR ================= */}
+      {/* ================= FROSTED GLASS BAR ================= */}
       <header className="sticky top-0 z-40 backdrop-blur-3xl bg-white/70 dark:bg-[#121214]/75 border-b border-black/[0.06] dark:border-white/[0.08] transition-all duration-300">
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
           
-          {/* Logo with Apple squircle badge */}
+          {/* Logo with rounded squircle badge */}
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-[#0071E3] via-[#5E5CE6] to-[#AF52DE] flex items-center justify-center text-white shadow-[0_4px_16px_rgba(0,113,227,0.35)] transition-transform hover:scale-105 active:scale-95">
               <Sparkles size={18} className="animate-apple-pulse" />
             </div>
             <div className="flex items-baseline gap-2">
               <span className="text-lg font-bold tracking-tight text-[#1C1C1E] dark:text-white">Flow</span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-[#8E8E93] dark:text-[#AEAEB2] tracking-wider uppercase">
-                iOS 18 Edition
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#0071E3]/10 text-[#0071E3] tracking-wide">
+                Translate
               </span>
             </div>
           </div>
@@ -555,7 +560,7 @@ export default function App() {
               <>
                 <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]" />
                 <span className="text-[#8E8E93] dark:text-[#AEAEB2]">
-                  Apple Intelligence Engine · Готово к переводу
+                  Интеллектуальный перевод · Готово к работе
                 </span>
               </>
             )}
