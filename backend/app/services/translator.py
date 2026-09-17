@@ -73,11 +73,15 @@ class TranslationService:
         lang_pair = f"{source_lang}|{target_lang}"
         params = {
             "q": text,
-            "langpair": lang_pair
+            "langpair": lang_pair,
+            "de": "mixa.minbak@gmail.com"
+        }
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         }
 
         try:
-            async with httpx.AsyncClient(timeout=10.0) as client:
+            async with httpx.AsyncClient(timeout=10.0, headers=headers) as client:
                 response = await client.get(cls.MYMEMORY_URL, params=params)
                 
                 if response.status_code != 200:
