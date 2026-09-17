@@ -960,7 +960,11 @@ export default function App() {
       }
     } catch (err) {
       let errorMsg = 'Произошла ошибка при аутентификации. Проверьте введенные данные.';
-      if (err.response?.data?.details && Array.isArray(err.response.data.details) && err.response.data.details.length > 0) {
+      if (err.response?.status === 404 && (typeof err.response.data === 'string' && (err.response.data.includes('404') || err.response.data.includes('<!doctype html>')))) {
+        errorMsg = 'Сервер бэкенда недоступен на GitHub Pages (GitHub Pages — только статический хостинг без Python/FastAPI). Откройте сайт локально: http://localhost:5173';
+      } else if (err.code === 'ERR_NETWORK' || !err.response) {
+        errorMsg = 'Не удалось подключиться к серверу API. Убедитесь, что бэкенд запущен.';
+      } else if (err.response?.data?.details && Array.isArray(err.response.data.details) && err.response.data.details.length > 0) {
         errorMsg = err.response.data.details.join('; ');
       } else if (err.response?.data?.message) {
         errorMsg = err.response.data.message;
