@@ -129,6 +129,7 @@ export default function App() {
   const [isCopiedSecret, setIsCopiedSecret] = useState(false);
   const [authError, setAuthError] = useState('');
   const [authSuccess, setAuthSuccess] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
 
   // Translator state
   const [sourceLang, setSourceLang] = useState('auto');
@@ -908,16 +909,49 @@ export default function App() {
     e.preventDefault();
     setAuthError('');
     setAuthSuccess('');
+
+    const email = (authEmail || '').trim().toLowerCase();
+    if (!email) {
+      setAuthError('Пожалуйста, укажите адрес электронной почты');
+      return;
+    }
+
+    if (authModal === 'register') {
+      if (!authPassword) {
+        setAuthError('Пожалуйста, введите пароль');
+        return;
+      }
+      if (authPassword.length < 6) {
+        setAuthError('Пароль должен содержать минимум 6 символов');
+        return;
+      }
+      if (authPassword !== authPasswordConfirm) {
+        setAuthError('Пароли не совпадают. Проверьте повтор пароля');
+        return;
+      }
+    } else if (authModal === 'login') {
+      if (!authPassword) {
+        setAuthError('Пожалуйста, введите пароль');
+        return;
+      }
+    } else if (authModal === 'verify') {
+      if (!verifyCode || verifyCode.trim().length < 6) {
+        setAuthError('Введите 6-значный код из Google Authenticator');
+        return;
+      }
+    }
+
+    setAuthLoading(true);
     try {
       if (authModal === 'login') {
-        const res = await api.post('/auth/login', { email: authEmail, password: authPassword });
+        const res = await api.post('/auth/login', { email, password: authPassword });
         localStorage.setItem('flow_token', res.data.access_token);
         setUser(res.data.user);
         setAuthModal(null);
         setAuthPassword('');
       } else if (authModal === 'register') {
         const res = await api.post('/auth/register', {
-          email: authEmail,
+          email,
           password: authPassword,
           password_confirm: authPasswordConfirm,
         });
@@ -928,7 +962,7 @@ export default function App() {
           setVerifyCode('');
           setAuthPasswordConfirm('');
           setAuthModal('verify');
-          setAuthSuccess('Отсканируйте QR-код в приложении Google Authenticator:');
+          setAuthSuccess('Отсканируйте QR-код в Google Authenticator или скопируйте ключ:');
         } else if (res.data.access_token) {
           localStorage.setItem('flow_token', res.data.access_token);
           setUser(res.data.user);
@@ -940,7 +974,7 @@ export default function App() {
           setAuthModal('login');
         }
       } else if (authModal === 'verify') {
-        const res = await api.post('/auth/verify-code', { email: authEmail, code: verifyCode });
+        const res = await api.post('/auth/verify-code', { email, code: verifyCode.trim() });
         if (res.data.access_token) {
           localStorage.setItem('flow_token', res.data.access_token);
           setUser(res.data.user);
@@ -949,7 +983,7 @@ export default function App() {
           setAuthPassword('');
           setAuthPasswordConfirm('');
         } else {
-          const loginRes = await api.post('/auth/login', { email: authEmail, password: authPassword });
+          const loginRes = await api.post('/auth/login', { email, password: authPassword });
           localStorage.setItem('flow_token', loginRes.data.access_token);
           setUser(loginRes.data.user);
           setAuthModal(null);
@@ -961,9 +995,9 @@ export default function App() {
     } catch (err) {
       let errorMsg = 'Произошла ошибка при аутентификации. Проверьте введенные данные.';
       if (err.response?.status === 404 && (typeof err.response.data === 'string' && (err.response.data.includes('404') || err.response.data.includes('<!doctype html>')))) {
-        errorMsg = 'Сервер бэкенда недоступен на GitHub Pages (GitHub Pages — только статический хостинг без Python/FastAPI). Откройте сайт локально: http://localhost:5173';
+        errorMsg = 'Сервер бэкенда недоступен на этом домене. Запустите бэкенд или проверьте статус Render.';
       } else if (err.code === 'ERR_NETWORK' || !err.response) {
-        errorMsg = 'Не удалось подключиться к серверу API. Убедитесь, что бэкенд запущен.';
+        errorMsg = 'Не удалось связаться с облачным сервером. Подождите 10-15 секунд (бесплатный сервер Render может выходить из спящего режима) и нажмите еще раз.';
       } else if (err.response?.data?.details && Array.isArray(err.response.data.details) && err.response.data.details.length > 0) {
         errorMsg = err.response.data.details.join('; ');
       } else if (err.response?.data?.message) {
@@ -972,6 +1006,8 @@ export default function App() {
         errorMsg = typeof err.response.data.detail === 'string' ? err.response.data.detail : JSON.stringify(err.response.data.detail);
       }
       setAuthError(errorMsg);
+    } finally {
+      setAuthLoading(false);
     }
   };
 
@@ -2663,7 +2699,7 @@ export default function App() {
             {authError && <div className="p-3 mb-4 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 text-xs font-semibold border border-rose-500/20">{authError}</div>}
             {authSuccess && <div className="p-3 mb-4 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-semibold border border-emerald-500/20">{authSuccess}</div>}
 
-            <form onSubmit={handleAuth} className="space-y-3.5">
+            <form onSubmit={handleAuth} noValidate className="space-y-3.5">
               {authModal !== 'verify' && (
                 <div>
                   <label className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider block mb-1">Email</label>
@@ -2781,8 +2817,36 @@ export default function App() {
                 </div>
               )}
 
-              <button type="submit" className="w-full apple-btn-primary font-semibold py-3 rounded-2xl text-sm mt-3">
-                {authModal === 'login' ? 'Войти' : authModal === 'register' ? 'Создать аккаунт' : 'Подтвердить и войти'}
+              {authError && (
+                <div className="p-3 my-2 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 text-xs font-semibold border border-rose-500/20 text-center animate-in fade-in">
+                  <p>{authError}</p>
+                  {authError.includes('уже зарегистрирован') && (
+                    <button
+                      type="button"
+                      onClick={() => { setAuthModal('login'); setAuthError(''); setAuthSuccess('Введите ваш пароль для входа'); }}
+                      className="mt-2 inline-block px-3 py-1 rounded-xl bg-[#0071E3] text-white text-[11px] font-bold hover:bg-[#0071E3]/90 transition-all cursor-pointer"
+                    >
+                      Перейти ко входу →
+                    </button>
+                  )}
+                </div>
+              )}
+
+              <button 
+                type="submit" 
+                disabled={authLoading}
+                className="w-full apple-btn-primary font-semibold py-3 rounded-2xl text-sm mt-3 flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
+              >
+                {authLoading ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    <span>
+                      {authModal === 'login' ? 'Вход...' : authModal === 'register' ? 'Создание аккаунта...' : 'Проверка кода...'}
+                    </span>
+                  </>
+                ) : (
+                  authModal === 'login' ? 'Войти' : authModal === 'register' ? 'Создать аккаунт' : 'Подтвердить и войти'
+                )}
               </button>
             </form>
 
