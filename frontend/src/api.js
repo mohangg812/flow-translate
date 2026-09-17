@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 // Относительный путь в dev, либо URL удаленного бэкенда в production
-export const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1';
+const isGitHubPages = typeof window !== 'undefined' && window.location.hostname.includes('github.io');
+export const API_BASE_URL = import.meta.env.VITE_API_URL || (isGitHubPages ? 'https://flow-translate-api.onrender.com/api/v1' : '/api/v1');
 
 const api = axios.create({
   baseURL: API_BASE_URL,

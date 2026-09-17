@@ -39,6 +39,7 @@ jobs:
       - name: Build project
         env:
           GITHUB_PAGES: 'true'
+          VITE_API_URL: ${{ vars.VITE_API_URL || secrets.VITE_API_URL || 'https://flow-translate-api.onrender.com/api/v1' }}
         run: npm run build
         working-directory: frontend
 
