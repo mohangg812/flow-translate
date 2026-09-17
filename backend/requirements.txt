@@ -12,3 +12,4 @@ httpx>=0.27.0
 python-dotenv>=1.0.1
 # [FIX #10] Добавлен pyotp — используется для TOTP/Google Authenticator
 pyotp>=2.9.0
+qrcode>=8.0.0

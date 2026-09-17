@@ -124,6 +124,9 @@ export default function App() {
   const [authPasswordConfirm, setAuthPasswordConfirm] = useState('');
   const [verifyCode, setVerifyCode] = useState('');
   const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [totpSecret, setTotpSecret] = useState('');
+  const [demoCode, setDemoCode] = useState('');
+  const [isCopiedSecret, setIsCopiedSecret] = useState(false);
   const [authError, setAuthError] = useState('');
   const [authSuccess, setAuthSuccess] = useState('');
 
@@ -918,7 +921,15 @@ export default function App() {
           password: authPassword,
           password_confirm: authPasswordConfirm,
         });
-        if (res.data.access_token) {
+        if (res.data.qr_code_url) {
+          setQrCodeUrl(res.data.qr_code_url);
+          setTotpSecret(res.data.secret_key || '');
+          setDemoCode(res.data.demo_code || '');
+          setVerifyCode('');
+          setAuthPasswordConfirm('');
+          setAuthModal('verify');
+          setAuthSuccess('Отсканируйте QR-код в приложении Google Authenticator:');
+        } else if (res.data.access_token) {
           localStorage.setItem('flow_token', res.data.access_token);
           setUser(res.data.user);
           setAuthModal(null);
@@ -929,12 +940,23 @@ export default function App() {
           setAuthModal('login');
         }
       } else if (authModal === 'verify') {
-        await api.post('/auth/verify-code', { email: authEmail, code: verifyCode });
-        const loginRes = await api.post('/auth/login', { email: authEmail, password: authPassword });
-        localStorage.setItem('flow_token', loginRes.data.access_token);
-        setUser(loginRes.data.user);
-        setAuthModal(null);
-        setVerifyCode('');
+        const res = await api.post('/auth/verify-code', { email: authEmail, code: verifyCode });
+        if (res.data.access_token) {
+          localStorage.setItem('flow_token', res.data.access_token);
+          setUser(res.data.user);
+          setAuthModal(null);
+          setVerifyCode('');
+          setAuthPassword('');
+          setAuthPasswordConfirm('');
+        } else {
+          const loginRes = await api.post('/auth/login', { email: authEmail, password: authPassword });
+          localStorage.setItem('flow_token', loginRes.data.access_token);
+          setUser(loginRes.data.user);
+          setAuthModal(null);
+          setVerifyCode('');
+          setAuthPassword('');
+          setAuthPasswordConfirm('');
+        }
       }
     } catch (err) {
       let errorMsg = 'Произошла ошибка при аутентификации. Проверьте введенные данные.';
@@ -2628,10 +2650,10 @@ export default function App() {
             </button>
             
             <h3 className="text-lg sm:text-xl font-bold tracking-tight mb-1 text-[#1C1C1E] dark:text-white">
-              {authModal === 'login' ? 'Вход в аккаунт' : authModal === 'register' ? 'Регистрация' : 'Подтверждение'}
+              {authModal === 'login' ? 'Вход в аккаунт' : authModal === 'register' ? 'Регистрация' : 'Google Authenticator'}
             </h3>
             <p className="text-xs text-[#8E8E93] mb-4 sm:mb-5">
-              {authModal === 'login' ? 'Войдите для доступа к персональному словарю' : authModal === 'register' ? 'Создайте бесплатный аккаунт Flow Translate' : 'Введите код подтверждения'}
+              {authModal === 'login' ? 'Войдите для доступа к персональному словарю' : authModal === 'register' ? 'Создайте бесплатный аккаунт Flow Translate' : 'Двухфакторное подтверждение регистрации'}
             </p>
 
             {authError && <div className="p-3 mb-4 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 text-xs font-semibold border border-rose-500/20">{authError}</div>}
@@ -2692,24 +2714,66 @@ export default function App() {
               {authModal === 'verify' && (
                 <div className="space-y-3.5 text-center">
                   {qrCodeUrl && (
-                    <div className="bg-white p-4 rounded-3xl inline-block border border-black/[0.06] shadow-md">
-                      <img src={qrCodeUrl} alt="QR Code" className="w-40 h-40 mx-auto rounded-xl" />
+                    <div className="bg-white p-3 rounded-2xl inline-block border border-black/[0.08] shadow-md mx-auto">
+                      <img src={qrCodeUrl} alt="Google Authenticator QR Code" className="w-44 h-44 mx-auto rounded-xl select-none" />
                     </div>
                   )}
+
+                  {totpSecret && (
+                    <div className="text-left space-y-1 bg-black/[0.03] dark:bg-white/[0.04] p-3 rounded-2xl border border-black/[0.05] dark:border-white/[0.06]">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold text-[#8E8E93] uppercase tracking-wider">Ключ для ручного ввода</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText(totpSecret);
+                            setIsCopiedSecret(true);
+                            setTimeout(() => setIsCopiedSecret(false), 2000);
+                          }}
+                          className="text-[10px] font-bold text-[#0071E3] flex items-center gap-1 hover:underline cursor-pointer"
+                        >
+                          {isCopiedSecret ? <Check size={12} className="text-emerald-500" /> : <Copy size={12} />}
+                          {isCopiedSecret ? 'Скопировано!' : 'Копировать'}
+                        </button>
+                      </div>
+                      <code className="text-xs font-mono font-bold text-[#1C1C1E] dark:text-white block truncate select-all">
+                        {totpSecret}
+                      </code>
+                    </div>
+                  )}
+
                   <p className="text-xs text-[#8E8E93] leading-relaxed">
-                    Введите 6-значный код подтверждения:
+                    Отсканируйте QR-код в <b>Google Authenticator</b> и введите 6-значный код:
                   </p>
+
                   <div>
                     <input 
                       type="text" 
                       maxLength={6} 
+                      pattern="[0-9]*"
+                      inputMode="numeric"
+                      autoFocus
                       required 
                       value={verifyCode} 
-                      onChange={e => setVerifyCode(e.target.value)} 
+                      onChange={e => setVerifyCode(e.target.value.replace(/\D/g, ''))} 
                       className="w-full py-3 apple-glass-input rounded-2xl text-center font-bold text-2xl tracking-[0.4em] focus:outline-none text-[#1C1C1E] dark:text-white" 
                       placeholder="000000" 
                     />
                   </div>
+
+                  {demoCode && (
+                    <div className="pt-0.5 flex items-center justify-center gap-1.5 text-[11px] text-[#8E8E93]">
+                      <span>Код для быстрой проверки:</span>
+                      <button
+                        type="button"
+                        onClick={() => setVerifyCode(demoCode)}
+                        className="font-mono font-bold text-[#0071E3] hover:underline cursor-pointer"
+                        title="Нажмите, чтобы автоматически вставить код"
+                      >
+                        {demoCode}
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 

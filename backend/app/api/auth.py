@@ -1,8 +1,11 @@
 # [FIX #11] Убран неиспользуемый import random
 import logging
 import uuid
+import base64
 import urllib.parse
 import pyotp
+import qrcode
+import qrcode.image.svg
 from fastapi import APIRouter, HTTPException, status, Depends, BackgroundTasks
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -60,7 +63,7 @@ async def get_current_user(
     return user
 
 
-@router.post("/register", status_code=status.HTTP_201_CREATED, summary="Регистрация нового пользователя")
+@router.post("/register", status_code=status.HTTP_201_CREATED, summary="Регистрация нового пользователя с Google Authenticator")
 async def register(
     payload: UserRegister,
     background_tasks: BackgroundTasks,
@@ -70,47 +73,65 @@ async def register(
 
     stmt = select(User).where(User.email == email_clean)
     existing_user = (await db.execute(stmt)).scalar_one_or_none()
-    if existing_user:
-        if not existing_user.is_verified:
-            existing_user.hashed_password = hash_password(payload.password)
-            existing_user.is_verified = True
-            existing_user.is_active = True
-            await db.commit()
-            await db.refresh(existing_user)
-            access_token = create_access_token(data={"sub": existing_user.email, "role": existing_user.role})
-            return {
-                "message": "Регистрация успешна!",
-                "access_token": access_token,
-                "token_type": "bearer",
-                "user": UserResponse.model_validate(existing_user),
-                "email": email_clean
-            }
+    if existing_user and existing_user.is_verified:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Пользователь с таким email уже зарегистрирован. Пожалуйста, выполните вход."
         )
 
-    new_user = User(
-        email=email_clean,
-        hashed_password=hash_password(payload.password),
-        role="user",
-        is_active=True,
-        is_verified=True,
-        verification_token=None,
-        totp_secret=None,
-        theme_preference="light"
-    )
-    db.add(new_user)
-    await db.commit()
-    await db.refresh(new_user)
+    # 1. Генерируем секретный ключ TOTP для Google Authenticator (Base32)
+    totp_secret = pyotp.random_base32()
 
-    access_token = create_access_token(data={"sub": new_user.email, "role": new_user.role})
+    # 2. Создаем URI otpauth:// для сканирования QR-кода
+    totp_uri = pyotp.totp.TOTP(totp_secret).provisioning_uri(
+        name=email_clean,
+        issuer_name="Flow Translate"
+    )
+
+    # 3. Формируем надёжный QR-код в виде SVG Data URI (работает оффлайн без сторонних сервисов)
+    factory = qrcode.image.svg.SvgPathImage
+    svg_img = qrcode.make(totp_uri, image_factory=factory)
+    b64_svg = base64.b64encode(svg_img.to_string()).decode("ascii")
+    qr_code_url = f"data:image/svg+xml;base64,{b64_svg}"
+
+    # Одноразовый токен для email-подтверждения
+    email_verify_token = str(uuid.uuid4())
+
+    if existing_user and not existing_user.is_verified:
+        existing_user.hashed_password = hash_password(payload.password)
+        existing_user.totp_secret = totp_secret
+        existing_user.verification_token = email_verify_token
+        existing_user.is_active = True
+        await db.commit()
+        await db.refresh(existing_user)
+    else:
+        new_user = User(
+            email=email_clean,
+            hashed_password=hash_password(payload.password),
+            role="user",
+            is_active=True,
+            is_verified=False,
+            verification_token=email_verify_token,
+            totp_secret=totp_secret,
+            theme_preference="light"
+        )
+        db.add(new_user)
+        await db.commit()
+        await db.refresh(new_user)
+
+    # Текущий 6-значный код на момент регистрации
+    current_code = pyotp.TOTP(totp_secret).now()
+    verify_url = f"http://127.0.0.1:8000/api/v1/auth/verify-email?token={email_verify_token}"
+    
+    # Фоновая отправка письма (если настроен SMTP, иначе вывод в лог)
+    background_tasks.add_task(EmailService.send_verification_email, email_clean, current_code, verify_url)
+
     return {
-        "message": "Регистрация успешна!",
-        "access_token": access_token,
-        "token_type": "bearer",
-        "user": UserResponse.model_validate(new_user),
-        "email": email_clean
+        "message": "Регистрация начата! Отсканируйте QR-код в Google Authenticator для подтверждения.",
+        "email": email_clean,
+        "qr_code_url": qr_code_url,
+        "secret_key": totp_secret,
+        "demo_code": current_code
     }
 
 
@@ -124,35 +145,48 @@ async def verify_code(payload: VerifyCodeRequest, db: AsyncSession = Depends(get
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
 
     if user.is_verified:
-        return {"message": "Почта уже была подтверждена ранее. Вы можете войти."}
+        access_token = create_access_token(data={"sub": user.email, "role": user.role})
+        return {
+            "message": "Почта уже была подтверждена ранее. Вход выполнен.",
+            "access_token": access_token,
+            "token_type": "bearer",
+            "user": UserResponse.model_validate(user)
+        }
 
-    # [FIX #5] Проверка кода через TOTP-секрет (хранится в отдельном поле)
+    # Проверка введенного кода через алгоритм Google Authenticator (допуск +-60 сек на рассинхрон часов)
     code_clean = payload.code.strip().replace(" ", "")
     
     is_valid = False
     if user.totp_secret:
         try:
             totp = pyotp.TOTP(user.totp_secret)
-            is_valid = totp.verify(code_clean, valid_window=1)
+            is_valid = totp.verify(code_clean, valid_window=2)
         except Exception:
             is_valid = False
     
     if not is_valid:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Неверный или просроченный код из Google Authenticator"
+            detail="Неверный или просроченный код из Google Authenticator. Проверьте время на телефоне."
         )
 
     user.is_verified = True
+    user.verification_token = None
     await db.commit()
+    await db.refresh(user)
     logger.info(f"Аккаунт успешно подтвержден через Google Authenticator: {user.email}")
 
-    return {"message": "Аккаунт успешно подтвержден! Теперь вы можете войти в систему."}
+    access_token = create_access_token(data={"sub": user.email, "role": user.role})
+    return {
+        "message": "Аккаунт успешно подтвержден! Вход выполнен.",
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": UserResponse.model_validate(user)
+    }
 
 
 @router.get("/verify-email", summary="Подтверждение регистрации по ссылке")
 async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
-    # [FIX #5] Ищем по одноразовому email_verify_token, а не по TOTP-секрету
     stmt = select(User).where(User.verification_token == token.strip())
     user = (await db.execute(stmt)).scalars().first()
 
@@ -160,7 +194,6 @@ async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Неверный или устаревший токен подтверждения")
 
     user.is_verified = True
-    # Обнуляем токен после использования (одноразовый)
     user.verification_token = None
     await db.commit()
     logger.info(f"Email подтвержден по ссылке: {user.email}")
@@ -179,8 +212,10 @@ async def login(payload: UserLogin, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Неверный email или пароль")
     
     if not user.is_verified:
-        user.is_verified = True
-        await db.commit()
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Email не подтвержден. Пожалуйста, подтвердите аккаунт кодом из Google Authenticator."
+        )
         
     if not user.is_active:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Ваш аккаунт заблокирован администратором")
