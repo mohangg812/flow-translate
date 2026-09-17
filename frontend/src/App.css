@@ -518,7 +518,7 @@
 
 /* Dialogue Chat Bubbles */
 .apple-chat-bubble-user {
-  background: linear-gradient(135deg, rgba(0, 113, 227, 0.92) 0%, rgba(94, 92, 230, 0.92) 100%);
+  background: linear-gradient(135deg, rgba(0, 113, 227, 0.95) 0%, rgba(94, 92, 230, 0.95) 100%);
   color: #FFFFFF;
   border-radius: 20px 20px 4px 20px;
   backdrop-filter: blur(20px);
@@ -527,16 +527,17 @@
 }
 
 .apple-chat-bubble-peer {
-  background: rgba(255, 255, 255, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.85);
+  background: rgba(242, 242, 247, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 20px 20px 20px 4px;
+  color: #1C1C1E;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.9);
 }
 
 .dark .apple-chat-bubble-peer {
-  background: rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.09);
   border-color: rgba(255, 255, 255, 0.12);
   color: #FFFFFF;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.15);
@@ -544,7 +545,8 @@
 
 /* AI Alternative Chip */
 .apple-alt-chip {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.75);
+  color: #1C1C1E;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(0, 113, 227, 0.2);
@@ -552,13 +554,15 @@
 }
 
 .dark .apple-alt-chip {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.06);
   border-color: rgba(255, 255, 255, 0.1);
+  color: #F5F5F7;
 }
 
 .apple-alt-chip:hover {
-  background: rgba(0, 113, 227, 0.1);
+  background: rgba(0, 113, 227, 0.12);
   border-color: rgba(0, 113, 227, 0.5);
+  color: #0071E3;
   transform: translateY(-1px);
 }
 

@@ -1463,7 +1463,7 @@ export default function App() {
                     className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all flex items-center gap-1.5 ${
                       autoSpeakDialogue 
                         ? 'apple-btn-primary !text-white' 
-                        : 'apple-btn-glass text-[#8E8E93]'
+                        : 'apple-btn-glass text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
                     }`}
                     title="Автоматически озвучивать перевод для собеседника"
                   >
@@ -1507,31 +1507,45 @@ export default function App() {
                         key={msg.id}
                         className={`flex flex-col ${isLeft ? 'items-start' : 'items-end'} animate-in fade-in slide-in-from-bottom-2 duration-200`}
                       >
-                        <div className={`max-w-[88%] sm:max-w-[75%] p-3.5 sm:p-4 rounded-2xl sm:rounded-[22px] shadow-sm ${
-                          isLeft ? 'apple-chat-bubble-user text-white' : 'apple-chat-bubble-peer text-white'
+                        <div className={`max-w-[88%] sm:max-w-[75%] p-3.5 sm:p-4 rounded-2xl sm:rounded-[22px] shadow-sm transition-all ${
+                          isLeft 
+                            ? 'apple-chat-bubble-user text-white' 
+                            : 'apple-chat-bubble-peer text-[#1C1C1E] dark:text-white'
                         }`}>
-                          <div className="flex items-center justify-between gap-3 text-[10px] opacity-80 pb-1 mb-1 border-b border-white/15">
+                          <div className={`flex items-center justify-between gap-3 text-[10px] pb-1 mb-1 border-b ${
+                            isLeft 
+                              ? 'border-white/20 text-white/80' 
+                              : 'border-black/10 dark:border-white/15 text-[#8E8E93] dark:text-white/70'
+                          }`}>
                             <span className="font-bold uppercase tracking-wider">
                               {isLeft 
                                 ? (sourceLang === 'auto' ? (detectedLangObj ? detectedLangObj.label : 'Авто') : activeSourceLang.label) 
                                 : activeTargetLang.label}
                             </span>
-                            <span>{msg.timestamp}</span>
+                            <span className="opacity-90">{msg.timestamp}</span>
                           </div>
                           
                           {/* Original spoken text */}
-                          <p className="text-xs sm:text-sm font-medium opacity-90 leading-relaxed">
+                          <p className={`text-xs sm:text-sm font-medium leading-relaxed ${
+                            isLeft ? 'text-white/90' : 'text-[#3A3A3C] dark:text-white/90'
+                          }`}>
                             {msg.text}
                           </p>
                           
                           {/* Translated text */}
-                          <div className="mt-2 pt-2 border-t border-white/20 flex items-start justify-between gap-2">
+                          <div className={`mt-2 pt-2 border-t flex items-start justify-between gap-2 ${
+                            isLeft ? 'border-white/20 text-white' : 'border-black/10 dark:border-white/15 text-[#1C1C1E] dark:text-white'
+                          }`}>
                             <p className="text-sm sm:text-base font-bold leading-snug">
                               {msg.translatedText}
                             </p>
                             <button
                               onClick={() => speak(msg.translatedText, msg.targetLang, true)}
-                              className="p-1 rounded-full hover:bg-white/20 text-white flex-shrink-0 transition-colors"
+                              className={`p-1 rounded-full flex-shrink-0 transition-colors ${
+                                isLeft 
+                                  ? 'hover:bg-white/20 text-white' 
+                                  : 'hover:bg-black/10 dark:hover:bg-white/20 text-[#1C1C1E] dark:text-white'
+                              }`}
                               title="Озвучить"
                             >
                               <Volume2 size={14} />
@@ -1547,7 +1561,7 @@ export default function App() {
               {/* Split Dual-Microphone Controls for Two Speakers */}
               <div className="grid grid-cols-2 gap-3 sm:gap-4 pt-3 border-t border-black/[0.04] dark:border-white/[0.06]">
                 {/* Speaker 1 (Source Lang) */}
-                <div className="ios-glass p-3.5 sm:p-4 rounded-[22px] min-h-[145px] sm:min-h-[160px] flex flex-col items-center justify-between border border-black/[0.04] dark:border-white/[0.06] text-center">
+                <div className="bg-white/85 dark:bg-white/[0.04] p-3.5 sm:p-4 rounded-[22px] min-h-[145px] sm:min-h-[160px] flex flex-col items-center justify-between border border-black/[0.06] dark:border-white/[0.06] text-center shadow-sm backdrop-blur-xl">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-[#1C1C1E] dark:text-white">
                     <span>{sourceLang === 'auto' ? (detectedLangObj ? detectedLangObj.flag : '✨') : activeSourceLang.flag}</span>
                     <span className="truncate max-w-[110px] sm:max-w-none">{sourceLang === 'auto' ? (detectedLangObj ? detectedLangObj.label : 'Авто') : activeSourceLang.label}</span>
@@ -1569,7 +1583,7 @@ export default function App() {
                 </div>
 
                 {/* Speaker 2 (Target Lang) */}
-                <div className="ios-glass p-3.5 sm:p-4 rounded-[22px] min-h-[145px] sm:min-h-[160px] flex flex-col items-center justify-between border border-black/[0.04] dark:border-white/[0.06] text-center">
+                <div className="bg-white/85 dark:bg-white/[0.04] p-3.5 sm:p-4 rounded-[22px] min-h-[145px] sm:min-h-[160px] flex flex-col items-center justify-between border border-black/[0.06] dark:border-white/[0.06] text-center shadow-sm backdrop-blur-xl">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-[#1C1C1E] dark:text-white">
                     <span>{activeTargetLang.flag}</span>
                     <span className="truncate max-w-[110px] sm:max-w-none">{activeTargetLang.label}</span>
@@ -1997,7 +2011,7 @@ export default function App() {
                             <button
                               key={idx}
                               onClick={() => setTranslatedText(alt)}
-                              className="apple-alt-chip text-xs px-2.5 py-1 rounded-full text-left transition-all hover:scale-[1.02] active:scale-95"
+                              className="apple-alt-chip text-xs px-2.5 py-1 rounded-full text-left transition-all hover:scale-[1.02] active:scale-95 text-[#1C1C1E] dark:text-white font-medium"
                               title="Нажмите, чтобы применить этот вариант"
                             >
                               {alt}
@@ -2611,7 +2625,7 @@ export default function App() {
               </span>
               <button 
                 onClick={() => setFlashcardModal(false)} 
-                className="apple-icon-btn p-1.5 rounded-full text-white"
+                className="apple-icon-btn p-1.5 rounded-full text-[#1C1C1E] dark:text-white"
               >
                 <X size={18} />
               </button>
