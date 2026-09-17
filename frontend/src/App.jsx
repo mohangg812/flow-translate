@@ -939,6 +939,23 @@ export default function App() {
         setAuthError('Введите 6-значный код из Google Authenticator');
         return;
       }
+    } else if (authModal === 'forgot_password') {
+      if (!verifyCode || verifyCode.trim().length < 6) {
+        setAuthError('Введите 6-значный код из Google Authenticator');
+        return;
+      }
+      if (!authPassword) {
+        setAuthError('Пожалуйста, введите новый пароль');
+        return;
+      }
+      if (authPassword.length < 6) {
+        setAuthError('Пароль должен содержать минимум 6 символов');
+        return;
+      }
+      if (authPassword !== authPasswordConfirm) {
+        setAuthError('Пароли не совпадают. Проверьте повтор пароля');
+        return;
+      }
     }
 
     setAuthLoading(true);
@@ -990,6 +1007,28 @@ export default function App() {
           setVerifyCode('');
           setAuthPassword('');
           setAuthPasswordConfirm('');
+        }
+      } else if (authModal === 'forgot_password') {
+        const res = await api.post('/auth/reset-password', {
+          email,
+          code: verifyCode.trim(),
+          new_password: authPassword,
+          new_password_confirm: authPasswordConfirm,
+        });
+        if (res.data.access_token) {
+          localStorage.setItem('flow_token', res.data.access_token);
+          setUser(res.data.user);
+          setAuthModal(null);
+          setAuthPassword('');
+          setAuthPasswordConfirm('');
+          setVerifyCode('');
+          setAuthSuccess('Пароль успешно изменен! Вход выполнен.');
+        } else {
+          setAuthSuccess(res.data.message || 'Пароль успешно изменен!');
+          setAuthModal('login');
+          setAuthPassword('');
+          setAuthPasswordConfirm('');
+          setVerifyCode('');
         }
       }
     } catch (err) {
@@ -2690,10 +2729,16 @@ export default function App() {
             </button>
             
             <h3 className="text-lg sm:text-xl font-bold tracking-tight mb-1 text-[#1C1C1E] dark:text-white">
-              {authModal === 'login' ? 'Вход в аккаунт' : authModal === 'register' ? 'Регистрация' : 'Google Authenticator'}
+              {authModal === 'login' ? 'Вход в аккаунт' : authModal === 'register' ? 'Регистрация' : authModal === 'forgot_password' ? 'Сброс пароля' : 'Google Authenticator'}
             </h3>
             <p className="text-xs text-[#8E8E93] mb-4 sm:mb-5">
-              {authModal === 'login' ? 'Войдите для доступа к персональному словарю' : authModal === 'register' ? 'Создайте бесплатный аккаунт Flow Translate' : 'Двухфакторное подтверждение регистрации'}
+              {authModal === 'login' 
+                ? 'Войдите для доступа к персональному словарю' 
+                : authModal === 'register' 
+                  ? 'Создайте бесплатный аккаунт Flow Translate' 
+                  : authModal === 'forgot_password'
+                    ? 'Введите email, код из Google Authenticator и новый пароль'
+                    : 'Двухфакторное подтверждение регистрации'}
             </p>
 
             {authError && <div className="p-3 mb-4 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 text-xs font-semibold border border-rose-500/20">{authError}</div>}
@@ -2716,11 +2761,52 @@ export default function App() {
                   </div>
                 </div>
               )}
-              {authModal !== 'verify' && (
+
+              {authModal === 'forgot_password' && (
                 <div>
                   <label className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider block mb-1">
-                    {authModal === 'register' ? 'Пароль (минимум 6 символов)' : 'Пароль'}
+                    Код из Google Authenticator (6 цифр)
                   </label>
+                  <div className="relative">
+                    <Shield size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8E8E93]" />
+                    <input 
+                      type="text" 
+                      maxLength={6} 
+                      pattern="[0-9]*"
+                      inputMode="numeric"
+                      required 
+                      value={verifyCode} 
+                      onChange={e => setVerifyCode(e.target.value.replace(/\D/g, ''))} 
+                      className="w-full pl-10 pr-3.5 py-2.5 apple-glass-input rounded-2xl text-base sm:text-sm tracking-widest font-mono font-bold focus:outline-none text-[#1C1C1E] dark:text-white" 
+                      placeholder="123456" 
+                    />
+                  </div>
+                </div>
+              )}
+
+              {authModal !== 'verify' && (
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider block">
+                      {authModal === 'register' ? 'Пароль (минимум 6 символов)' : authModal === 'forgot_password' ? 'Новый пароль (минимум 6 символов)' : 'Пароль'}
+                    </label>
+                    {authModal === 'login' && (
+                      <button 
+                        type="button" 
+                        onClick={() => { 
+                          setAuthModal('forgot_password'); 
+                          setAuthError(''); 
+                          setAuthSuccess(''); 
+                          setAuthPassword(''); 
+                          setAuthPasswordConfirm(''); 
+                          setVerifyCode(''); 
+                        }} 
+                        className="text-[11px] font-semibold text-[#0071E3] hover:underline cursor-pointer"
+                      >
+                        Забыли пароль?
+                      </button>
+                    )}
+                  </div>
                   <div className="relative">
                     <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8E8E93]" />
                     <input 
@@ -2734,9 +2820,11 @@ export default function App() {
                   </div>
                 </div>
               )}
-              {authModal === 'register' && (
+              {(authModal === 'register' || authModal === 'forgot_password') && (
                 <div>
-                  <label className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider block mb-1">Повтор пароля</label>
+                  <label className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider block mb-1">
+                    {authModal === 'forgot_password' ? 'Повтор нового пароля' : 'Повтор пароля'}
+                  </label>
                   <div className="relative">
                     <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8E8E93]" />
                     <input 
@@ -2841,11 +2929,23 @@ export default function App() {
                   <>
                     <Loader2 size={16} className="animate-spin" />
                     <span>
-                      {authModal === 'login' ? 'Вход...' : authModal === 'register' ? 'Создание аккаунта...' : 'Проверка кода...'}
+                      {authModal === 'login' 
+                        ? 'Вход...' 
+                        : authModal === 'register' 
+                          ? 'Создание аккаунта...' 
+                          : authModal === 'forgot_password'
+                            ? 'Сброс пароля...'
+                            : 'Проверка кода...'}
                     </span>
                   </>
                 ) : (
-                  authModal === 'login' ? 'Войти' : authModal === 'register' ? 'Создать аккаунт' : 'Подтвердить и войти'
+                  authModal === 'login' 
+                    ? 'Войти' 
+                    : authModal === 'register' 
+                      ? 'Создать аккаунт' 
+                      : authModal === 'forgot_password'
+                        ? 'Сбросить пароль и войти'
+                        : 'Подтвердить и войти'
                 )}
               </button>
             </form>

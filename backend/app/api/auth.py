@@ -20,7 +20,8 @@ from app.schemas.user import (
     Token,
     ThemeUpdate,
     PasswordChange,
-    VerifyCodeRequest
+    VerifyCodeRequest,
+    PasswordResetRequest
 )
 from app.core.security import (
     hash_password,
@@ -250,3 +251,51 @@ async def change_password(
     await db.commit()
     logger.info(f"Пользователь {current_user.email} успешно сменил пароль")
     return {"message": "Пароль успешно изменен"}
+
+
+@router.post("/reset-password", summary="Сброс пароля через Google Authenticator")
+async def reset_password(payload: PasswordResetRequest, db: AsyncSession = Depends(get_db)):
+    email_clean = payload.email.lower().strip()
+    stmt = select(User).where(User.email == email_clean)
+    user = (await db.execute(stmt)).scalar_one_or_none()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Пользователь с таким email не найден"
+        )
+
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Аккаунт заблокирован администратором"
+        )
+
+    if not user.totp_secret:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Для данного аккаунта не настроен Google Authenticator. Обратитесь к администратору."
+        )
+
+    code_clean = payload.code.strip().replace(" ", "")
+    totp = pyotp.TOTP(user.totp_secret)
+    if not totp.verify(code_clean, valid_window=2):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Неверный или просроченный код из Google Authenticator. Проверьте время на телефоне."
+        )
+
+    user.hashed_password = hash_password(payload.new_password)
+    user.is_verified = True
+    user.verification_token = None
+    await db.commit()
+    await db.refresh(user)
+    logger.info(f"Пароль успешно сброшен через Google Authenticator: {user.email}")
+
+    access_token = create_access_token(data={"sub": user.email, "role": user.role})
+    return {
+        "message": "Пароль успешно изменен! Вход выполнен.",
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": UserResponse.model_validate(user)
+    }

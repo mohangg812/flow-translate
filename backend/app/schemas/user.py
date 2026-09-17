@@ -64,3 +64,18 @@ class PasswordChange(BaseModel):
         if not re.search(r"[A-Z]", self.new_password):
             raise ValueError("Новый пароль должен содержать хотя бы одну заглавную букву")
         return self
+
+
+class PasswordResetRequest(BaseModel):
+    email: EmailStr = Field(..., description="Email пользователя")
+    code: str = Field(..., min_length=6, max_length=6, description="6-значный код Google Authenticator")
+    new_password: str = Field(..., min_length=6, max_length=64, description="Новый пароль (минимум 6 символов)")
+    new_password_confirm: str = Field(..., description="Повтор нового пароля")
+
+    @model_validator(mode="after")
+    def validate_passwords(self):
+        if self.new_password != self.new_password_confirm:
+            raise ValueError("Пароли не совпадают")
+        if len(self.new_password) < 6:
+            raise ValueError("Пароль должен содержать не менее 6 символов")
+        return self
