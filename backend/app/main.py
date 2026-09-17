@@ -85,13 +85,18 @@ app.add_middleware(
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     errors = []
     for err in exc.errors():
-        field = " -> ".join(str(loc) for loc in err["loc"])
-        errors.append(f"{field}: {err['msg']}")
+        field = " -> ".join(str(loc) for loc in err["loc"] if loc != "body")
+        msg = err.get("msg", "")
+        if msg.startswith("Value error, "):
+            msg = msg.replace("Value error, ", "")
+        errors.append(f"{field}: {msg}" if field else msg)
+    
+    friendly_msg = "; ".join(errors) if errors else "Ошибка валидации входных данных"
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content={
             "status": "error",
-            "message": "Ошибка валидации входных данных",
+            "message": friendly_msg,
             "code": 422,
             "details": errors
         }

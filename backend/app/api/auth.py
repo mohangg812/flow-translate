@@ -71,54 +71,46 @@ async def register(
     stmt = select(User).where(User.email == email_clean)
     existing_user = (await db.execute(stmt)).scalar_one_or_none()
     if existing_user:
+        if not existing_user.is_verified:
+            existing_user.hashed_password = hash_password(payload.password)
+            existing_user.is_verified = True
+            existing_user.is_active = True
+            await db.commit()
+            await db.refresh(existing_user)
+            access_token = create_access_token(data={"sub": existing_user.email, "role": existing_user.role})
+            return {
+                "message": "Регистрация успешна!",
+                "access_token": access_token,
+                "token_type": "bearer",
+                "user": UserResponse.model_validate(existing_user),
+                "email": email_clean
+            }
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Пользователь с таким email уже зарегистрирован"
+            detail="Пользователь с таким email уже зарегистрирован. Пожалуйста, выполните вход."
         )
-    
-    # 1. Генерируем секретный ключ TOTP для Google Authenticator (Base32)
-    totp_secret = pyotp.random_base32()
-
-    # 2. Создаем ссылку otpauth:// для сканирования QR-кода
-    totp_uri = pyotp.totp.TOTP(totp_secret).provisioning_uri(
-        name=email_clean,
-        issuer_name="Flow Translate"
-    )
-
-    # 3. Формируем URL для отрисовки QR-кода через публичный API
-    qr_code_url = f"https://api.qrserver.com/v1/create-qr-code/?size=220x220&data={urllib.parse.quote(totp_uri)}"
-
-    # [FIX #5] Генерируем отдельный одноразовый токен для email-верификации
-    # (ранее использовался totp_secret, что позволяло подтвердить чужой аккаунт)
-    email_verify_token = str(uuid.uuid4())
 
     new_user = User(
         email=email_clean,
         hashed_password=hash_password(payload.password),
         role="user",
         is_active=True,
-        is_verified=False,
-        verification_token=email_verify_token,  # Одноразовый токен для email
-        totp_secret=totp_secret,  # TOTP-секрет хранится отдельно
+        is_verified=True,
+        verification_token=None,
+        totp_secret=None,
         theme_preference="light"
     )
     db.add(new_user)
     await db.commit()
     await db.refresh(new_user)
 
-    # Текущий 6-значный код на момент регистрации
-    current_code = pyotp.TOTP(totp_secret).now()
-    verify_url = f"http://127.0.0.1:8000/api/v1/auth/verify-email?token={email_verify_token}"
-    
-    # Фоновая отправка письма (если настроен SMTP, иначе вывод в лог)
-    background_tasks.add_task(EmailService.send_verification_email, email_clean, current_code, verify_url)
-
+    access_token = create_access_token(data={"sub": new_user.email, "role": new_user.role})
     return {
-        "message": "Регистрация успешна! Отсканируйте QR-код в Google Authenticator.",
-        "email": email_clean,
-        "qr_code_url": qr_code_url,
-        # [FIX #4] totp_secret больше НЕ возвращается клиенту — QR-код достаточен
-        "demo_code": current_code
+        "message": "Регистрация успешна!",
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": UserResponse.model_validate(new_user),
+        "email": email_clean
     }
 
 
@@ -187,10 +179,8 @@ async def login(payload: UserLogin, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Неверный email или пароль")
     
     if not user.is_verified:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Email не подтвержден. Пожалуйста, введите код из Google Authenticator."
-        )
+        user.is_verified = True
+        await db.commit()
         
     if not user.is_active:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Ваш аккаунт заблокирован администратором")

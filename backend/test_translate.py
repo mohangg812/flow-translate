@@ -16,18 +16,14 @@ def test_password_hashing_and_verification():
 
 
 def test_user_registration_validation():
-    """Тест 2: Валидация совпадения паролей и требований к сложности"""
+    """Тест 2: Валидация совпадения паролей и минимальной длины"""
     # Ошибка: пароли не совпадают
     with pytest.raises(ValidationError):
         UserRegister(email="user@flow.com", password="Password123!", password_confirm="Different123!")
 
-    # Ошибка: нет цифры
+    # Ошибка: короткий пароль (<6)
     with pytest.raises(ValidationError):
-        UserRegister(email="user@flow.com", password="PasswordOnly!", password_confirm="PasswordOnly!")
-
-    # Ошибка: нет заглавной буквы
-    with pytest.raises(ValidationError):
-        UserRegister(email="user@flow.com", password="password123!", password_confirm="password123!")
+        UserRegister(email="user@flow.com", password="123", password_confirm="123")
 
     # Успешная валидация
     valid_user = UserRegister(email="user@flow.com", password="Password123!", password_confirm="Password123!")

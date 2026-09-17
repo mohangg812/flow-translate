@@ -439,6 +439,36 @@
   .apple-segmented-pill {
     padding: 2.5px;
   }
+
+  /* Prevent iOS Safari unwanted auto-zoom on input focus */
+  input:not([type="checkbox"]):not([type="radio"]), 
+  select, 
+  textarea {
+    font-size: 16px !important;
+  }
+
+  /* Ensure comfortable touch targets */
+  .apple-icon-btn {
+    min-height: 38px;
+    min-width: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Lightweight background orbs for smooth 60fps on mobile GPUs */
+  .animate-orb-1, .animate-orb-2, .animate-orb-3 {
+    filter: blur(45px) !important;
+    opacity: 0.25 !important;
+  }
+}
+
+/* Safe area padding utilities for mobile devices */
+.safe-top {
+  padding-top: max(env(safe-area-inset-top, 0px), 0.75rem);
+}
+.safe-bottom {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 2rem);
 }
 
 /* ================= SPEECH & DIALOGUE ANIMATIONS ================= */

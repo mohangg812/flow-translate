@@ -918,9 +918,16 @@ export default function App() {
           password: authPassword,
           password_confirm: authPasswordConfirm,
         });
-        setQrCodeUrl(res.data.qr_code_url || '');
-        setAuthSuccess('Отсканируйте QR-код в приложении Google Authenticator:');
-        setAuthModal('verify');
+        if (res.data.access_token) {
+          localStorage.setItem('flow_token', res.data.access_token);
+          setUser(res.data.user);
+          setAuthModal(null);
+          setAuthPassword('');
+          setAuthPasswordConfirm('');
+        } else {
+          setAuthSuccess(res.data.message || 'Регистрация успешна! Теперь вы можете войти.');
+          setAuthModal('login');
+        }
       } else if (authModal === 'verify') {
         await api.post('/auth/verify-code', { email: authEmail, code: verifyCode });
         const loginRes = await api.post('/auth/login', { email: authEmail, password: authPassword });
@@ -930,7 +937,15 @@ export default function App() {
         setVerifyCode('');
       }
     } catch (err) {
-      setAuthError(err.response?.data?.message || err.response?.data?.detail || 'Ошибка входа');
+      let errorMsg = 'Произошла ошибка при аутентификации. Проверьте введенные данные.';
+      if (err.response?.data?.details && Array.isArray(err.response.data.details) && err.response.data.details.length > 0) {
+        errorMsg = err.response.data.details.join('; ');
+      } else if (err.response?.data?.message) {
+        errorMsg = err.response.data.message;
+      } else if (err.response?.data?.detail) {
+        errorMsg = typeof err.response.data.detail === 'string' ? err.response.data.detail : JSON.stringify(err.response.data.detail);
+      }
+      setAuthError(errorMsg);
     }
   };
 
@@ -997,8 +1012,8 @@ export default function App() {
       </div>
 
       {/* ================= FROSTED GLASS BAR ================= */}
-      <header className="sticky top-0 z-40 backdrop-blur-3xl bg-white/70 dark:bg-[#121214]/75 border-b border-black/[0.06] dark:border-white/[0.08] transition-all duration-300">
-        <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
+      <header className="sticky top-0 z-40 backdrop-blur-3xl bg-white/70 dark:bg-[#121214]/75 border-b border-black/[0.06] dark:border-white/[0.08] transition-all duration-300 safe-top">
+        <div className="max-w-4xl mx-auto px-3.5 sm:px-6 h-16 flex items-center justify-between">
           
           {/* Logo with rounded squircle badge */}
           <div className="flex items-center gap-3">
@@ -1129,7 +1144,7 @@ export default function App() {
         </div>
 
         {/* Apple Segmented Mode Switcher (Fully Responsive for Mobile) */}
-        <div className="flex items-center justify-center w-full overflow-x-auto no-scrollbar py-0.5 px-1">
+        <div className="flex items-center justify-start sm:justify-center w-full overflow-x-auto no-scrollbar py-0.5 px-1 touch-pan-x">
           <div className="apple-segmented-pill flex items-center gap-1 border border-black/[0.04] dark:border-white/[0.08] p-1 rounded-full flex-nowrap">
             <button
               onClick={() => { setActiveMode('text'); }}
@@ -1272,7 +1287,7 @@ export default function App() {
         <section className="space-y-4">
           
           {/* Apple Segmented Language Bar */}
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2.5">
             <div className="flex items-center gap-2">
               <Languages size={18} className="text-[#0071E3]" />
               <h2 className="text-lg font-bold tracking-tight text-[#1C1C1E] dark:text-white">
@@ -1431,10 +1446,10 @@ export default function App() {
               {/* Split Dual-Microphone Controls for Two Speakers */}
               <div className="grid grid-cols-2 gap-3 sm:gap-4 pt-3 border-t border-black/[0.04] dark:border-white/[0.06]">
                 {/* Speaker 1 (Source Lang) */}
-                <div className="ios-glass p-3.5 sm:p-4 rounded-[22px] flex flex-col items-center justify-center gap-2 border border-black/[0.04] dark:border-white/[0.06] text-center">
+                <div className="ios-glass p-3.5 sm:p-4 rounded-[22px] min-h-[145px] sm:min-h-[160px] flex flex-col items-center justify-between border border-black/[0.04] dark:border-white/[0.06] text-center">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-[#1C1C1E] dark:text-white">
                     <span>{sourceLang === 'auto' ? (detectedLangObj ? detectedLangObj.flag : '✨') : activeSourceLang.flag}</span>
-                    <span className="truncate">{sourceLang === 'auto' ? (detectedLangObj ? detectedLangObj.label : 'Авто') : activeSourceLang.label}</span>
+                    <span className="truncate max-w-[110px] sm:max-w-none">{sourceLang === 'auto' ? (detectedLangObj ? detectedLangObj.label : 'Авто') : activeSourceLang.label}</span>
                   </div>
                   <button
                     onClick={() => startDialogueRecognition('left')}
@@ -1448,15 +1463,15 @@ export default function App() {
                     {isDialogueListeningLeft ? <MicOff size={24} /> : <Mic size={24} />}
                   </button>
                   <span className="text-[11px] font-semibold text-[#8E8E93]">
-                    {isDialogueListeningLeft ? 'Слушаю собеседника 1...' : 'Нажмите и говорите'}
+                    {isDialogueListeningLeft ? 'Слушаю...' : 'Говорить'}
                   </span>
                 </div>
 
                 {/* Speaker 2 (Target Lang) */}
-                <div className="ios-glass p-3.5 sm:p-4 rounded-[22px] flex flex-col items-center justify-center gap-2 border border-black/[0.04] dark:border-white/[0.06] text-center">
+                <div className="ios-glass p-3.5 sm:p-4 rounded-[22px] min-h-[145px] sm:min-h-[160px] flex flex-col items-center justify-between border border-black/[0.04] dark:border-white/[0.06] text-center">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-[#1C1C1E] dark:text-white">
                     <span>{activeTargetLang.flag}</span>
-                    <span className="truncate">{activeTargetLang.label}</span>
+                    <span className="truncate max-w-[110px] sm:max-w-none">{activeTargetLang.label}</span>
                   </div>
                   <button
                     onClick={() => startDialogueRecognition('right')}
@@ -1470,7 +1485,7 @@ export default function App() {
                     {isDialogueListeningRight ? <MicOff size={24} /> : <Mic size={24} />}
                   </button>
                   <span className="text-[11px] font-semibold text-[#8E8E93]">
-                    {isDialogueListeningRight ? 'Слушаю собеседника 2...' : 'Нажмите и говорите'}
+                    {isDialogueListeningRight ? 'Слушаю...' : 'Говорить'}
                   </span>
                 </div>
               </div>
@@ -1505,7 +1520,7 @@ export default function App() {
 
               <div>
                 {/* Source Card Header with Mode Badges */}
-                <div className="flex items-center justify-between pb-2.5 sm:pb-3 mb-2.5 sm:mb-3 border-b border-black/[0.04] dark:border-white/[0.06] gap-1">
+                <div className="flex flex-wrap items-center justify-between pb-2.5 sm:pb-3 mb-2.5 sm:mb-3 border-b border-black/[0.04] dark:border-white/[0.06] gap-1.5">
                   <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
                     {sourceLang === 'auto' ? (
                       <span className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider flex items-center gap-1.5 flex-shrink-0">
@@ -1772,8 +1787,8 @@ export default function App() {
               </div>
 
               {/* Source Card Footer */}
-              <div className="flex items-center justify-between pt-3 sm:pt-4 border-t border-black/[0.04] dark:border-white/[0.06]">
-                <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="flex flex-wrap items-center justify-between pt-3 sm:pt-4 border-t border-black/[0.04] dark:border-white/[0.06] gap-2">
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                   <button
                     onClick={() => speak(sourceText, sourceLang === 'auto' ? detectedLang : sourceLang, false)}
                     disabled={!sourceText.trim()}
@@ -1838,7 +1853,7 @@ export default function App() {
               )}
 
               <div>
-                <div className="flex items-center justify-between pb-2.5 sm:pb-3 mb-2 sm:mb-2.5 border-b border-black/[0.04] dark:border-white/[0.06] gap-1">
+                <div className="flex flex-wrap items-center justify-between pb-2.5 sm:pb-3 mb-2 sm:mb-2.5 border-b border-black/[0.04] dark:border-white/[0.06] gap-2">
                   <span className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider flex items-center gap-1.5 flex-shrink-0">
                     {activeTargetLang.flag} {activeTargetLang.label}
                   </span>
@@ -1911,7 +1926,7 @@ export default function App() {
                 )}
               </div>
 
-              <div className="flex items-center justify-between pt-3 sm:pt-4 border-t border-black/[0.04] dark:border-white/[0.06]">
+              <div className="flex flex-wrap items-center justify-between pt-3 sm:pt-4 border-t border-black/[0.04] dark:border-white/[0.06] gap-2">
                 <div className="flex items-center gap-1.5 sm:gap-2">
                   <button
                     onClick={() => speak(translatedText, targetLang, true)}
@@ -2170,23 +2185,24 @@ export default function App() {
                         key={item.id}
                         className="bg-white/90 dark:bg-white/[0.04] hover:bg-white dark:hover:bg-white/[0.07] px-5 py-3.5 rounded-2xl shadow-sm hover:shadow-md flex items-center justify-between gap-3 group transition-all duration-200 border border-black/[0.03] dark:border-white/[0.04]"
                       >
-                        <div className="flex items-center gap-3 min-w-0 flex-1">
-                          <span className="font-bold text-base text-[#1C1C1E] dark:text-white truncate tracking-tight">
-                            {item.source_text}
-                          </span>
-                          <span className="text-[#8E8E93] font-light flex-shrink-0">→</span>
-                          <span className="font-semibold text-base text-[#1C1C1E] dark:text-white truncate tracking-tight">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 min-w-0 flex-1">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="font-bold text-sm sm:text-base text-[#1C1C1E] dark:text-white truncate tracking-tight">
+                              {item.source_text}
+                            </span>
+                            {item.category_name && (
+                              <span
+                                className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white flex-shrink-0 shadow-sm"
+                                style={{ backgroundColor: item.category_color || '#0071E3' }}
+                              >
+                                {item.category_name}
+                              </span>
+                            )}
+                          </div>
+                          <span className="hidden sm:inline text-[#8E8E93] font-light flex-shrink-0">→</span>
+                          <span className="font-semibold text-sm sm:text-base text-[#0071E3] dark:text-[#2997FF] truncate tracking-tight">
                             {item.translated_text}
                           </span>
-
-                          {item.category_name && (
-                            <span
-                              className="text-[10px] font-bold px-2.5 py-0.5 rounded-full text-white flex-shrink-0 shadow-sm"
-                              style={{ backgroundColor: item.category_color || '#0071E3' }}
-                            >
-                              {item.category_name}
-                            </span>
-                          )}
                         </div>
 
                         <div className="flex items-center gap-1 flex-shrink-0">
@@ -2603,13 +2619,19 @@ export default function App() {
       {authModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xl flex items-center justify-center p-3.5 sm:p-4 animate-in fade-in duration-200">
           <div className="ios-glass ios-card-specular rounded-[28px] sm:rounded-[36px] p-5 sm:p-7 w-full max-w-sm border border-black/10 dark:border-white/10 shadow-2xl relative max-h-[92vh] overflow-y-auto no-scrollbar">
-            <button onClick={() => setAuthModal(null)} className="apple-icon-btn absolute right-4 top-4 sm:right-5 sm:top-5 text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1.5 rounded-full"><X size={16} /></button>
+            <button 
+              onClick={() => setAuthModal(null)} 
+              className="apple-icon-btn absolute right-3.5 top-3.5 sm:right-5 sm:top-5 text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-2 rounded-full w-9 h-9 flex items-center justify-center"
+              title="Закрыть"
+            >
+              <X size={18} />
+            </button>
             
             <h3 className="text-lg sm:text-xl font-bold tracking-tight mb-1 text-[#1C1C1E] dark:text-white">
-              {authModal === 'login' ? 'Вход в аккаунт' : authModal === 'register' ? 'Регистрация' : 'Двухфакторная защита'}
+              {authModal === 'login' ? 'Вход в аккаунт' : authModal === 'register' ? 'Регистрация' : 'Подтверждение'}
             </h3>
             <p className="text-xs text-[#8E8E93] mb-4 sm:mb-5">
-              {authModal === 'login' ? 'Войдите для доступа к персональному словарю' : authModal === 'register' ? 'Создайте аккаунт Flow Translate' : 'Подтвердите вход через Google Authenticator'}
+              {authModal === 'login' ? 'Войдите для доступа к персональному словарю' : authModal === 'register' ? 'Создайте бесплатный аккаунт Flow Translate' : 'Введите код подтверждения'}
             </p>
 
             {authError && <div className="p-3 mb-4 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 text-xs font-semibold border border-rose-500/20">{authError}</div>}
@@ -2621,16 +2643,32 @@ export default function App() {
                   <label className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider block mb-1">Email</label>
                   <div className="relative">
                     <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8E8E93]" />
-                    <input type="email" required value={authEmail} onChange={e => setAuthEmail(e.target.value)} className="w-full pl-10 pr-3.5 py-2.5 apple-glass-input rounded-2xl text-sm focus:outline-none text-[#1C1C1E] dark:text-white" placeholder="user@gmail.com" />
+                    <input 
+                      type="email" 
+                      required 
+                      value={authEmail} 
+                      onChange={e => setAuthEmail(e.target.value)} 
+                      className="w-full pl-10 pr-3.5 py-2.5 apple-glass-input rounded-2xl text-base sm:text-sm focus:outline-none text-[#1C1C1E] dark:text-white" 
+                      placeholder="user@gmail.com" 
+                    />
                   </div>
                 </div>
               )}
               {authModal !== 'verify' && (
                 <div>
-                  <label className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider block mb-1">Пароль (мин. 8 знаков, цифра, заглавная)</label>
+                  <label className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider block mb-1">
+                    {authModal === 'register' ? 'Пароль (минимум 6 символов)' : 'Пароль'}
+                  </label>
                   <div className="relative">
                     <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8E8E93]" />
-                    <input type="password" required value={authPassword} onChange={e => setAuthPassword(e.target.value)} className="w-full pl-10 pr-3.5 py-2.5 apple-glass-input rounded-2xl text-sm focus:outline-none text-[#1C1C1E] dark:text-white" placeholder="••••••••" />
+                    <input 
+                      type="password" 
+                      required 
+                      value={authPassword} 
+                      onChange={e => setAuthPassword(e.target.value)} 
+                      className="w-full pl-10 pr-3.5 py-2.5 apple-glass-input rounded-2xl text-base sm:text-sm focus:outline-none text-[#1C1C1E] dark:text-white" 
+                      placeholder="••••••••" 
+                    />
                   </div>
                 </div>
               )}
@@ -2639,7 +2677,14 @@ export default function App() {
                   <label className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider block mb-1">Повтор пароля</label>
                   <div className="relative">
                     <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8E8E93]" />
-                    <input type="password" required value={authPasswordConfirm} onChange={e => setAuthPasswordConfirm(e.target.value)} className="w-full pl-10 pr-3.5 py-2.5 apple-glass-input rounded-2xl text-sm focus:outline-none text-[#1C1C1E] dark:text-white" placeholder="••••••••" />
+                    <input 
+                      type="password" 
+                      required 
+                      value={authPasswordConfirm} 
+                      onChange={e => setAuthPasswordConfirm(e.target.value)} 
+                      className="w-full pl-10 pr-3.5 py-2.5 apple-glass-input rounded-2xl text-base sm:text-sm focus:outline-none text-[#1C1C1E] dark:text-white" 
+                      placeholder="••••••••" 
+                    />
                   </div>
                 </div>
               )}
@@ -2648,11 +2693,11 @@ export default function App() {
                 <div className="space-y-3.5 text-center">
                   {qrCodeUrl && (
                     <div className="bg-white p-4 rounded-3xl inline-block border border-black/[0.06] shadow-md">
-                      <img src={qrCodeUrl} alt="QR Code" className="w-44 h-44 mx-auto rounded-xl" />
+                      <img src={qrCodeUrl} alt="QR Code" className="w-40 h-40 mx-auto rounded-xl" />
                     </div>
                   )}
                   <p className="text-xs text-[#8E8E93] leading-relaxed">
-                    Отсканируйте код в приложении <b>Google Authenticator</b> и введите 6-значный код:
+                    Введите 6-значный код подтверждения:
                   </p>
                   <div>
                     <input 
@@ -2675,10 +2720,12 @@ export default function App() {
 
             <div className="mt-4 text-center text-xs text-[#8E8E93]">
               {authModal === 'login' ? (
-                <span>Нет аккаунта? <button onClick={() => { setAuthModal('register'); setAuthError(''); }} className="font-semibold text-[#0071E3] hover:underline">Регистрация</button></span>
+                <span>Нет аккаунта? <button type="button" onClick={() => { setAuthModal('register'); setAuthError(''); setAuthSuccess(''); }} className="font-semibold text-[#0071E3] hover:underline">Регистрация</button></span>
               ) : authModal === 'register' ? (
-                <span>Уже есть аккаунт? <button onClick={() => { setAuthModal('login'); setAuthError(''); }} className="font-semibold text-[#0071E3] hover:underline">Войти</button></span>
-              ) : null}
+                <span>Уже есть аккаунт? <button type="button" onClick={() => { setAuthModal('login'); setAuthError(''); setAuthSuccess(''); }} className="font-semibold text-[#0071E3] hover:underline">Войти</button></span>
+              ) : (
+                <button type="button" onClick={() => { setAuthModal('login'); setAuthError(''); setAuthSuccess(''); }} className="font-semibold text-[#0071E3] hover:underline">← Вернуться ко входу</button>
+              )}
             </div>
           </div>
         </div>
