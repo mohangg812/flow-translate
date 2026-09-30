@@ -1069,7 +1069,7 @@ export default function App() {
   const currentFlashcard = entries[currentCardIndex];
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-[#E8EEFF] via-[#F3F4F8] to-[#FCE7F3] dark:bg-gradient-to-b dark:from-[#090A10] dark:via-[#05060A] dark:to-[#020204] text-[#1C1C1E] dark:text-[#F5F5F7] transition-colors duration-500 font-sans pb-32 overflow-x-hidden selection:bg-[#0071E3]/25 selection:text-[#0071E3]">
+    <div className="relative min-h-screen bg-gradient-to-br from-[#F8FAFC] via-[#F1F5F9] to-[#E2E8F0] dark:bg-gradient-to-b dark:from-[#0B0C10] dark:via-[#070709] dark:to-[#000000] text-[#1C1C1E] dark:text-[#F8FAFC] transition-colors duration-500 font-sans pb-32 overflow-x-hidden selection:bg-white/20 selection:text-white">
       
       {/* Hidden File Inputs */}
       <input 
@@ -1087,43 +1087,43 @@ export default function App() {
         className="hidden" 
       />
 
-      {/* ================= VIBRANT AMBIENT AURORA BACKGROUND ================= */}
+      {/* ================= MONOCHROME TITANIUM AMBIENT LIGHTING ================= */}
       <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
         
         {/* Dynamic Cursor Spotlight */}
         <div 
-          className="absolute inset-0 transition-opacity duration-300 opacity-70 dark:opacity-50"
+          className="absolute inset-0 transition-opacity duration-300 opacity-60 dark:opacity-40"
           style={{
-            background: `radial-gradient(650px circle at ${mousePos.x}px ${mousePos.y}px, ${theme === 'dark' ? 'rgba(99, 102, 241, 0.22)' : 'rgba(0, 113, 227, 0.15)'}, transparent 65%)`
+            background: `radial-gradient(650px circle at ${mousePos.x}px ${mousePos.y}px, ${theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)'}, transparent 65%)`
           }}
         />
 
-        {/* Floating Glowing Aurora Orbs - High Visibility */}
-        <div className="absolute -top-32 -left-20 w-[44rem] h-[44rem] rounded-full bg-gradient-to-br from-[#4F46E5]/45 via-[#3B82F6]/40 to-[#06B6D4]/35 dark:from-[#4338CA]/40 dark:via-[#1D4ED8]/35 dark:to-[#0891B2]/30 blur-[75px] animate-orb-1" />
+        {/* Floating Glowing Titanium / Polar Orbs */}
+        <div className="absolute -top-32 -left-20 w-[44rem] h-[44rem] rounded-full bg-gradient-to-br from-slate-400/15 via-slate-300/10 to-transparent dark:from-white/10 dark:via-slate-400/8 dark:to-transparent blur-[85px] animate-orb-1" />
         
-        <div className="absolute top-1/6 -right-28 w-[46rem] h-[46rem] rounded-full bg-gradient-to-bl from-[#9333EA]/40 via-[#EC4899]/35 to-[#F97316]/30 dark:from-[#7E22CE]/35 dark:via-[#BE185D]/30 dark:to-[#C2410C]/25 blur-[85px] animate-orb-2" />
+        <div className="absolute top-1/6 -right-28 w-[46rem] h-[46rem] rounded-full bg-gradient-to-bl from-slate-300/15 via-slate-400/10 to-transparent dark:from-slate-200/10 dark:via-white/6 dark:to-transparent blur-[90px] animate-orb-2" />
         
-        <div className="absolute -bottom-24 left-1/5 w-[40rem] h-[40rem] rounded-full bg-gradient-to-tr from-[#10B981]/35 via-[#06B6D4]/30 to-[#3B82F6]/35 dark:from-[#047857]/30 dark:via-[#0E7490]/25 dark:to-[#1E40AF]/30 blur-[80px] animate-orb-3" />
+        <div className="absolute -bottom-24 left-1/5 w-[40rem] h-[40rem] rounded-full bg-gradient-to-tr from-slate-200/15 via-slate-400/10 to-transparent dark:from-white/8 dark:via-slate-500/6 dark:to-transparent blur-[85px] animate-orb-3" />
 
         {/* Ambient Center Glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[55rem] h-[35rem] rounded-full bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-pink-400/20 dark:from-indigo-900/20 dark:via-purple-900/20 dark:to-pink-900/15 blur-[90px] pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[55rem] h-[35rem] rounded-full bg-gradient-to-r from-slate-200/20 via-white/10 to-slate-300/15 dark:from-white/6 dark:via-slate-400/4 dark:to-transparent blur-[95px] pointer-events-none" />
 
         {/* Micro-dot grid */}
-        <div className="absolute inset-0 opacity-[0.035] dark:opacity-[0.055] bg-[radial-gradient(#000_1px,transparent_1px)] dark:bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:24px_24px]" />
+        <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] bg-[radial-gradient(#000_1px,transparent_1px)] dark:bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:24px_24px]" />
       </div>
 
       {/* ================= FROSTED GLASS BAR ================= */}
-      <header className="sticky top-0 z-40 backdrop-blur-3xl bg-white/70 dark:bg-[#121214]/75 border-b border-black/[0.06] dark:border-white/[0.08] transition-all duration-300 safe-top">
+      <header className="sticky top-0 z-40 backdrop-blur-3xl bg-white/70 dark:bg-[#0E0E12]/80 border-b border-black/[0.06] dark:border-white/[0.08] transition-all duration-300 safe-top">
         <div className="max-w-4xl mx-auto px-3.5 sm:px-6 h-16 flex items-center justify-between">
           
           {/* Logo with rounded squircle badge */}
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-[#0071E3] via-[#5E5CE6] to-[#AF52DE] flex items-center justify-center text-white shadow-[0_4px_16px_rgba(0,113,227,0.35)] transition-transform hover:scale-105 active:scale-95">
+            <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-black via-slate-800 to-slate-900 text-white dark:from-white dark:via-slate-100 dark:to-slate-300 dark:text-black flex items-center justify-center shadow-[0_2px_12px_rgba(0,0,0,0.15)] dark:shadow-[0_0_24px_rgba(255,255,255,0.3)] transition-transform hover:scale-105 active:scale-95">
               <Sparkles size={18} className="animate-apple-pulse" />
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-lg font-bold tracking-tight gradient-text-blue">Flow</span>
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#0071E3]/10 text-[#0071E3] tracking-wide mono-label">
+              <span className="text-lg font-bold tracking-tight text-[#09090B] dark:gradient-text-blue">Flow</span>
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white border border-black/10 dark:border-white/15 tracking-wide mono-label">
                 Translate
               </span>
             </div>
@@ -1223,10 +1223,10 @@ export default function App() {
             ) : isTranslating ? (
               <>
                 <div className="relative flex items-center justify-center flex-shrink-0">
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#0071E3] animate-ping absolute" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#0071E3] shadow-[0_0_12px_rgba(0,113,227,0.9)]" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-black dark:bg-white animate-ping absolute" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-black dark:bg-white shadow-[0_0_12px_rgba(255,255,255,0.9)]" />
                 </div>
-                <span className="text-[#0071E3] font-semibold flex items-center gap-1.5 truncate">
+                <span className="text-black dark:text-white font-semibold flex items-center gap-1.5 truncate">
                   <RefreshCw size={12} className="animate-spin flex-shrink-0" />
                   <span className="mono-label tracking-wider">MyMemory Neural Translate</span>
                 </span>
@@ -1234,22 +1234,22 @@ export default function App() {
             ) : (isSpeakingSource || isSpeakingTarget) ? (
               <>
                 <div className="flex items-center gap-0.5 h-4 px-1 flex-shrink-0">
-                  <span className="w-1 bg-[#0071E3] rounded-full sound-bar shadow-[0_0_6px_rgba(0,113,227,0.6)]" />
-                  <span className="w-1 bg-[#5E5CE6] rounded-full sound-bar shadow-[0_0_6px_rgba(94,92,230,0.6)]" />
-                  <span className="w-1 bg-[#AF52DE] rounded-full sound-bar shadow-[0_0_6px_rgba(175,82,222,0.6)]" />
-                  <span className="w-1 bg-[#0071E3] rounded-full sound-bar shadow-[0_0_6px_rgba(0,113,227,0.6)]" />
+                  <span className="w-1 bg-black/80 dark:bg-white rounded-full sound-bar shadow-[0_0_6px_rgba(255,255,255,0.6)]" />
+                  <span className="w-1 bg-black/60 dark:bg-slate-300 rounded-full sound-bar shadow-[0_0_6px_rgba(255,255,255,0.4)]" />
+                  <span className="w-1 bg-black/40 dark:bg-slate-400 rounded-full sound-bar" />
+                  <span className="w-1 bg-black/70 dark:bg-white rounded-full sound-bar shadow-[0_0_6px_rgba(255,255,255,0.6)]" />
                 </div>
-                <span className="text-[#0071E3] font-semibold truncate mono-label tracking-wider">Audio Synthesis Active</span>
+                <span className="text-black dark:text-white font-semibold truncate mono-label tracking-wider">Audio Synthesis Active</span>
               </>
             ) : (
               <>
                 <div className="relative flex items-center justify-center flex-shrink-0">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.9)]" />
+                  <div className="w-2 h-2 rounded-full bg-black dark:bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
                 </div>
                 <span className="text-[#8E8E93] dark:text-[#AEAEB2] truncate flex items-center gap-1.5">
                   <span className="text-[#1C1C1E] dark:text-white font-semibold">Flow Neural Engine</span>
                   <span className="opacity-40">·</span>
-                  <span className="mono-label text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">READY</span>
+                  <span className="mono-label text-[10px] text-black dark:text-white font-bold">READY</span>
                 </span>
               </>
             )}
@@ -1267,7 +1267,7 @@ export default function App() {
                   : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
               }`}
             >
-              <Edit3 size={13} className={activeMode === 'text' ? 'text-[#0071E3]' : ''} />
+              <Edit3 size={13} className={activeMode === 'text' ? 'text-current' : ''} />
               <span>Текст</span>
             </button>
             <button
@@ -1282,9 +1282,9 @@ export default function App() {
               }`}
               title="Загрузить фото или сфотографировать"
             >
-              <Camera size={13} className={activeMode === 'image' ? 'text-[#0071E3]' : ''} />
+              <Camera size={13} className={activeMode === 'image' ? 'text-current' : ''} />
               <span>Фото<span className="hidden sm:inline">&nbsp;& Скан</span></span>
-              <span className="hidden md:inline-block text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-[#0071E3]/15 text-[#0071E3]">Live Text</span>
+              <span className="hidden md:inline-block text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-black/10 dark:bg-white/15 text-black dark:text-white border border-black/10 dark:border-white/15">Live Text</span>
             </button>
             <button
               onClick={() => {
@@ -1298,7 +1298,7 @@ export default function App() {
               }`}
               title="Загрузить файл: PDF, TXT, MD, JSON, CSV, SRT"
             >
-              <FileText size={13} className={activeMode === 'doc' ? 'text-[#0071E3]' : ''} />
+              <FileText size={13} className={activeMode === 'doc' ? 'text-current' : ''} />
               <span>Файлы<span className="hidden sm:inline">&nbsp;и документы</span></span>
             </button>
             <button
@@ -1313,9 +1313,9 @@ export default function App() {
               }`}
               title="Перевести страницу в Safari Reader Mode"
             >
-              <Globe size={13} className={activeMode === 'url' ? 'text-[#0071E3]' : ''} />
+              <Globe size={13} className={activeMode === 'url' ? 'text-current' : ''} />
               <span>Сайт<span className="hidden sm:inline">&nbsp;/ Ссылка</span></span>
-              <span className="hidden md:inline-block text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-purple-500/15 text-purple-600 dark:text-purple-400">Reader</span>
+              <span className="hidden md:inline-block text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-black/10 dark:bg-white/15 text-black dark:text-white border border-black/10 dark:border-white/15">Reader</span>
             </button>
             <button
               onClick={() => { setActiveMode('dialogue'); }}
@@ -1326,9 +1326,9 @@ export default function App() {
               }`}
               title="Синхронный голосовой диалог двух людей"
             >
-              <MessageSquare size={13} className={activeMode === 'dialogue' ? 'text-[#0071E3]' : ''} />
+              <MessageSquare size={13} className={activeMode === 'dialogue' ? 'text-current' : ''} />
               <span>Диалог<span className="hidden sm:inline">&nbsp;лицом к лицу</span></span>
-              <span className="hidden md:inline-block text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">Live</span>
+              <span className="hidden md:inline-block text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-black/10 dark:bg-white/15 text-black dark:text-white border border-black/10 dark:border-white/15">Live</span>
             </button>
           </div>
         </div>
@@ -1402,11 +1402,11 @@ export default function App() {
           {/* Apple Segmented Language Bar */}
           <div className="flex flex-wrap items-center justify-between gap-2.5">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-xl bg-[#0071E3]/10 dark:bg-[#0071E3]/20 flex items-center justify-center text-[#0071E3] shadow-[0_0_12px_rgba(0,113,227,0.25)]">
+              <div className="w-7 h-7 rounded-xl bg-black/5 dark:bg-white/10 flex items-center justify-center text-black dark:text-white shadow-[0_0_12px_rgba(255,255,255,0.15)] border border-black/10 dark:border-white/15">
                 <Languages size={15} />
               </div>
               <h2 className="text-lg font-bold tracking-tight text-[#1C1C1E] dark:text-white tracking-tight-premium">
-                Переводчик <span className="mono-label text-[10px] text-[#0071E3] font-bold ml-1.5">v2.0</span>
+                Переводчик <span className="mono-label text-[10px] text-black/60 dark:text-white/70 font-bold ml-1.5">v2.0</span>
               </h2>
             </div>
 
@@ -1433,7 +1433,7 @@ export default function App() {
 
               <button
                 onClick={swapLanguages}
-                className={`apple-icon-btn spring-press glow-card p-2 rounded-full text-[#8E8E93] hover:text-[#0071E3] transition-all duration-300 ${isSwapping ? 'rotate-180 scale-90 text-[#0071E3]' : ''}`}
+                className={`apple-icon-btn spring-press glow-card p-2 rounded-full text-[#8E8E93] hover:text-black dark:hover:text-white transition-all duration-300 ${isSwapping ? 'rotate-180 scale-90 text-black dark:text-white' : ''}`}
                 title="Поменять языки местами"
               >
                 <ArrowRightLeft size={13} />
@@ -1623,7 +1623,7 @@ export default function App() {
             /* Cards Grid with Ambient Radial Glow */
             <div className="relative">
               {/* Subtle ambient glow behind translator cards */}
-              <div className="absolute -inset-3 sm:-inset-4 bg-gradient-to-r from-[#0071E3]/12 via-transparent to-[#7C6EFA]/12 rounded-[40px] blur-2xl pointer-events-none opacity-80 dark:opacity-60" />
+              <div className="absolute -inset-3 sm:-inset-4 bg-gradient-to-r from-white/10 via-slate-400/5 to-white/10 dark:from-white/8 dark:via-slate-400/4 dark:to-white/8 rounded-[40px] blur-2xl pointer-events-none opacity-70 dark:opacity-50" />
 
               <div className="relative grid grid-cols-1 md:grid-cols-2 gap-4">
               
@@ -1640,11 +1640,11 @@ export default function App() {
                     else processDocumentFile(file);
                   }
                 }}
-                className={`ios-glass ios-card-specular neon-border-hover rounded-[28px] sm:rounded-[32px] p-4 sm:p-6 min-h-[220px] sm:min-h-[260px] flex flex-col justify-between transition-all duration-300 hover:shadow-2xl focus-within:ring-2 focus-within:ring-[#0071E3]/40 relative ${isDragging ? 'ring-4 ring-[#0071E3] bg-[#0071E3]/10 scale-[1.01]' : ''}`}
+                className={`ios-glass ios-card-specular neon-border-hover rounded-[28px] sm:rounded-[32px] p-4 sm:p-6 min-h-[220px] sm:min-h-[260px] flex flex-col justify-between transition-all duration-300 hover:shadow-2xl focus-within:ring-2 focus-within:ring-black/20 dark:focus-within:ring-white/30 relative ${isDragging ? 'ring-4 ring-black/40 dark:ring-white/40 bg-black/5 dark:bg-white/5 scale-[1.01]' : ''}`}
               >
               {isDragging && (
-                <div className="absolute inset-0 z-30 backdrop-blur-md bg-white/80 dark:bg-black/80 rounded-[28px] sm:rounded-[32px] flex flex-col items-center justify-center gap-2 sm:gap-3 text-[#0071E3] font-bold animate-in fade-in p-4 text-center">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-[#0071E3]/10 flex items-center justify-center animate-bounce">
+                <div className="absolute inset-0 z-30 backdrop-blur-md bg-white/80 dark:bg-black/80 rounded-[28px] sm:rounded-[32px] flex flex-col items-center justify-center gap-2 sm:gap-3 text-black dark:text-white font-bold animate-in fade-in p-4 text-center">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-black/10 dark:bg-white/10 flex items-center justify-center animate-bounce">
                     <UploadCloud size={28} className="sm:size-9" />
                   </div>
                   <span className="text-xs sm:text-sm tracking-tight">Отпустите для анализа и перевода</span>
@@ -1657,9 +1657,9 @@ export default function App() {
                   <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
                     {sourceLang === 'auto' ? (
                       <span className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider flex items-center gap-1.5 flex-shrink-0">
-                        <Sparkles size={12} className="text-[#0071E3] animate-pulse" />
+                        <Sparkles size={12} className="text-black dark:text-white animate-pulse" />
                         <span className="hidden xs:inline">Авто:</span>
-                        <span className="text-[10px] font-bold text-[#0071E3] bg-[#0071E3]/10 px-2 py-0.5 rounded-full border border-[#0071E3]/20 flex items-center gap-1">
+                        <span className="text-[10px] font-bold text-black dark:text-white bg-black/5 dark:bg-white/10 px-2 py-0.5 rounded-full border border-black/10 dark:border-white/15 flex items-center gap-1">
                           {detectedLangObj.flag} {detectedLangObj.label}
                         </span>
                       </span>
@@ -1986,7 +1986,7 @@ export default function App() {
             <div className="ios-glass ios-card-specular neon-border-hover rounded-[28px] sm:rounded-[32px] p-4 sm:p-6 min-h-[220px] sm:min-h-[260px] flex flex-col justify-between transition-all duration-300 hover:shadow-2xl relative overflow-hidden">
               
               {isTranslating && (
-                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#0071E3] to-purple-500 animate-shimmer" />
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white to-transparent animate-shimmer" />
               )}
 
               <div>
@@ -2005,7 +2005,7 @@ export default function App() {
                         <Download size={13} /> <span>Скачать</span><span className="hidden sm:inline">&nbsp;.txt</span>
                       </button>
                     )}
-                    <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#0071E3]/10 text-[#0071E3] uppercase tracking-wider">
+                    <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white border border-black/10 dark:border-white/15 uppercase tracking-wider">
                       Результат
                     </span>
                   </div>
@@ -2013,7 +2013,7 @@ export default function App() {
 
                 {isTranslating ? (
                   <div className="flex items-center gap-3 py-6 text-[#8E8E93]">
-                    <div className="w-5 h-5 rounded-full border-2 border-[#0071E3] border-t-transparent animate-spin" />
+                    <div className="w-5 h-5 rounded-full border-2 border-black dark:border-white border-t-transparent animate-spin" />
                     <span className="text-base sm:text-lg font-medium text-[#8E8E93]">Переводим текст...</span>
                   </div>
                 ) : (
@@ -2477,15 +2477,15 @@ export default function App() {
                         title="Нажмите, чтобы открыть этот перевод в редакторе"
                       >
                         <div className="flex items-center gap-2">
-                          <span className="mono-label text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#0071E3]/10 text-[#0071E3] border border-[#0071E3]/20 flex-shrink-0">
+                          <span className="mono-label text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white border border-black/10 dark:border-white/15 flex-shrink-0">
                             {item.source_lang} → {item.target_lang}
                           </span>
                           <span className="font-bold text-sm sm:text-base text-[#1C1C1E] dark:text-white truncate tracking-tight">
                             {item.source_text}
                           </span>
                         </div>
-                        <span className="hidden sm:inline text-[#8E8E93] group-hover:text-[#0071E3] transition-colors font-light flex-shrink-0">→</span>
-                        <span className="font-semibold text-sm sm:text-base text-[#0071E3] dark:text-[#2997FF] truncate tracking-tight">
+                        <span className="hidden sm:inline text-[#8E8E93] group-hover:text-black dark:group-hover:text-white transition-colors font-light flex-shrink-0">→</span>
+                        <span className="font-semibold text-sm sm:text-base text-black/80 dark:text-white/90 truncate tracking-tight">
                           {item.translated_text}
                         </span>
                       </div>
@@ -2500,7 +2500,7 @@ export default function App() {
                         </button>
                         <button
                           onClick={() => restoreFromHistory(item)}
-                          className="apple-btn-glass spring-press text-xs font-semibold px-2.5 sm:px-3 py-1 rounded-full text-[#0071E3] hover:scale-105 transition-all flex items-center gap-1"
+                          className="apple-btn-glass spring-press text-xs font-semibold px-2.5 sm:px-3 py-1 rounded-full text-black dark:text-white hover:scale-105 transition-all flex items-center gap-1"
                           title="Восстановить в карточки"
                         >
                           <RotateCw size={12} />
