@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 
 const SOURCE_LANGUAGES = [
-  { code: 'auto', label: 'Автоопределение', flag: '✨' },
+  { code: 'auto', label: 'Автоопределение', flag: '' },
   { code: 'en', label: 'English', flag: '🇬🇧' },
   { code: 'ru', label: 'Русский', flag: '🇷🇺' },
   { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
@@ -97,10 +97,10 @@ function detectLanguage(text) {
 }
 
 const URL_PRESETS = [
-  { label: 'Wikipedia', domain: 'wikipedia.org', icon: '🌐', desc: 'Искусственный интеллект', url: 'https://en.wikipedia.org/wiki/Artificial_intelligence' },
-  { label: 'TechCrunch', domain: 'techcrunch.com', icon: '⚡', desc: 'Стартапы и технологии', url: 'https://techcrunch.com' },
-  { label: 'BBC News', domain: 'bbc.com', icon: '📰', desc: 'Мировые события', url: 'https://www.bbc.com/news' },
-  { label: 'The Verge', domain: 'theverge.com', icon: '💻', desc: 'Обзоры гаджетов и софта', url: 'https://www.theverge.com' },
+  { label: 'Wikipedia', domain: 'wikipedia.org', desc: 'Искусственный интеллект', url: 'https://en.wikipedia.org/wiki/Artificial_intelligence' },
+  { label: 'TechCrunch', domain: 'techcrunch.com', desc: 'Стартапы и технологии', url: 'https://techcrunch.com' },
+  { label: 'BBC News', domain: 'bbc.com', desc: 'Мировые события', url: 'https://www.bbc.com/news' },
+  { label: 'The Verge', domain: 'theverge.com', desc: 'Обзоры гаджетов и софта', url: 'https://www.theverge.com' },
 ];
 
 function useDebounce(value, delay) {
@@ -202,7 +202,7 @@ export default function App() {
   const [editingEntry, setEditingEntry] = useState(null);
   const [newCatModal, setNewCatModal] = useState(false);
   const [newCatName, setNewCatName] = useState('');
-  const [newCatColor, setNewCatColor] = useState('#0071E3');
+  const [newCatColor, setNewCatColor] = useState('#09090B');
 
   // View Mode & Flashcards
   const [viewMode, setViewMode] = useState('list'); // 'list' | 'grid'
@@ -1121,11 +1121,9 @@ export default function App() {
             <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-black via-slate-800 to-slate-900 text-white dark:from-white dark:via-slate-100 dark:to-slate-300 dark:text-black flex items-center justify-center shadow-[0_2px_12px_rgba(0,0,0,0.15)] dark:shadow-[0_0_24px_rgba(255,255,255,0.3)] transition-transform hover:scale-105 active:scale-95">
               <Sparkles size={18} className="animate-apple-pulse" />
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-lg font-bold tracking-tight text-[#09090B] dark:gradient-text-blue">Flow</span>
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white border border-black/10 dark:border-white/15 tracking-wide mono-label">
-                Translate
-              </span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-lg font-bold tracking-tight text-[#09090B] dark:gradient-text-titanium">Flow</span>
+              <span className="text-lg font-medium tracking-tight text-[#8E8E93] dark:text-[#AEAEB2]">Translate</span>
             </div>
           </div>
 
@@ -1149,7 +1147,7 @@ export default function App() {
                 onClick={() => toggleTheme('dark')}
                 className={`p-1.5 rounded-full transition-all duration-200 spring-press ${
                   theme === 'dark' 
-                    ? 'apple-tab-active text-indigo-400 scale-100' 
+                    ? 'apple-tab-active scale-100' 
                     : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white scale-95'
                 }`}
                 title="Темная тема"
@@ -1175,7 +1173,7 @@ export default function App() {
                   </button>
                 )}
                 <div className="hidden sm:flex items-center gap-2 apple-glass-pill px-3 py-1.5 rounded-full neon-border-hover">
-                  <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-[10px] font-bold text-white uppercase shadow-sm">
+                  <div className="w-5 h-5 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center text-[10px] font-bold uppercase shadow-sm">
                     {user.email[0]}
                   </div>
                   <span className="text-xs font-medium text-[#1C1C1E] dark:text-[#F5F5F7] max-w-[110px] truncate">
@@ -1280,11 +1278,10 @@ export default function App() {
                   ? 'apple-tab-active scale-[1.02]' 
                   : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
               }`}
-              title="Загрузить фото или сфотографировать"
+              title="Загрузить фото"
             >
               <Camera size={13} className={activeMode === 'image' ? 'text-current' : ''} />
-              <span>Фото<span className="hidden sm:inline">&nbsp;& Скан</span></span>
-              <span className="hidden md:inline-block text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-black/10 dark:bg-white/15 text-black dark:text-white border border-black/10 dark:border-white/15">Live Text</span>
+              <span>Фото</span>
             </button>
             <button
               onClick={() => {
@@ -1296,10 +1293,10 @@ export default function App() {
                   ? 'apple-tab-active scale-[1.02]' 
                   : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
               }`}
-              title="Загрузить файл: PDF, TXT, MD, JSON, CSV, SRT"
+              title="Загрузить файл"
             >
               <FileText size={13} className={activeMode === 'doc' ? 'text-current' : ''} />
-              <span>Файлы<span className="hidden sm:inline">&nbsp;и документы</span></span>
+              <span>Файлы</span>
             </button>
             <button
               onClick={() => {
@@ -1311,11 +1308,10 @@ export default function App() {
                   ? 'apple-tab-active scale-[1.02]' 
                   : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
               }`}
-              title="Перевести страницу в Safari Reader Mode"
+              title="Перевести веб-страницу"
             >
               <Globe size={13} className={activeMode === 'url' ? 'text-current' : ''} />
-              <span>Сайт<span className="hidden sm:inline">&nbsp;/ Ссылка</span></span>
-              <span className="hidden md:inline-block text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-black/10 dark:bg-white/15 text-black dark:text-white border border-black/10 dark:border-white/15">Reader</span>
+              <span>Ссылка</span>
             </button>
             <button
               onClick={() => { setActiveMode('dialogue'); }}
@@ -1324,20 +1320,19 @@ export default function App() {
                   ? 'apple-tab-active scale-[1.02]' 
                   : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
               }`}
-              title="Синхронный голосовой диалог двух людей"
+              title="Синхронный диалог"
             >
               <MessageSquare size={13} className={activeMode === 'dialogue' ? 'text-current' : ''} />
-              <span>Диалог<span className="hidden sm:inline">&nbsp;лицом к лицу</span></span>
-              <span className="hidden md:inline-block text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-black/10 dark:bg-white/15 text-black dark:text-white border border-black/10 dark:border-white/15">Live</span>
+              <span>Диалог</span>
             </button>
           </div>
         </div>
 
         {/* Uploaded File Banner */}
         {loadedFile && (
-          <div className="ios-glass px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-2xl flex items-center justify-between border border-[#0071E3]/30 bg-[#0071E3]/5 animate-in fade-in">
+          <div className="ios-glass px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-2xl flex items-center justify-between border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 animate-in fade-in">
             <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-              {loadedFile.type === 'image' ? <Camera size={16} className="text-[#0071E3] flex-shrink-0" /> : loadedFile.type === 'url' ? <Globe size={16} className="text-[#0071E3] flex-shrink-0" /> : <FileCheck size={16} className="text-[#0071E3] flex-shrink-0" />}
+              {loadedFile.type === 'image' ? <Camera size={16} className="text-black dark:text-white flex-shrink-0" /> : loadedFile.type === 'url' ? <Globe size={16} className="text-black dark:text-white flex-shrink-0" /> : <FileCheck size={16} className="text-black dark:text-white flex-shrink-0" />}
               <span className="text-xs font-bold text-[#1C1C1E] dark:text-white truncate max-w-[160px] sm:max-w-xs">{loadedFile.name}</span>
               <span className="text-[10px] text-[#8E8E93] bg-black/[0.05] dark:bg-white/[0.08] px-2 py-0.5 rounded-full flex-shrink-0">{loadedFile.size}</span>
             </div>
@@ -1353,10 +1348,10 @@ export default function App() {
 
         {/* OCR Progress Bar Banner */}
         {isOcrProcessing && (
-          <div className="ios-glass p-4 rounded-2xl border border-[#0071E3]/25 bg-[#0071E3]/5 space-y-2">
-            <div className="flex items-center justify-between text-xs font-semibold text-[#0071E3]">
+          <div className="ios-glass p-4 rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 space-y-2">
+            <div className="flex items-center justify-between text-xs font-semibold text-black dark:text-white">
               <span className="flex items-center gap-1.5"><Loader2 size={14} className="animate-spin" /> {ocrStatusText}</span>
-              <span className="mono-label text-[#0071E3]">{ocrProgress}%</span>
+              <span className="mono-label text-black dark:text-white">{ocrProgress}%</span>
             </div>
             <div className="w-full bg-black/[0.05] dark:bg-white/[0.1] rounded-full h-1 overflow-hidden">
               <div 
@@ -1372,7 +1367,7 @@ export default function App() {
           <div className="ios-glass ios-card-specular rounded-[32px] p-6 space-y-5 shadow-lg animate-in fade-in duration-300">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Shield size={16} className="text-[#0071E3]" />
+                <Shield size={16} className="text-black dark:text-white" />
                 <h3 className="font-semibold text-xs tracking-wider uppercase text-[#8E8E93]">Панель управления</h3>
               </div>
               <button onClick={() => setShowAdmin(false)} className="text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1 rounded-full"><X size={16} /></button>
@@ -1389,7 +1384,7 @@ export default function App() {
                 </div>
                 <div className="bg-white/80 dark:bg-white/[0.04] p-5 rounded-[24px] border border-black/[0.04] dark:border-white/[0.06] shadow-sm">
                   <span className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider">Сохранено в словаре</span>
-                  <p className="text-3xl font-extrabold mt-1 tracking-tight text-[#0071E3]">{adminStats.total_saved_words}</p>
+                  <p className="text-3xl font-extrabold mt-1 tracking-tight text-black dark:text-white">{adminStats.total_saved_words}</p>
                 </div>
               </div>
             )}
@@ -1406,7 +1401,7 @@ export default function App() {
                 <Languages size={15} />
               </div>
               <h2 className="text-lg font-bold tracking-tight text-[#1C1C1E] dark:text-white tracking-tight-premium">
-                Переводчик <span className="mono-label text-[10px] text-black/60 dark:text-white/70 font-bold ml-1.5">v2.0</span>
+                Переводчик
               </h2>
             </div>
 
@@ -1422,8 +1417,8 @@ export default function App() {
                     <option key={l.code} value={l.code} className="dark:bg-[#1C1C1E]">
                       {l.code === 'auto' 
                         ? (sourceLang === 'auto' && detectedLangObj 
-                            ? `✨ Авто (${detectedLangObj.label})` 
-                            : '✨ Автоопределение')
+                            ? `Авто (${detectedLangObj.label})` 
+                            : 'Автоопределение')
                         : `${l.flag} ${l.label}`}
                     </option>
                   ))}
@@ -1503,7 +1498,7 @@ export default function App() {
               <div className="min-h-[220px] max-h-[360px] overflow-y-auto space-y-3 p-2 no-scrollbar">
                 {dialogueMessages.length === 0 ? (
                   <div className="py-12 text-center space-y-2">
-                    <div className="w-12 h-12 rounded-full bg-[#0071E3]/10 text-[#0071E3] flex items-center justify-center mx-auto animate-pulse">
+                    <div className="w-12 h-12 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white flex items-center justify-center mx-auto animate-pulse">
                       <MessageSquare size={22} />
                     </div>
                     <p className="text-sm font-semibold text-[#1C1C1E] dark:text-white">
@@ -1577,7 +1572,7 @@ export default function App() {
                 {/* Speaker 1 (Source Lang) */}
                 <div className="bg-white/85 dark:bg-white/[0.04] p-3.5 sm:p-4 rounded-[22px] min-h-[145px] sm:min-h-[160px] flex flex-col items-center justify-between border border-black/[0.06] dark:border-white/[0.06] text-center shadow-sm backdrop-blur-xl">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-[#1C1C1E] dark:text-white">
-                    <span>{sourceLang === 'auto' ? (detectedLangObj ? detectedLangObj.flag : '✨') : activeSourceLang.flag}</span>
+                    <span>{sourceLang === 'auto' ? (detectedLangObj ? detectedLangObj.flag : '') : activeSourceLang.flag}</span>
                     <span className="truncate max-w-[110px] sm:max-w-none">{sourceLang === 'auto' ? (detectedLangObj ? detectedLangObj.label : 'Авто') : activeSourceLang.label}</span>
                   </div>
                   <button
@@ -1607,7 +1602,7 @@ export default function App() {
                     className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg ${
                       isDialogueListeningRight
                         ? 'bg-rose-500 text-white shadow-rose-500/40 animate-mic-recording scale-110'
-                        : 'bg-indigo-600 hover:bg-indigo-500 text-white hover:scale-105 active:scale-95 shadow-indigo-500/20'
+                        : 'bg-black dark:bg-white text-white dark:text-black hover:scale-105 active:scale-95 shadow-sm'
                     }`}
                     title="Говорить на втором языке"
                   >
@@ -1669,17 +1664,17 @@ export default function App() {
                       </span>
                     )}
                     {activeMode === 'image' && (
-                      <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#0071E3]/10 text-[#0071E3] flex items-center gap-1 border border-[#0071E3]/20 flex-shrink-0">
+                      <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white flex items-center gap-1 border black/10 dark:border-white/15 flex-shrink-0">
                         <Scan size={10} /> Live Text
                       </span>
                     )}
                     {activeMode === 'doc' && (
-                      <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center gap-1 border border-indigo-500/20 flex-shrink-0">
+                      <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white flex items-center gap-1 border border-indigo-500/20 flex-shrink-0">
                         <FileText size={10} /> Файлы
                       </span>
                     )}
                     {activeMode === 'url' && (
-                      <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center gap-1 border border-purple-500/20 flex-shrink-0">
+                      <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white dark:text-black dark:text-white flex items-center gap-1 border border-purple-500/20 flex-shrink-0">
                         <Compass size={10} /> Reader
                       </span>
                     )}
@@ -1689,7 +1684,7 @@ export default function App() {
                     {activeMode === 'image' && (
                       <button
                         onClick={() => imageInputRef.current?.click()}
-                        className="px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-semibold text-[#0071E3] apple-btn-glass rounded-full transition-all flex items-center gap-1"
+                        className="px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-semibold text-black dark:text-white apple-btn-glass rounded-full transition-all flex items-center gap-1"
                         title="Выбрать другое фото"
                       >
                         <Camera size={13} /> <span>{imagePreviewUrl ? 'Заменить' : 'Выбрать'}</span>
@@ -1698,7 +1693,7 @@ export default function App() {
                     {activeMode === 'doc' && (
                       <button
                         onClick={() => docInputRef.current?.click()}
-                        className="px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-semibold text-[#0071E3] apple-btn-glass rounded-full transition-all flex items-center gap-1"
+                        className="px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-semibold text-black dark:text-white apple-btn-glass rounded-full transition-all flex items-center gap-1"
                         title="Выбрать другой документ"
                       >
                         <UploadCloud size={13} /> <span>{loadedFile ? 'Заменить' : 'Выбрать'}</span>
@@ -1707,7 +1702,7 @@ export default function App() {
                     {activeMode === 'url' && (
                       <button
                         onClick={() => setUrlModal(true)}
-                        className="px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-semibold text-[#0071E3] apple-btn-glass rounded-full transition-all flex items-center gap-1"
+                        className="px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-semibold text-black dark:text-white apple-btn-glass rounded-full transition-all flex items-center gap-1"
                         title="Ввести другой адрес"
                       >
                         <Globe size={13} /> <span>{loadedFile ? 'Сменить' : 'Ввести URL'}</span>
@@ -1748,7 +1743,7 @@ export default function App() {
                         {isOcrProcessing && (
                           <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex flex-col items-center justify-center gap-2 text-white p-2 text-center">
                             <div className="flex items-center gap-2 bg-black/70 px-3.5 py-1.5 rounded-full border border-white/20 shadow-lg">
-                              <Loader2 size={16} className="animate-spin text-[#0071E3]" />
+                              <Loader2 size={16} className="animate-spin text-black dark:text-white" />
                               <span className="text-xs font-semibold truncate">{ocrStatusText || 'Нейросеть считывает...'}</span>
                             </div>
                           </div>
@@ -1756,21 +1751,21 @@ export default function App() {
 
                         {!isOcrProcessing && (
                           <div className="absolute bottom-2.5 right-2.5 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-bold text-white flex items-center gap-1 border border-white/15 shadow-sm">
-                            <Sparkles size={11} className="text-[#0071E3]" /> Live Text
+                            Распознанный текст
                           </div>
                         )}
                       </div>
                     ) : (
                       <div 
                         onClick={() => imageInputRef.current?.click()}
-                        className="relative rounded-2xl border-2 border-dashed border-black/10 dark:border-white/15 hover:border-[#0071E3]/60 p-4 sm:p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all bg-black/[0.02] dark:bg-white/[0.02] group active:scale-[0.99]"
+                        className="relative rounded-2xl border-2 border-dashed border-black/10 dark:border-white/15 hover:black dark:border-white/60 p-4 sm:p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all bg-black/[0.02] dark:bg-white/[0.02] group active:scale-[0.99]"
                       >
-                        <span className="viewfinder-bracket top-2.5 left-2.5 border-t-2 border-l-2 rounded-tl group-hover:border-[#0071E3]" />
-                        <span className="viewfinder-bracket top-2.5 right-2.5 border-t-2 border-r-2 rounded-tr group-hover:border-[#0071E3]" />
-                        <span className="viewfinder-bracket bottom-2.5 left-2.5 border-b-2 border-l-2 rounded-bl group-hover:border-[#0071E3]" />
-                        <span className="viewfinder-bracket bottom-2.5 right-2.5 border-b-2 border-r-2 rounded-br group-hover:border-[#0071E3]" />
+                        <span className="viewfinder-bracket top-2.5 left-2.5 border-t-2 border-l-2 rounded-tl group-hover:black dark:border-white" />
+                        <span className="viewfinder-bracket top-2.5 right-2.5 border-t-2 border-r-2 rounded-tr group-hover:black dark:border-white" />
+                        <span className="viewfinder-bracket bottom-2.5 left-2.5 border-b-2 border-l-2 rounded-bl group-hover:black dark:border-white" />
+                        <span className="viewfinder-bracket bottom-2.5 right-2.5 border-b-2 border-r-2 rounded-br group-hover:black dark:border-white" />
 
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-[#0071E3]/10 text-[#0071E3] flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-transform">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-black/5 dark:bg-white/10 text-black dark:text-white flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-transform">
                           <Camera size={22} className="sm:size-6" />
                         </div>
                         <h4 className="text-xs sm:text-sm font-bold text-[#1C1C1E] dark:text-white mb-1">
@@ -1805,7 +1800,7 @@ export default function App() {
                     {loadedFile && (loadedFile.type === 'doc' || loadedFile.type === 'pdf') ? (
                       <div className="p-3 sm:p-3.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-[#0071E3] to-[#5E5CE6] text-white flex items-center justify-center font-bold text-xs shadow-md flex-shrink-0">
+                          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-black dark:from-white to-slate-800 dark:to-slate-200 text-white flex items-center justify-center font-bold text-xs shadow-md flex-shrink-0">
                             {loadedFile.ext || 'DOC'}
                           </div>
                           <div className="min-w-0">
@@ -1820,9 +1815,9 @@ export default function App() {
                     ) : (
                       <div 
                         onClick={() => docInputRef.current?.click()}
-                        className="rounded-2xl border-2 border-dashed border-black/10 dark:border-white/15 hover:border-[#0071E3]/60 p-4 sm:p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all bg-black/[0.02] dark:bg-white/[0.02] group active:scale-[0.99]"
+                        className="rounded-2xl border-2 border-dashed border-black/10 dark:border-white/15 hover:black dark:border-white/60 p-4 sm:p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all bg-black/[0.02] dark:bg-white/[0.02] group active:scale-[0.99]"
                       >
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-transform">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-black/5 dark:bg-white/10 text-black dark:text-white flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-transform">
                           <FileText size={22} className="sm:size-6" />
                         </div>
                         <h4 className="text-xs sm:text-sm font-bold text-[#1C1C1E] dark:text-white mb-1">
@@ -1832,12 +1827,12 @@ export default function App() {
                           Нажмите, чтобы выбрать документ на телефоне или компьютере
                         </p>
                         <div className="flex flex-wrap items-center justify-center gap-1 sm:gap-1.5">
-                          <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400">PDF</span>
-                          <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400">TXT</span>
-                          <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">MD</span>
-                          <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400">JSON</span>
-                          <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">CSV</span>
-                          <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400">SRT</span>
+                          <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white border border-black/10 dark:border-white/15">PDF</span>
+                          <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white border border-black/10 dark:border-white/15">TXT</span>
+                          <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white border border-black/10 dark:border-white/15">MD</span>
+                          <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white border border-black/10 dark:border-white/15">JSON</span>
+                          <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white border border-black/10 dark:border-white/15">CSV</span>
+                          <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white border border-black/10 dark:border-white/15">SRT</span>
                         </div>
                       </div>
                     )}
@@ -1859,13 +1854,13 @@ export default function App() {
                     {loadedFile && loadedFile.type === 'url' ? (
                       <div className="p-3 sm:p-3.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#0071E3]/10 text-[#0071E3] flex items-center justify-center font-bold text-sm flex-shrink-0">
+                          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-black/5 dark:bg-white/10 text-black dark:text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
                             <Compass size={18} className="sm:size-5" />
                           </div>
                           <div className="min-w-0">
                             <div className="flex items-center gap-1.5">
                               <span className="text-xs font-bold text-[#1C1C1E] dark:text-white truncate max-w-[140px] sm:max-w-xs">{loadedFile.name}</span>
-                              <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-purple-500/15 text-purple-600 dark:text-purple-400 flex-shrink-0">Reader</span>
+                              <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-black/5 dark:bg-white/10 text-black dark:text-white dark:text-black dark:text-white flex-shrink-0">Reader</span>
                             </div>
                             <p className="text-[10px] text-[#8E8E93]">
                               ~{Math.max(1, Math.round(sourceText.split(/\s+/).filter(Boolean).length / 150))} мин · {sourceText.split(/\s+/).filter(Boolean).length} слов
@@ -1874,7 +1869,7 @@ export default function App() {
                         </div>
                         <button
                           onClick={() => setUrlModal(true)}
-                          className="text-xs font-semibold px-3 py-1 rounded-full apple-btn-glass text-[#0071E3] transition-all flex-shrink-0"
+                          className="text-xs font-semibold px-3 py-1 rounded-full apple-btn-glass text-black dark:text-white transition-all flex-shrink-0"
                         >
                           Сменить
                         </button>
@@ -1882,9 +1877,9 @@ export default function App() {
                     ) : (
                       <div 
                         onClick={() => setUrlModal(true)}
-                        className="rounded-2xl border-2 border-dashed border-black/10 dark:border-white/15 hover:border-[#0071E3]/60 p-4 sm:p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all bg-black/[0.02] dark:bg-white/[0.02] group active:scale-[0.99]"
+                        className="rounded-2xl border-2 border-dashed border-black/10 dark:border-white/15 hover:black dark:border-white/60 p-4 sm:p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all bg-black/[0.02] dark:bg-white/[0.02] group active:scale-[0.99]"
                       >
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-transform">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-black/5 dark:bg-white/10 text-black dark:text-white dark:text-black dark:text-white flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-transform">
                           <Globe size={22} className="sm:size-6" />
                         </div>
                         <h4 className="text-xs sm:text-sm font-bold text-[#1C1C1E] dark:text-white mb-1">
@@ -1893,7 +1888,7 @@ export default function App() {
                         <p className="text-[11px] sm:text-xs text-[#8E8E93] max-w-xs mb-2.5 sm:mb-3 leading-relaxed">
                           Нажмите, чтобы ввести ссылку на любую статью или новость без рекламы
                         </p>
-                        <div className="flex items-center gap-1.5 text-xs text-[#0071E3] font-semibold">
+                        <div className="flex items-center gap-1.5 text-xs text-black dark:text-white font-semibold">
                           <span>Ввести адрес страницы</span> <ArrowUpRight size={13} />
                         </div>
                       </div>
@@ -1944,7 +1939,7 @@ export default function App() {
                     className={`apple-icon-btn p-2 rounded-full transition-all duration-200 ${
                       isListening
                         ? 'bg-rose-500 text-white shadow-md shadow-rose-500/30 scale-105 animate-pulse'
-                        : 'text-[#8E8E93] hover:text-[#0071E3] dark:hover:text-[#2997FF]'
+                        : 'text-[#8E8E93] hover:text-black dark:text-white dark:hover:text-white'
                     }`}
                     title={isListening ? "Остановить диктовку" : "Голосовой ввод (Диктовка речи)"}
                   >
@@ -1971,7 +1966,7 @@ export default function App() {
 
                 <span className="text-[11px] font-semibold text-[#8E8E93] flex items-center gap-1.5">
                   {isTranslating ? (
-                    <span className="flex items-center gap-1.5 text-[#0071E3]">
+                    <span className="flex items-center gap-1.5 text-black dark:text-white">
                       <RefreshCw size={12} className="animate-spin" />
                       Перевод...
                     </span>
@@ -2021,48 +2016,11 @@ export default function App() {
                     <h3 className="text-lg sm:text-2xl md:text-3xl font-bold text-[#1C1C1E] dark:text-white select-text leading-snug tracking-tight break-words">
                       {translatedText || <span className="text-[#AEAEB2] dark:text-[#48484A] font-normal">Перевод</span>}
                     </h3>
-
-                    {/* AI Alternatives & Synonyms (DeepL/Reverso style) */}
-                    {alternatives && alternatives.length > 0 && (
-                      <div className="mt-3.5 pt-3 border-t border-black/[0.04] dark:border-white/[0.06]">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#8E8E93] mb-1.5 flex items-center gap-1">
-                          <Sparkles size={11} className="text-[#0071E3]" /> Другие варианты:
-                        </span>
-                        <div className="flex flex-wrap gap-1.5">
-                          {alternatives.map((alt, idx) => (
-                            <button
-                              key={idx}
-                              onClick={() => setTranslatedText(alt)}
-                              className="apple-alt-chip text-xs px-2.5 py-1 rounded-full text-left transition-all hover:scale-[1.02] active:scale-95 text-[#1C1C1E] dark:text-white font-medium"
-                              title="Нажмите, чтобы применить этот вариант"
-                            >
-                              {alt}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Context Usage Examples (Reverso style) */}
-                    {examples && examples.length > 0 && (
-                      <div className="mt-3.5 pt-3 border-t border-black/[0.04] dark:border-white/[0.06] space-y-1.5">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#8E8E93] flex items-center gap-1">
-                          <BookOpen size={11} className="text-purple-500" /> Примеры в контексте:
-                        </span>
-                        <div className="space-y-1.5 max-h-32 overflow-y-auto pr-1 no-scrollbar">
-                          {examples.map((ex, idx) => (
-                            <div key={idx} className="p-2 rounded-xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.05] text-xs">
-                              <p className="text-[#8E8E93] font-normal leading-relaxed">{ex.source}</p>
-                              <p className="text-[#1C1C1E] dark:text-[#F5F5F7] font-medium mt-0.5 leading-relaxed">{ex.target}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
                   </div>
                 )}
               </div>
 
+              {/* Target Card Footer */}
               <div className="flex flex-wrap items-center justify-between pt-3 sm:pt-4 border-t border-black/[0.04] dark:border-white/[0.06] gap-2">
                 <div className="flex items-center gap-1.5 sm:gap-2">
                   <button
@@ -2110,57 +2068,7 @@ export default function App() {
         </div>
         )}
 
-          {/* Context-Aware Tips for Image / Doc / URL modes */}
-          {activeMode !== 'text' && (
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 no-scrollbar">
-              {activeMode === 'image' && (
-                <>
-                  <span className="text-[11px] font-semibold text-[#8E8E93] flex items-center gap-1 flex-shrink-0 pl-1">
-                    <Camera size={13} className="text-[#0071E3]" /> Советы по фото:
-                  </span>
-                  <span className="ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
-                    📸 Сделайте фото камерой или выберите из галереи
-                  </span>
-                  <span className="hidden sm:inline-flex ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
-                    📋 На ПК: вставка скриншота через Ctrl+V
-                  </span>
-                  <span className="ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
-                    ✨ Распознавание как печатного, так и рукописного текста
-                  </span>
-                </>
-              )}
-
-              {activeMode === 'doc' && (
-                <>
-                  <span className="text-[11px] font-semibold text-[#8E8E93] flex items-center gap-1 flex-shrink-0 pl-1">
-                    <FileText size={13} className="text-indigo-500" /> Советы по файлам:
-                  </span>
-                  <span className="ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
-                    📄 Поддерживаются .pdf, .txt, .md, .json, .csv, .srt
-                  </span>
-                  <span className="ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
-                    💾 Кнопка «Скачать .txt» мгновенно сохраняет готовый файл
-                  </span>
-                </>
-              )}
-
-              {activeMode === 'url' && (
-                <>
-                  <span className="text-[11px] font-semibold text-[#8E8E93] flex items-center gap-1 flex-shrink-0 pl-1">
-                    <Compass size={13} className="text-purple-500" /> Советы по сайтам:
-                  </span>
-                  <span className="ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
-                    🌐 Режим Reader View удаляет рекламу, меню и баннеры со страницы
-                  </span>
-                  <span className="ios-glass text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.04] dark:border-white/[0.06] flex-shrink-0 text-[#1C1C1E] dark:text-[#F5F5F7]">
-                    📖 Подходят статьи, блоги, новости и публикации
-                  </span>
-                </>
-              )}
-            </div>
-          )}
-
-        </section>
+          </section>
 
         {/* ================= СЕКЦИЯ 2: FAVORITES & ИСТОРИЯ ================= */}
         <section className="space-y-4 pt-2">
@@ -2193,10 +2101,10 @@ export default function App() {
                     : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
                 }`}
               >
-                <History size={14} className="text-[#0071E3]" />
+                <History size={14} className="text-black dark:text-white" />
                 <span>История</span>
                 {recentHistory.length > 0 && (
-                  <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-[#0071E3]/10 text-[#0071E3]">
+                  <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white">
                     {recentHistory.length}
                   </span>
                 )}
@@ -2220,14 +2128,14 @@ export default function App() {
                 <div className="flex items-center apple-glass-pill p-1 rounded-full">
                   <button
                     onClick={() => setViewMode('list')}
-                    className={`p-1.5 rounded-full transition-all ${viewMode === 'list' ? 'apple-tab-active text-[#0071E3]' : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'}`}
+                    className={`p-1.5 rounded-full transition-all ${viewMode === 'list' ? 'apple-tab-active text-black dark:text-white' : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'}`}
                     title="Список"
                   >
                     <ListFilter size={14} />
                   </button>
                   <button
                     onClick={() => setViewMode('grid')}
-                    className={`p-1.5 rounded-full transition-all ${viewMode === 'grid' ? 'apple-tab-active text-[#0071E3]' : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'}`}
+                    className={`p-1.5 rounded-full transition-all ${viewMode === 'grid' ? 'apple-tab-active text-black dark:text-white' : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'}`}
                     title="Сетка"
                   >
                     <LayoutGrid size={14} />
@@ -2262,7 +2170,7 @@ export default function App() {
 
                 <button
                   onClick={() => setNewCatModal(true)}
-                  className="text-xs font-semibold text-[#0071E3] apple-btn-glass px-3.5 py-1.5 rounded-full transition-all whitespace-nowrap"
+                  className="text-xs font-semibold text-black dark:text-white apple-btn-glass px-3.5 py-1.5 rounded-full transition-all whitespace-nowrap"
                 >
                   + Тег
                 </button>
@@ -2330,14 +2238,14 @@ export default function App() {
                             {item.category_name && (
                               <span
                                 className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white flex-shrink-0 shadow-sm"
-                                style={{ backgroundColor: item.category_color || '#0071E3' }}
+                                style={{ backgroundColor: item.category_color || '#71717A' }}
                               >
                                 {item.category_name}
                               </span>
                             )}
                           </div>
                           <span className="hidden sm:inline text-[#8E8E93] font-light flex-shrink-0">→</span>
-                          <span className="font-semibold text-sm sm:text-base text-[#0071E3] dark:text-[#2997FF] truncate tracking-tight">
+                          <span className="font-semibold text-sm sm:text-base text-black dark:text-white dark:text-white truncate tracking-tight">
                             {item.translated_text}
                           </span>
                         </div>
@@ -2352,7 +2260,7 @@ export default function App() {
                           </button>
                           <button
                             onClick={() => setEditingEntry(item)}
-                            className="apple-icon-btn text-[#8E8E93] hover:text-[#0071E3] p-2 rounded-full opacity-70 sm:opacity-0 sm:group-hover:opacity-100"
+                            className="apple-icon-btn text-[#8E8E93] hover:text-black dark:text-white p-2 rounded-full opacity-70 sm:opacity-0 sm:group-hover:opacity-100"
                             title="Редактировать"
                           >
                             <Edit3 size={15} />
@@ -2380,7 +2288,7 @@ export default function App() {
                             {item.category_name ? (
                               <span
                                 className="text-[10px] font-bold px-2.5 py-0.5 rounded-full text-white shadow-sm"
-                                style={{ backgroundColor: item.category_color || '#0071E3' }}
+                                style={{ backgroundColor: item.category_color || '#71717A' }}
                               >
                                 {item.category_name}
                               </span>
@@ -2408,14 +2316,14 @@ export default function App() {
                           <div className="flex items-center gap-1">
                             <button
                               onClick={() => speak(item.translated_text, item.target_lang, true)}
-                              className="apple-icon-btn text-[#8E8E93] hover:text-[#0071E3] p-1.5 rounded-full"
+                              className="apple-icon-btn text-[#8E8E93] hover:text-black dark:text-white p-1.5 rounded-full"
                               title="Озвучить"
                             >
                               <Volume2 size={16} />
                             </button>
                             <button
                               onClick={() => setEditingEntry(item)}
-                              className="apple-icon-btn text-[#8E8E93] hover:text-[#0071E3] p-1.5 rounded-full"
+                              className="apple-icon-btn text-[#8E8E93] hover:text-black dark:text-white p-1.5 rounded-full"
                               title="Редактировать"
                             >
                               <Edit3 size={15} />
@@ -2429,9 +2337,9 @@ export default function App() {
 
                 {totalPages > 1 && (
                   <div className="flex items-center justify-center gap-4 py-3 text-xs font-semibold text-[#8E8E93] border-t border-black/[0.04] dark:border-white/[0.06]">
-                    <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="apple-btn-glass rounded-full px-3 py-1 hover:text-[#0071E3] disabled:opacity-20 transition-all">← Назад</button>
+                    <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="apple-btn-glass rounded-full px-3 py-1 hover:text-black dark:text-white disabled:opacity-20 transition-all">← Назад</button>
                     <span className="apple-glass-pill px-3 py-1 rounded-full text-xs font-semibold">{page} из {totalPages}</span>
-                    <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} className="apple-btn-glass rounded-full px-3 py-1 hover:text-[#0071E3] disabled:opacity-20 transition-all">Вперед →</button>
+                    <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} className="apple-btn-glass rounded-full px-3 py-1 hover:text-black dark:text-white disabled:opacity-20 transition-all">Вперед →</button>
                   </div>
                 )}
 
@@ -2440,7 +2348,7 @@ export default function App() {
                     if (!user) { setAuthModal('login'); return; }
                     setManualModal(true);
                   }}
-                  className="w-full py-3 text-center text-xs font-semibold text-[#0071E3] apple-btn-glass rounded-2xl transition-all flex items-center justify-center gap-1.5"
+                  className="w-full py-3 text-center text-xs font-semibold text-black dark:text-white apple-btn-glass rounded-2xl transition-all flex items-center justify-center gap-1.5"
                 >
                   <PlusCircle size={14} />
                   Добавить карточку вручную
@@ -2534,7 +2442,7 @@ export default function App() {
                 <span className="w-3 h-3 rounded-full bg-[#FFBD2E] border border-[#DEA123]" />
                 <span className="w-3 h-3 rounded-full bg-[#27C93F] border border-[#1AAB29]" />
                 <span className="text-xs font-semibold text-[#8E8E93] ml-1.5 flex items-center gap-1.5">
-                  <Compass size={13} className="text-[#0071E3]" /> Safari Reader View
+                  <Compass size={13} className="text-black dark:text-white" /> Safari Reader View
                 </span>
               </div>
               <button 
@@ -2585,7 +2493,7 @@ export default function App() {
                     <X size={12} />
                   </button>
                 )}
-                <div className="ml-2 pl-2 border-l border-black/[0.08] dark:border-white/[0.1] text-[#0071E3] font-bold text-[11px] select-none">
+                <div className="ml-2 pl-2 border-l border-black/[0.08] dark:border-white/[0.1] text-black dark:text-white font-bold text-[11px] select-none">
                   aA
                 </div>
               </div>
@@ -2601,7 +2509,7 @@ export default function App() {
                       onClick={() => setInputUrl(p.url)}
                       className={`p-2.5 sm:p-3 rounded-2xl border text-left transition-all flex items-start gap-2.5 ${
                         inputUrl === p.url 
-                          ? 'apple-btn-glass !border-[#0071E3] !text-[#0071E3]' 
+                          ? 'apple-btn-glass !black dark:border-white !text-black dark:text-white' 
                           : 'apple-btn-glass'
                       }`}
                     >
@@ -2663,7 +2571,7 @@ export default function App() {
                 {/* Front Side */}
                 <div className="ios-glass ios-card-specular rounded-[28px] sm:rounded-[36px] p-5 sm:p-8 w-full h-full flex flex-col justify-between absolute inset-0 backface-hidden shadow-2xl">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#0071E3]/10 text-[#0071E3] uppercase tracking-wider">
+                    <span className="text-xs font-bold px-3 py-1 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white uppercase tracking-wider">
                       Оригинал ({currentFlashcard.source_lang})
                     </span>
                     <button
@@ -2686,7 +2594,7 @@ export default function App() {
                 </div>
 
                 {/* Back Side */}
-                <div className="ios-glass ios-card-specular rounded-[28px] sm:rounded-[36px] p-5 sm:p-8 w-full h-full flex flex-col justify-between absolute inset-0 backface-hidden rotate-y-180 shadow-2xl border-2 border-[#0071E3]/30">
+                <div className="ios-glass ios-card-specular rounded-[28px] sm:rounded-[36px] p-5 sm:p-8 w-full h-full flex flex-col justify-between absolute inset-0 backface-hidden rotate-y-180 shadow-2xl border-2 black/10 dark:border-white/15">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
                       Перевод ({currentFlashcard.target_lang})
@@ -2700,7 +2608,7 @@ export default function App() {
                   </div>
 
                   <div className="text-center py-2 sm:py-4">
-                    <p className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0071E3] break-words">
+                    <p className="text-2xl sm:text-3xl font-extrabold tracking-tight text-black dark:text-white break-words">
                       {currentFlashcard.translated_text}
                     </p>
                     {currentFlashcard.notes && (
@@ -2712,7 +2620,7 @@ export default function App() {
                     {currentFlashcard.category_name && (
                       <span
                         className="text-[10px] font-bold px-3 py-0.5 rounded-full text-white"
-                        style={{ backgroundColor: currentFlashcard.category_color || '#0071E3' }}
+                        style={{ backgroundColor: currentFlashcard.category_color || '#71717A' }}
                       >
                         {currentFlashcard.category_name}
                       </span>
@@ -2757,7 +2665,7 @@ export default function App() {
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xl flex items-center justify-center p-3.5 sm:p-4 animate-in fade-in duration-200">
           <div className="relative w-full max-w-sm">
             {/* Ambient modal spotlight glow */}
-            <div className="absolute -inset-4 bg-gradient-to-tr from-[#0071E3]/25 via-[#7C6EFA]/20 to-transparent rounded-[44px] blur-2xl pointer-events-none opacity-80" />
+            <div className="absolute -inset-4 bg-gradient-to-tr from-black dark:from-white/25 via-slate-400/10 to-transparent rounded-[44px] blur-2xl pointer-events-none opacity-80" />
 
             <div className="relative ios-glass ios-card-specular rounded-[28px] sm:rounded-[36px] p-5 sm:p-7 w-full border border-black/10 dark:border-white/10 shadow-2xl max-h-[92vh] overflow-y-auto no-scrollbar">
               <button 
@@ -2841,7 +2749,7 @@ export default function App() {
                           setAuthPasswordConfirm(''); 
                           setVerifyCode(''); 
                         }} 
-                        className="text-[11px] font-semibold text-[#0071E3] hover:underline cursor-pointer"
+                        className="text-[11px] font-semibold text-black dark:text-white hover:underline cursor-pointer"
                       >
                         Забыли пароль?
                       </button>
@@ -2898,7 +2806,7 @@ export default function App() {
                             setIsCopiedSecret(true);
                             setTimeout(() => setIsCopiedSecret(false), 2000);
                           }}
-                          className="text-[10px] font-bold text-[#0071E3] flex items-center gap-1 hover:underline cursor-pointer"
+                          className="text-[10px] font-bold text-black dark:text-white flex items-center gap-1 hover:underline cursor-pointer"
                         >
                           {isCopiedSecret ? <Check size={12} className="text-emerald-500" /> : <Copy size={12} />}
                           {isCopiedSecret ? 'Скопировано!' : 'Копировать'}
@@ -2935,7 +2843,7 @@ export default function App() {
                       <button
                         type="button"
                         onClick={() => setVerifyCode(demoCode)}
-                        className="font-mono font-bold text-[#0071E3] hover:underline cursor-pointer"
+                        className="font-mono font-bold text-black dark:text-white hover:underline cursor-pointer"
                         title="Нажмите, чтобы автоматически вставить код"
                       >
                         {demoCode}
@@ -2952,7 +2860,7 @@ export default function App() {
                     <button
                       type="button"
                       onClick={() => { setAuthModal('login'); setAuthError(''); setAuthSuccess('Введите ваш пароль для входа'); }}
-                      className="mt-2 inline-block px-3 py-1 rounded-xl bg-[#0071E3] text-white text-[11px] font-bold hover:bg-[#0071E3]/90 transition-all cursor-pointer"
+                      className="mt-2 inline-block px-3 py-1 rounded-xl bg-black dark:bg-white text-white text-[11px] font-bold hover:bg-black dark:bg-white/90 transition-all cursor-pointer"
                     >
                       Перейти ко входу →
                     </button>
@@ -2992,11 +2900,11 @@ export default function App() {
 
             <div className="mt-4 text-center text-xs text-[#8E8E93]">
               {authModal === 'login' ? (
-                <span>Нет аккаунта? <button type="button" onClick={() => { setAuthModal('register'); setAuthError(''); setAuthSuccess(''); }} className="font-semibold text-[#0071E3] hover:underline spring-press">Регистрация</button></span>
+                <span>Нет аккаунта? <button type="button" onClick={() => { setAuthModal('register'); setAuthError(''); setAuthSuccess(''); }} className="font-semibold text-black dark:text-white hover:underline spring-press">Регистрация</button></span>
               ) : authModal === 'register' ? (
-                <span>Уже есть аккаунт? <button type="button" onClick={() => { setAuthModal('login'); setAuthError(''); setAuthSuccess(''); }} className="font-semibold text-[#0071E3] hover:underline spring-press">Войти</button></span>
+                <span>Уже есть аккаунт? <button type="button" onClick={() => { setAuthModal('login'); setAuthError(''); setAuthSuccess(''); }} className="font-semibold text-black dark:text-white hover:underline spring-press">Войти</button></span>
               ) : (
-                <button type="button" onClick={() => { setAuthModal('login'); setAuthError(''); setAuthSuccess(''); }} className="font-semibold text-[#0071E3] hover:underline spring-press">← Вернуться ко входу</button>
+                <button type="button" onClick={() => { setAuthModal('login'); setAuthError(''); setAuthSuccess(''); }} className="font-semibold text-black dark:text-white hover:underline spring-press">← Вернуться ко входу</button>
               )}
             </div>
           </div>

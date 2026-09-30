@@ -1,4 +1,4 @@
-﻿:root {
+:root {
   --accent: #FFFFFF;
   --accent-glow: rgba(255, 255, 255, 0.28);
   --accent-soft: rgba(255, 255, 255, 0.08);
@@ -164,7 +164,6 @@
 }
 
 /* GRADIENT TEXT — LIQUID TITANIUM */
-.gradient-text-blue,
 .gradient-text-titanium {
   background: linear-gradient(180deg, #FFFFFF 0%, #E2E8F0 50%, #94A3B8 100%);
   -webkit-background-clip: text;
@@ -172,7 +171,6 @@
   background-clip: text;
   letter-spacing: -0.025em;
 }
-.dark .gradient-text-blue,
 .dark .gradient-text-titanium {
   background: linear-gradient(180deg, #FFFFFF 0%, #E2E8F0 60%, #94A3B8 100%);
   -webkit-background-clip: text;
