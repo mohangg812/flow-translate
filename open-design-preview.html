@@ -1,0 +1,318 @@
+﻿<!doctype html>
+<!--
+  Flow Translate - Open Design Preview
+  Opens the live dev server inside a macOS browser chrome frame.
+  Dev server must be running on http://localhost:5174
+-->
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Flow Translate — Open Design Preview</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%; width: 100%;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,113,227,0.18) 0%, transparent 60%),
+                  radial-gradient(ellipse 60% 40% at 80% 80%, rgba(124,110,250,0.12) 0%, transparent 60%),
+                  #0d0d11;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 24px 16px;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+      gap: 20px;
+    }
+
+    /* TOP BAR */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 1200px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, #0071E3, #5E5CE6, #AF52DE);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .logo-name {
+      font-size: 18px; font-weight: 700; letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #3B8BEB, #5E5CE6);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .logo-badge {
+      font-size: 10px; font-weight: 600;
+      background: rgba(0,113,227,0.15);
+      color: #3B8BEB;
+      padding: 2px 8px; border-radius: 99px;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #34D399;
+      box-shadow: 0 0 8px rgba(52,211,153,0.6);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    .status-label {
+      font-size: 12px; color: rgba(255,255,255,0.45);
+      display: flex; align-items: center; gap: 8px;
+    }
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.5} }
+
+    /* DEVICE TABS */
+    .device-tabs {
+      display: flex;
+      gap: 8px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 99px;
+      padding: 4px;
+    }
+    .tab {
+      padding: 6px 16px; border-radius: 99px;
+      font-size: 12px; font-weight: 600;
+      cursor: pointer; border: none;
+      background: transparent; color: rgba(255,255,255,0.45);
+      transition: all 0.2s cubic-bezier(0.16,1,0.3,1);
+    }
+    .tab:hover { color: rgba(255,255,255,0.8); }
+    .tab.active {
+      background: rgba(0,113,227,0.9);
+      color: #fff;
+      box-shadow: 0 2px 12px rgba(0,113,227,0.4);
+    }
+
+    /* BROWSER WINDOW */
+    .browser-window {
+      width: 100%;
+      max-width: 1200px;
+      background: rgba(18,18,22,0.85);
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.09);
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,0.4),
+        0 32px 80px -16px rgba(0,0,0,0.8),
+        0 0 60px rgba(0,113,227,0.08);
+      overflow: hidden;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .titlebar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 14px;
+      height: 40px;
+      background: rgba(28,28,30,0.95);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      flex-shrink: 0;
+    }
+    .lights { display: flex; gap: 7px; }
+    .light {
+      width: 12px; height: 12px; border-radius: 50%;
+      box-shadow: 0 0 0 0.5px rgba(0,0,0,0.3) inset;
+    }
+    .light.r { background: #ff5f57; }
+    .light.y { background: #febc2e; }
+    .light.g { background: #28c840; }
+
+    .nav-btns { display: flex; gap: 4px; }
+    .nav-btn {
+      width: 26px; height: 20px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 5px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.35);
+      font-size: 10px;
+      transition: all 0.15s ease;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.7); }
+
+    .url-bar {
+      flex: 1;
+      margin: 0 8px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 7px;
+      padding: 4px 10px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      max-width: 480px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .url-bar:hover {
+      background: rgba(255,255,255,0.09);
+      border-color: rgba(0,113,227,0.4);
+    }
+    .url-bar .lock { font-size: 10px; opacity: 0.5; }
+    .url-text { color: rgba(255,255,255,0.65); }
+    .url-accent { color: rgba(255,255,255,0.3); }
+
+    .inner-frame {
+      flex: 1;
+      width: 100%;
+      border: 0;
+      background: #0d0d11;
+      display: block;
+      min-height: 0;
+    }
+
+    /* MOBILE FRAME */
+    .mobile-wrapper {
+      display: none;
+      justify-content: center;
+      align-items: center;
+      flex: 1;
+      width: 100%;
+    }
+    .iphone-shell {
+      width: 390px;
+      height: 680px;
+      background: #1a1a1a;
+      border-radius: 48px;
+      border: 2px solid rgba(255,255,255,0.12);
+      box-shadow:
+        0 0 0 8px rgba(255,255,255,0.04),
+        0 48px 96px -16px rgba(0,0,0,0.9),
+        0 0 60px rgba(0,113,227,0.08);
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .dynamic-island {
+      width: 126px; height: 36px;
+      background: #000;
+      border-radius: 0 0 20px 20px;
+      margin: 0 auto;
+      flex-shrink: 0;
+    }
+    .phone-screen {
+      flex: 1;
+      width: 100%;
+      border: 0;
+      background: #000;
+    }
+    .home-bar {
+      height: 30px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .home-bar-line {
+      width: 120px; height: 4px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 99px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="logo">
+      <div class="logo-icon">✦</div>
+      <span class="logo-name">Flow Translate</span>
+      <span class="logo-badge">Open Design</span>
+    </div>
+    <div class="device-tabs">
+      <button class="tab active" onclick="switchDevice('desktop')">🖥 Desktop</button>
+      <button class="tab" onclick="switchDevice('mobile')">📱 Mobile</button>
+    </div>
+    <div class="status-label">
+      <span class="status-dot"></span>
+      localhost:5174
+    </div>
+  </div>
+
+  <!-- Desktop browser frame -->
+  <div class="browser-window" id="desktop-view">
+    <div class="titlebar">
+      <div class="lights">
+        <span class="light r"></span>
+        <span class="light y"></span>
+        <span class="light g"></span>
+      </div>
+      <div class="nav-btns">
+        <button class="nav-btn" onclick="document.getElementById('main-frame').contentWindow.history.back()">&#8592;</button>
+        <button class="nav-btn" onclick="document.getElementById('main-frame').contentWindow.history.forward()">&#8594;</button>
+        <button class="nav-btn" onclick="document.getElementById('main-frame').src=document.getElementById('main-frame').src">↻</button>
+      </div>
+      <div class="url-bar" onclick="openInBrowser()">
+        <span class="lock">🔒</span>
+        <span class="url-accent">localhost:</span><span class="url-text">5174</span>
+        <span class="url-accent">/ Flow Translate</span>
+      </div>
+    </div>
+    <iframe
+      id="main-frame"
+      class="inner-frame"
+      src="http://localhost:5174"
+      title="Flow Translate App"
+      allow="microphone; clipboard-read; clipboard-write; speech-synthesis"
+    ></iframe>
+  </div>
+
+  <!-- Mobile iPhone frame -->
+  <div class="mobile-wrapper" id="mobile-view">
+    <div class="iphone-shell">
+      <div class="dynamic-island"></div>
+      <iframe
+        id="phone-frame"
+        class="phone-screen"
+        src="http://localhost:5174"
+        title="Flow Translate Mobile"
+        allow="microphone; clipboard-read; clipboard-write; speech-synthesis"
+      ></iframe>
+      <div class="home-bar">
+        <div class="home-bar-line"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchDevice(mode) {
+      var tabs = document.querySelectorAll('.tab');
+      tabs.forEach(function(t) { t.classList.remove('active'); });
+      event.target.classList.add('active');
+
+      var desktop = document.getElementById('desktop-view');
+      var mobile = document.getElementById('mobile-view');
+
+      if (mode === 'desktop') {
+        desktop.style.display = 'flex';
+        mobile.style.display = 'none';
+      } else {
+        desktop.style.display = 'none';
+        mobile.style.display = 'flex';
+        // Sync mobile frame
+        document.getElementById('phone-frame').src = 'http://localhost:5174';
+      }
+    }
+
+    function openInBrowser() {
+      window.open('http://localhost:5174', '_blank');
+    }
+  </script>
+
+</body>
+</html>
