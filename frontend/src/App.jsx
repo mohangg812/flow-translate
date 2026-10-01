@@ -172,8 +172,8 @@ export default function App() {
   const [alternatives, setAlternatives] = useState([]);
   const [examples, setExamples] = useState([]);
 
-  // Bottom Tabs: 'favorites' | 'history'
-  const [activeBottomTab, setActiveBottomTab] = useState('favorites');
+  // Bottom Tabs: null | 'favorites' | 'history' (opens exclusively on clicking tabs)
+  const [activeBottomTab, setActiveBottomTab] = useState(null);
   const [recentHistory, setRecentHistory] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem('flow_recent_history')) || [];
@@ -1116,15 +1116,10 @@ export default function App() {
       <header className="sticky top-0 z-40 backdrop-blur-3xl bg-white/70 dark:bg-[#0E0E12]/80 border-b border-black/[0.06] dark:border-white/[0.08] transition-all duration-300 safe-top">
         <div className="max-w-4xl mx-auto px-3.5 sm:px-6 h-16 flex items-center justify-between">
           
-          {/* Logo with rounded squircle badge */}
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-black via-slate-800 to-slate-900 text-white dark:from-white dark:via-slate-100 dark:to-slate-300 dark:text-black flex items-center justify-center shadow-[0_2px_12px_rgba(0,0,0,0.15)] dark:shadow-[0_0_24px_rgba(255,255,255,0.3)] transition-transform hover:scale-105 active:scale-95">
-              <Sparkles size={18} className="animate-apple-pulse" />
-            </div>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-lg font-bold tracking-tight text-[#09090B] dark:gradient-text-titanium">Flow</span>
-              <span className="text-lg font-medium tracking-tight text-[#8E8E93] dark:text-[#AEAEB2]">Translate</span>
-            </div>
+          {/* Brand Title (Crisp, High Contrast in Dark Mode, Minimalist Typography) */}
+          <div className="flex items-baseline gap-1.5 select-none py-1">
+            <span className="text-xl sm:text-2xl font-extrabold tracking-tight text-neutral-900 dark:text-white">Flow</span>
+            <span className="text-xl sm:text-2xl font-normal tracking-tight text-neutral-400 dark:text-neutral-500">Translate</span>
           </div>
 
           {/* Right Controls */}
@@ -1204,55 +1199,46 @@ export default function App() {
       {/* ================= MAIN CONTAINER ================= */}
       <main className="max-w-4xl mx-auto px-3.5 sm:px-6 mt-3 sm:mt-6 space-y-4 sm:space-y-7">
 
-        {/* Dynamic Island Status Capsule */}
-        <div className="flex justify-center">
-          <div className="ios-glass neon-border-hover px-4 py-1.5 sm:py-2 rounded-full flex items-center gap-2.5 shadow-sm border border-black/[0.05] dark:border-white/[0.08] text-[11px] sm:text-xs font-medium transition-all duration-300 hover:scale-[1.02] max-w-full truncate">
-            {isOcrProcessing ? (
-              <>
-                <div className="relative flex items-center justify-center flex-shrink-0">
-                  <div className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping absolute" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.8)]" />
-                </div>
-                <span className="text-amber-600 dark:text-amber-400 font-semibold flex items-center gap-1.5 truncate">
-                  <Camera size={13} className="animate-pulse flex-shrink-0" />
-                  <span className="mono-label tracking-wider">{ocrStatusText || 'OCR Cканирование...'}</span>
-                </span>
-              </>
-            ) : isTranslating ? (
-              <>
-                <div className="relative flex items-center justify-center flex-shrink-0">
-                  <div className="w-2.5 h-2.5 rounded-full bg-black dark:bg-white animate-ping absolute" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-black dark:bg-white shadow-[0_0_12px_rgba(255,255,255,0.9)]" />
-                </div>
-                <span className="text-black dark:text-white font-semibold flex items-center gap-1.5 truncate">
-                  <RefreshCw size={12} className="animate-spin flex-shrink-0" />
-                  <span className="mono-label tracking-wider">MyMemory Neural Translate</span>
-                </span>
-              </>
-            ) : (isSpeakingSource || isSpeakingTarget) ? (
-              <>
-                <div className="flex items-center gap-0.5 h-4 px-1 flex-shrink-0">
-                  <span className="w-1 bg-black/80 dark:bg-white rounded-full sound-bar shadow-[0_0_6px_rgba(255,255,255,0.6)]" />
-                  <span className="w-1 bg-black/60 dark:bg-slate-300 rounded-full sound-bar shadow-[0_0_6px_rgba(255,255,255,0.4)]" />
-                  <span className="w-1 bg-black/40 dark:bg-slate-400 rounded-full sound-bar" />
-                  <span className="w-1 bg-black/70 dark:bg-white rounded-full sound-bar shadow-[0_0_6px_rgba(255,255,255,0.6)]" />
-                </div>
-                <span className="text-black dark:text-white font-semibold truncate mono-label tracking-wider">Audio Synthesis Active</span>
-              </>
-            ) : (
-              <>
-                <div className="relative flex items-center justify-center flex-shrink-0">
-                  <div className="w-2 h-2 rounded-full bg-black dark:bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
-                </div>
-                <span className="text-[#8E8E93] dark:text-[#AEAEB2] truncate flex items-center gap-1.5">
-                  <span className="text-[#1C1C1E] dark:text-white font-semibold">Flow Neural Engine</span>
-                  <span className="opacity-40">·</span>
-                  <span className="mono-label text-[10px] text-black dark:text-white font-bold">READY</span>
-                </span>
-              </>
-            )}
+        {/* Dynamic Activity Capsule (Only visible during active background operations) */}
+        {(isOcrProcessing || isTranslating || isSpeakingSource || isSpeakingTarget) && (
+          <div className="flex justify-center animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="ios-glass px-4 py-1.5 sm:py-2 rounded-full flex items-center gap-2.5 shadow-sm border border-black/[0.06] dark:border-white/[0.08] text-[11px] sm:text-xs font-medium max-w-full truncate">
+              {isOcrProcessing ? (
+                <>
+                  <div className="relative flex items-center justify-center flex-shrink-0">
+                    <div className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping absolute" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.8)]" />
+                  </div>
+                  <span className="text-amber-600 dark:text-amber-400 font-semibold flex items-center gap-1.5 truncate">
+                    <Camera size={13} className="animate-pulse flex-shrink-0" />
+                    <span className="mono-label tracking-wider">{ocrStatusText || 'OCR Cканирование...'}</span>
+                  </span>
+                </>
+              ) : isTranslating ? (
+                <>
+                  <div className="relative flex items-center justify-center flex-shrink-0">
+                    <div className="w-2 h-2 rounded-full bg-black dark:bg-white animate-ping absolute" />
+                    <div className="w-2 h-2 rounded-full bg-black dark:bg-white shadow-[0_0_12px_rgba(255,255,255,0.9)]" />
+                  </div>
+                  <span className="text-black dark:text-white font-semibold flex items-center gap-1.5 truncate">
+                    <RefreshCw size={12} className="animate-spin flex-shrink-0" />
+                    <span className="mono-label tracking-wider">Перевод...</span>
+                  </span>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center gap-0.5 h-4 px-1 flex-shrink-0">
+                    <span className="w-1 bg-black/80 dark:bg-white rounded-full sound-bar shadow-[0_0_6px_rgba(255,255,255,0.6)]" />
+                    <span className="w-1 bg-black/60 dark:bg-slate-300 rounded-full sound-bar shadow-[0_0_6px_rgba(255,255,255,0.4)]" />
+                    <span className="w-1 bg-black/40 dark:bg-slate-400 rounded-full sound-bar" />
+                    <span className="w-1 bg-black/70 dark:bg-white rounded-full sound-bar shadow-[0_0_6px_rgba(255,255,255,0.6)]" />
+                  </div>
+                  <span className="text-black dark:text-white font-semibold truncate mono-label tracking-wider">Озвучивание речи</span>
+                </>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Apple Segmented Mode Switcher (Fully Responsive for Mobile) */}
         <div className="flex items-center justify-start sm:justify-center w-full overflow-x-auto no-scrollbar py-0.5 px-1 touch-pan-x">
@@ -1652,30 +1638,14 @@ export default function App() {
                   <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
                     {sourceLang === 'auto' ? (
                       <span className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider flex items-center gap-1.5 flex-shrink-0">
-                        <Sparkles size={12} className="text-black dark:text-white animate-pulse" />
                         <span className="hidden xs:inline">Авто:</span>
-                        <span className="text-[10px] font-bold text-black dark:text-white bg-black/5 dark:bg-white/10 px-2 py-0.5 rounded-full border border-black/10 dark:border-white/15 flex items-center gap-1">
+                        <span className="text-[10px] font-bold text-black dark:text-white bg-black/5 dark:bg-white/10 px-2.5 py-0.5 rounded-full border border-black/10 dark:border-white/15 flex items-center gap-1">
                           {detectedLangObj.flag} {detectedLangObj.label}
                         </span>
                       </span>
                     ) : (
                       <span className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider flex items-center gap-1 flex-shrink-0">
                         {activeSourceLang.flag} {activeSourceLang.label}
-                      </span>
-                    )}
-                    {activeMode === 'image' && (
-                      <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white flex items-center gap-1 border black/10 dark:border-white/15 flex-shrink-0">
-                        <Scan size={10} /> Live Text
-                      </span>
-                    )}
-                    {activeMode === 'doc' && (
-                      <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white flex items-center gap-1 border border-indigo-500/20 flex-shrink-0">
-                        <FileText size={10} /> Файлы
-                      </span>
-                    )}
-                    {activeMode === 'url' && (
-                      <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white dark:text-black dark:text-white flex items-center gap-1 border border-purple-500/20 flex-shrink-0">
-                        <Compass size={10} /> Reader
                       </span>
                     )}
                   </div>
@@ -2070,22 +2040,23 @@ export default function App() {
 
           </section>
 
-        {/* ================= СЕКЦИЯ 2: FAVORITES & ИСТОРИЯ ================= */}
-        <section className="space-y-4 pt-2">
+        {/* ================= СЕКЦИЯ 2: FAVORITES & ИСТОРИЯ (ЯРЛЫЧКИ) ================= */}
+        <section className="space-y-4 pt-1 sm:pt-2 pb-8">
           
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            {/* Tab Switcher: Favorites vs Recent History */}
+            {/* Tab Switcher: Favorites vs Recent History (Ярлычки) */}
             <div className="flex items-center apple-glass-pill p-1 rounded-full w-fit">
               <button
-                onClick={() => setActiveBottomTab('favorites')}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-2 ${
+                onClick={() => setActiveBottomTab(activeBottomTab === 'favorites' ? null : 'favorites')}
+                className={`px-3.5 sm:px-4 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-2 spring-press ${
                   activeBottomTab === 'favorites'
                     ? 'apple-tab-active text-[#1C1C1E] dark:text-white'
                     : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
                 }`}
+                title={activeBottomTab === 'favorites' ? 'Свернуть' : 'Открыть закрепленные слова'}
               >
                 <Star size={14} className="text-amber-500" fill={activeBottomTab === 'favorites' ? "currentColor" : "none"} />
-                <span>Favorites</span>
+                <span>Закрепленные</span>
                 {totalEntries > 0 && (
                   <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-[#8E8E93]">
                     {totalEntries}
@@ -2094,12 +2065,13 @@ export default function App() {
               </button>
 
               <button
-                onClick={() => setActiveBottomTab('history')}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-2 ${
+                onClick={() => setActiveBottomTab(activeBottomTab === 'history' ? null : 'history')}
+                className={`px-3.5 sm:px-4 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-2 spring-press ${
                   activeBottomTab === 'history'
                     ? 'apple-tab-active text-[#1C1C1E] dark:text-white'
                     : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
                 }`}
+                title={activeBottomTab === 'history' ? 'Свернуть' : 'Открыть историю переводов'}
               >
                 <History size={14} className="text-black dark:text-white" />
                 <span>История</span>
@@ -2111,14 +2083,14 @@ export default function App() {
               </button>
             </div>
 
-            {/* Right-side action controls */}
+            {/* Right-side action controls (Only rendered when a tab is active) */}
             {activeBottomTab === 'favorites' ? (
               <div className="flex items-center gap-2 flex-wrap">
                 {/* Study Mode Button */}
                 {entries.length > 0 && (
                   <button
                     onClick={() => { setCurrentCardIndex(0); setIsCardFlipped(false); setFlashcardModal(true); }}
-                    className="text-xs font-semibold apple-btn-primary px-3.5 sm:px-4 py-1.5 rounded-full flex items-center gap-1.5"
+                    className="text-xs font-semibold apple-btn-primary px-3.5 sm:px-4 py-1.5 rounded-full flex items-center gap-1.5 spring-press"
                   >
                     <RotateCw size={13} /> Учить слова
                   </button>
@@ -2128,14 +2100,14 @@ export default function App() {
                 <div className="flex items-center apple-glass-pill p-1 rounded-full">
                   <button
                     onClick={() => setViewMode('list')}
-                    className={`p-1.5 rounded-full transition-all ${viewMode === 'list' ? 'apple-tab-active text-black dark:text-white' : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'}`}
+                    className={`p-1.5 rounded-full transition-all spring-press ${viewMode === 'list' ? 'apple-tab-active text-black dark:text-white' : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'}`}
                     title="Список"
                   >
                     <ListFilter size={14} />
                   </button>
                   <button
                     onClick={() => setViewMode('grid')}
-                    className={`p-1.5 rounded-full transition-all ${viewMode === 'grid' ? 'apple-tab-active text-black dark:text-white' : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'}`}
+                    className={`p-1.5 rounded-full transition-all spring-press ${viewMode === 'grid' ? 'apple-tab-active text-black dark:text-white' : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'}`}
                     title="Сетка"
                   >
                     <LayoutGrid size={14} />
@@ -2144,7 +2116,7 @@ export default function App() {
 
                 <button
                   onClick={() => setShowSearch(!showSearch)}
-                  className={`apple-icon-btn p-2 rounded-full text-xs font-semibold ${
+                  className={`apple-icon-btn p-2 rounded-full text-xs font-semibold spring-press ${
                     showSearch 
                       ? 'apple-btn-primary !text-white' 
                       : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
@@ -2170,26 +2142,44 @@ export default function App() {
 
                 <button
                   onClick={() => setNewCatModal(true)}
-                  className="text-xs font-semibold text-black dark:text-white apple-btn-glass px-3.5 py-1.5 rounded-full transition-all whitespace-nowrap"
+                  className="text-xs font-semibold text-black dark:text-white apple-btn-glass px-3.5 py-1.5 rounded-full transition-all whitespace-nowrap spring-press"
                 >
                   + Тег
                 </button>
+
+                {/* Explicit Collapse button */}
+                <button
+                  onClick={() => setActiveBottomTab(null)}
+                  className="apple-icon-btn p-2 rounded-full text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white spring-press"
+                  title="Скрыть панель"
+                >
+                  <X size={15} />
+                </button>
               </div>
-            ) : (
+            ) : activeBottomTab === 'history' ? (
               /* History controls */
               <div className="flex items-center gap-2">
                 {recentHistory.length > 0 && (
                   <button
                     onClick={clearHistory}
-                    className="text-xs font-semibold px-3 py-1.5 rounded-full text-rose-500 hover:bg-rose-500/10 border border-rose-500/20 transition-all flex items-center gap-1.5"
+                    className="text-xs font-semibold px-3 py-1.5 rounded-full text-rose-500 hover:bg-rose-500/10 border border-rose-500/20 transition-all flex items-center gap-1.5 spring-press"
                     title="Очистить историю переводов"
                   >
                     <Trash2 size={13} />
                     <span>Очистить историю</span>
                   </button>
                 )}
+
+                {/* Explicit Collapse button */}
+                <button
+                  onClick={() => setActiveBottomTab(null)}
+                  className="apple-icon-btn p-2 rounded-full text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white spring-press"
+                  title="Скрыть панель"
+                >
+                  <X size={15} />
+                </button>
               </div>
-            )}
+            ) : null}
           </div>
 
           {/* TAB 1: FAVORITES CONTENT */}
@@ -2860,7 +2850,7 @@ export default function App() {
                     <button
                       type="button"
                       onClick={() => { setAuthModal('login'); setAuthError(''); setAuthSuccess('Введите ваш пароль для входа'); }}
-                      className="mt-2 inline-block px-3 py-1 rounded-xl bg-black dark:bg-white text-white text-[11px] font-bold hover:bg-black dark:bg-white/90 transition-all cursor-pointer"
+                      className="mt-2 inline-block px-3 py-1 rounded-xl bg-black dark:bg-white text-white dark:text-black text-[11px] font-bold transition-all cursor-pointer spring-press"
                     >
                       Перейти ко входу →
                     </button>
@@ -2934,8 +2924,8 @@ export default function App() {
                   {categories.map(c => <option key={c.id} value={c.id} className="dark:bg-[#1C1C1E]">{c.name}</option>)}
                 </select>
               </div>
-              <button type="submit" className="w-full apple-btn-primary font-semibold py-3 rounded-2xl text-sm mt-2">
-                Сохранить в Favorites
+              <button type="submit" className="w-full apple-btn-primary font-semibold py-3 rounded-2xl text-sm mt-2 spring-press">
+                Сохранить карточку
               </button>
             </form>
           </div>
