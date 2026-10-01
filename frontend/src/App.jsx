@@ -1241,7 +1241,7 @@ export default function App() {
         )}
 
         {/* Apple Segmented Mode Switcher (Fully Responsive for Mobile) */}
-        <div className="flex items-center justify-start sm:justify-center w-full overflow-x-auto no-scrollbar py-0.5 px-1 touch-pan-x">
+        <div className="flex items-center justify-start w-full overflow-x-auto no-scrollbar py-0.5 px-1 touch-pan-x">
           <div className="apple-segmented-pill flex items-center gap-1 border border-black/[0.04] dark:border-white/[0.08] p-1 rounded-full flex-nowrap">
             <button
               onClick={() => { setActiveMode('text'); }}
@@ -1437,18 +1437,18 @@ export default function App() {
             </div>
           </div>
 
-          {/* DIALOGUE MODE (Apple Translate Face-to-Face Live Conversation) */}
+          {/* DIALOGUE MODE (Monochrome Face-to-Face Live Conversation) */}
           {activeMode === 'dialogue' ? (
-            <div className="ios-glass ios-card-specular rounded-[28px] sm:rounded-[32px] p-4 sm:p-6 shadow-2xl space-y-4">
+            <div className="ios-glass ios-card-specular neon-border-hover rounded-[24px] sm:rounded-[28px] p-4 sm:p-6 shadow-xl space-y-4">
               {/* Dialogue Header Controls */}
               <div className="flex flex-wrap items-center justify-between pb-3 border-b border-black/[0.04] dark:border-white/[0.06] gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="w-2 h-2 rounded-full bg-black dark:bg-white animate-pulse" />
                   <span className="text-xs sm:text-sm font-bold tracking-tight text-[#1C1C1E] dark:text-white">
-                    Режим диалога «Лицом к лицу»
+                    Режим синхронного диалога
                   </span>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                    Live Conversation
+                  <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-[#8E8E93] dark:text-[#A1A1AA] border border-black/10 dark:border-white/10">
+                    Live
                   </span>
                 </div>
 
@@ -1484,14 +1484,14 @@ export default function App() {
               <div className="min-h-[220px] max-h-[360px] overflow-y-auto space-y-3 p-2 no-scrollbar">
                 {dialogueMessages.length === 0 ? (
                   <div className="py-12 text-center space-y-2">
-                    <div className="w-12 h-12 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white flex items-center justify-center mx-auto animate-pulse">
+                    <div className="w-12 h-12 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white flex items-center justify-center mx-auto">
                       <MessageSquare size={22} />
                     </div>
                     <p className="text-sm font-semibold text-[#1C1C1E] dark:text-white">
-                      Готовы к диалогу двух людей
+                      Диалог двух собеседников
                     </p>
                     <p className="text-xs text-[#8E8E93] max-w-sm mx-auto">
-                      Нажмите круглую кнопку микрофона своего языка снизу и говорите. Перевод сразу появится в чате и будет озвучен собеседнику.
+                      Нажмите кнопку микрофона снизу и говорите на своем языке. Перевод отобразится в чате и будет озвучен собеседнику.
                     </p>
                   </div>
                 ) : (
@@ -1504,13 +1504,13 @@ export default function App() {
                       >
                         <div className={`max-w-[88%] sm:max-w-[75%] p-3.5 sm:p-4 rounded-2xl sm:rounded-[22px] shadow-sm transition-all ${
                           isLeft 
-                            ? 'apple-chat-bubble-user text-white' 
-                            : 'apple-chat-bubble-peer text-[#1C1C1E] dark:text-white'
+                            ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-br-sm' 
+                            : 'bg-black/5 dark:bg-white/[0.08] text-[#1C1C1E] dark:text-white border border-black/10 dark:border-white/10 rounded-bl-sm'
                         }`}>
                           <div className={`flex items-center justify-between gap-3 text-[10px] pb-1 mb-1 border-b ${
                             isLeft 
-                              ? 'border-white/20 text-white/80' 
-                              : 'border-black/10 dark:border-white/15 text-[#8E8E93] dark:text-white/70'
+                              ? 'border-white/20 dark:border-black/15 text-neutral-300 dark:text-neutral-600' 
+                              : 'border-black/10 dark:border-white/15 text-[#8E8E93] dark:text-[#A1A1AA]'
                           }`}>
                             <span className="font-bold uppercase tracking-wider">
                               {isLeft 
@@ -1522,14 +1522,14 @@ export default function App() {
                           
                           {/* Original spoken text */}
                           <p className={`text-xs sm:text-sm font-medium leading-relaxed ${
-                            isLeft ? 'text-white/90' : 'text-[#3A3A3C] dark:text-white/90'
+                            isLeft ? 'text-white/90 dark:text-neutral-900/90' : 'text-[#3A3A3C] dark:text-white/90'
                           }`}>
                             {msg.text}
                           </p>
                           
                           {/* Translated text */}
                           <div className={`mt-2 pt-2 border-t flex items-start justify-between gap-2 ${
-                            isLeft ? 'border-white/20 text-white' : 'border-black/10 dark:border-white/15 text-[#1C1C1E] dark:text-white'
+                            isLeft ? 'border-white/20 dark:border-black/15 text-white dark:text-neutral-900' : 'border-black/10 dark:border-white/15 text-[#1C1C1E] dark:text-white'
                           }`}>
                             <p className="text-sm sm:text-base font-bold leading-snug">
                               {msg.translatedText}
@@ -1538,7 +1538,7 @@ export default function App() {
                               onClick={() => speak(msg.translatedText, msg.targetLang, true)}
                               className={`p-1 rounded-full flex-shrink-0 transition-colors ${
                                 isLeft 
-                                  ? 'hover:bg-white/20 text-white' 
+                                  ? 'hover:bg-white/20 dark:hover:bg-black/10 text-white dark:text-neutral-900' 
                                   : 'hover:bg-black/10 dark:hover:bg-white/20 text-[#1C1C1E] dark:text-white'
                               }`}
                               title="Озвучить"
@@ -1554,23 +1554,23 @@ export default function App() {
               </div>
 
               {/* Split Dual-Microphone Controls for Two Speakers */}
-              <div className="grid grid-cols-2 gap-3 sm:gap-4 pt-3 border-t border-black/[0.04] dark:border-white/[0.06]">
+              <div className="grid grid-cols-2 gap-2.5 sm:gap-4 pt-3 border-t border-black/[0.04] dark:border-white/[0.06]">
                 {/* Speaker 1 (Source Lang) */}
-                <div className="bg-white/85 dark:bg-white/[0.04] p-3.5 sm:p-4 rounded-[22px] min-h-[145px] sm:min-h-[160px] flex flex-col items-center justify-between border border-black/[0.06] dark:border-white/[0.06] text-center shadow-sm backdrop-blur-xl">
+                <div className="ios-glass p-3.5 sm:p-4 rounded-[22px] min-h-[145px] sm:min-h-[160px] flex flex-col items-center justify-between border border-black/[0.06] dark:border-white/[0.08] text-center shadow-sm">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-[#1C1C1E] dark:text-white">
                     <span>{sourceLang === 'auto' ? (detectedLangObj ? detectedLangObj.flag : '') : activeSourceLang.flag}</span>
-                    <span className="truncate max-w-[110px] sm:max-w-none">{sourceLang === 'auto' ? (detectedLangObj ? detectedLangObj.label : 'Авто') : activeSourceLang.label}</span>
+                    <span className="truncate max-w-[90px] sm:max-w-none">{sourceLang === 'auto' ? (detectedLangObj ? detectedLangObj.label : 'Авто') : activeSourceLang.label}</span>
                   </div>
                   <button
                     onClick={() => startDialogueRecognition('left')}
-                    className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg ${
+                    className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center transition-all duration-300 shadow-md ${
                       isDialogueListeningLeft
                         ? 'bg-rose-500 text-white shadow-rose-500/40 animate-mic-recording scale-110'
-                        : 'apple-btn-primary !text-white hover:scale-105 active:scale-95'
+                        : 'bg-black dark:bg-white text-white dark:text-black hover:scale-105 active:scale-95 shadow-sm'
                     }`}
                     title="Говорить на первом языке"
                   >
-                    {isDialogueListeningLeft ? <MicOff size={24} /> : <Mic size={24} />}
+                    {isDialogueListeningLeft ? <MicOff size={22} className="sm:size-6" /> : <Mic size={22} className="sm:size-6" />}
                   </button>
                   <span className="text-[11px] font-semibold text-[#8E8E93]">
                     {isDialogueListeningLeft ? 'Слушаю...' : 'Говорить'}
@@ -1578,21 +1578,21 @@ export default function App() {
                 </div>
 
                 {/* Speaker 2 (Target Lang) */}
-                <div className="bg-white/85 dark:bg-white/[0.04] p-3.5 sm:p-4 rounded-[22px] min-h-[145px] sm:min-h-[160px] flex flex-col items-center justify-between border border-black/[0.06] dark:border-white/[0.06] text-center shadow-sm backdrop-blur-xl">
+                <div className="ios-glass p-3.5 sm:p-4 rounded-[22px] min-h-[145px] sm:min-h-[160px] flex flex-col items-center justify-between border border-black/[0.06] dark:border-white/[0.08] text-center shadow-sm">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-[#1C1C1E] dark:text-white">
                     <span>{activeTargetLang.flag}</span>
-                    <span className="truncate max-w-[110px] sm:max-w-none">{activeTargetLang.label}</span>
+                    <span className="truncate max-w-[90px] sm:max-w-none">{activeTargetLang.label}</span>
                   </div>
                   <button
                     onClick={() => startDialogueRecognition('right')}
-                    className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg ${
+                    className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center transition-all duration-300 shadow-md ${
                       isDialogueListeningRight
                         ? 'bg-rose-500 text-white shadow-rose-500/40 animate-mic-recording scale-110'
                         : 'bg-black dark:bg-white text-white dark:text-black hover:scale-105 active:scale-95 shadow-sm'
                     }`}
                     title="Говорить на втором языке"
                   >
-                    {isDialogueListeningRight ? <MicOff size={24} /> : <Mic size={24} />}
+                    {isDialogueListeningRight ? <MicOff size={22} className="sm:size-6" /> : <Mic size={22} className="sm:size-6" />}
                   </button>
                   <span className="text-[11px] font-semibold text-[#8E8E93]">
                     {isDialogueListeningRight ? 'Слушаю...' : 'Говорить'}
@@ -1706,7 +1706,7 @@ export default function App() {
 
                         <img 
                           src={imagePreviewUrl} 
-                          alt="Live Text Scan" 
+                          alt="OCR Scan" 
                           className={`max-h-40 sm:max-h-48 rounded-xl object-contain transition-all duration-300 ${isOcrProcessing ? 'opacity-70 blur-[1px]' : ''}`} 
                         />
 
@@ -1728,26 +1728,26 @@ export default function App() {
                     ) : (
                       <div 
                         onClick={() => imageInputRef.current?.click()}
-                        className="relative rounded-2xl border-2 border-dashed border-black/10 dark:border-white/15 hover:black dark:border-white/60 p-4 sm:p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all bg-black/[0.02] dark:bg-white/[0.02] group active:scale-[0.99]"
+                        className="relative rounded-2xl border border-dashed border-black/15 dark:border-white/15 hover:border-black/40 dark:hover:border-white/40 p-5 sm:p-7 flex flex-col items-center justify-center text-center cursor-pointer transition-all bg-black/[0.01] dark:bg-white/[0.01] hover:bg-black/[0.03] dark:hover:bg-white/[0.03] group active:scale-[0.99]"
                       >
-                        <span className="viewfinder-bracket top-2.5 left-2.5 border-t-2 border-l-2 rounded-tl group-hover:black dark:border-white" />
-                        <span className="viewfinder-bracket top-2.5 right-2.5 border-t-2 border-r-2 rounded-tr group-hover:black dark:border-white" />
-                        <span className="viewfinder-bracket bottom-2.5 left-2.5 border-b-2 border-l-2 rounded-bl group-hover:black dark:border-white" />
-                        <span className="viewfinder-bracket bottom-2.5 right-2.5 border-b-2 border-r-2 rounded-br group-hover:black dark:border-white" />
+                        <span className="viewfinder-bracket top-2.5 left-2.5 border-t-2 border-l-2 rounded-tl border-black/30 dark:border-white/30 group-hover:border-black dark:group-hover:border-white" />
+                        <span className="viewfinder-bracket top-2.5 right-2.5 border-t-2 border-r-2 rounded-tr border-black/30 dark:border-white/30 group-hover:border-black dark:group-hover:border-white" />
+                        <span className="viewfinder-bracket bottom-2.5 left-2.5 border-b-2 border-l-2 rounded-bl border-black/30 dark:border-white/30 group-hover:border-black dark:group-hover:border-white" />
+                        <span className="viewfinder-bracket bottom-2.5 right-2.5 border-b-2 border-r-2 rounded-br border-black/30 dark:border-white/30 group-hover:border-black dark:group-hover:border-white" />
 
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-black/5 dark:bg-white/10 text-black dark:text-white flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-transform">
+                        <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-black/5 dark:bg-white/10 text-black dark:text-white flex items-center justify-center mb-2.5 group-hover:scale-105 transition-transform">
                           <Camera size={22} className="sm:size-6" />
                         </div>
                         <h4 className="text-xs sm:text-sm font-bold text-[#1C1C1E] dark:text-white mb-1">
-                          Live Text · Распознавание фото
+                          Распознавание текста с фото
                         </h4>
-                        <p className="text-[11px] sm:text-xs text-[#8E8E93] max-w-xs mb-2 sm:mb-3 leading-relaxed">
-                          <span className="sm:hidden">Нажмите, чтобы сделать фото камерой или выбрать из медиатеки</span>
-                          <span className="hidden sm:inline">Перетащите фото сюда, выберите файл или нажмите <kbd className="px-1.5 py-0.5 rounded bg-black/[0.06] dark:bg-white/[0.1] font-mono text-[10px]">Ctrl+V</kbd> для скриншота</span>
+                        <p className="text-[11px] sm:text-xs text-[#8E8E93] max-w-xs mb-2.5 leading-relaxed">
+                          <span className="sm:hidden">Нажмите, чтобы сделать фото или выбрать из медиатеки</span>
+                          <span className="hidden sm:inline">Перетащите изображение сюда или выберите файл на устройстве</span>
                         </p>
                         <div className="flex items-center gap-1.5">
-                          <span className="text-[9px] sm:text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-[#8E8E93]">
-                            Камера · Галерея · Скриншоты
+                          <span className="text-[9px] sm:text-[10px] font-medium px-2.5 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-[#8E8E93] dark:text-[#A1A1AA]">
+                            JPG · PNG · WEBP · Скриншоты
                           </span>
                         </div>
                       </div>
@@ -1770,7 +1770,7 @@ export default function App() {
                     {loadedFile && (loadedFile.type === 'doc' || loadedFile.type === 'pdf') ? (
                       <div className="p-3 sm:p-3.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-black dark:from-white to-slate-800 dark:to-slate-200 text-white flex items-center justify-center font-bold text-xs shadow-md flex-shrink-0">
+                          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-black text-white dark:bg-white dark:text-black flex items-center justify-center font-bold text-xs shadow-sm flex-shrink-0">
                             {loadedFile.ext || 'DOC'}
                           </div>
                           <div className="min-w-0">
@@ -1778,31 +1778,30 @@ export default function App() {
                             <p className="text-[10px] text-[#8E8E93]">{loadedFile.size} · {sourceText.length} симв.</p>
                           </div>
                         </div>
-                        <span className="text-[9px] sm:text-[10px] font-bold px-2 sm:px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center gap-1 border border-emerald-500/20 flex-shrink-0">
-                          <Check size={11} /> <span className="hidden xs:inline">Готово к переводу</span><span className="xs:hidden">Готово</span>
+                        <span className="text-[10px] font-semibold px-2 sm:px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/10 text-neutral-800 dark:text-neutral-200 flex items-center gap-1 border border-black/10 dark:border-white/15 flex-shrink-0">
+                          <Check size={11} /> <span>Готово</span>
                         </span>
                       </div>
                     ) : (
                       <div 
                         onClick={() => docInputRef.current?.click()}
-                        className="rounded-2xl border-2 border-dashed border-black/10 dark:border-white/15 hover:black dark:border-white/60 p-4 sm:p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all bg-black/[0.02] dark:bg-white/[0.02] group active:scale-[0.99]"
+                        className="rounded-2xl border border-dashed border-black/15 dark:border-white/15 hover:border-black/40 dark:hover:border-white/40 p-5 sm:p-7 flex flex-col items-center justify-center text-center cursor-pointer transition-all bg-black/[0.01] dark:bg-white/[0.01] hover:bg-black/[0.03] dark:hover:bg-white/[0.03] group active:scale-[0.99]"
                       >
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-black/5 dark:bg-white/10 text-black dark:text-white flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-transform">
+                        <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-black/5 dark:bg-white/10 text-black dark:text-white flex items-center justify-center mb-2.5 group-hover:scale-105 transition-transform">
                           <FileText size={22} className="sm:size-6" />
                         </div>
                         <h4 className="text-xs sm:text-sm font-bold text-[#1C1C1E] dark:text-white mb-1">
-                          Чтение и перевод документов
+                          Перевод документов
                         </h4>
-                        <p className="text-[11px] sm:text-xs text-[#8E8E93] max-w-xs mb-2.5 sm:mb-3 leading-relaxed">
-                          Нажмите, чтобы выбрать документ на телефоне или компьютере
+                        <p className="text-[11px] sm:text-xs text-[#8E8E93] max-w-xs mb-2.5 leading-relaxed">
+                          Выберите файл документа для извлечения и перевода текста
                         </p>
                         <div className="flex flex-wrap items-center justify-center gap-1 sm:gap-1.5">
-                          <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white border border-black/10 dark:border-white/15">PDF</span>
-                          <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white border border-black/10 dark:border-white/15">TXT</span>
-                          <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white border border-black/10 dark:border-white/15">MD</span>
-                          <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white border border-black/10 dark:border-white/15">JSON</span>
-                          <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white border border-black/10 dark:border-white/15">CSV</span>
-                          <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white border border-black/10 dark:border-white/15">SRT</span>
+                          {['PDF', 'TXT', 'MD', 'JSON', 'CSV', 'SRT'].map((ext) => (
+                            <span key={ext} className="text-[9px] sm:text-[10px] font-medium px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-[#8E8E93] dark:text-[#A1A1AA] border border-black/5 dark:border-white/10">
+                              {ext}
+                            </span>
+                          ))}
                         </div>
                       </div>
                     )}
@@ -1818,7 +1817,7 @@ export default function App() {
                   </div>
                 )}
 
-                {/* MODE: URL (Apple Safari Reader Mode) */}
+                {/* MODE: URL */}
                 {activeMode === 'url' && (
                   <div className="space-y-2.5 sm:space-y-3 mb-2">
                     {loadedFile && loadedFile.type === 'url' ? (
@@ -1830,7 +1829,7 @@ export default function App() {
                           <div className="min-w-0">
                             <div className="flex items-center gap-1.5">
                               <span className="text-xs font-bold text-[#1C1C1E] dark:text-white truncate max-w-[140px] sm:max-w-xs">{loadedFile.name}</span>
-                              <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-black/5 dark:bg-white/10 text-black dark:text-white dark:text-black dark:text-white flex-shrink-0">Reader</span>
+                              <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10 text-[#8E8E93] dark:text-[#A1A1AA] flex-shrink-0">Статья</span>
                             </div>
                             <p className="text-[10px] text-[#8E8E93]">
                               ~{Math.max(1, Math.round(sourceText.split(/\s+/).filter(Boolean).length / 150))} мин · {sourceText.split(/\s+/).filter(Boolean).length} слов
@@ -1847,19 +1846,19 @@ export default function App() {
                     ) : (
                       <div 
                         onClick={() => setUrlModal(true)}
-                        className="rounded-2xl border-2 border-dashed border-black/10 dark:border-white/15 hover:black dark:border-white/60 p-4 sm:p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all bg-black/[0.02] dark:bg-white/[0.02] group active:scale-[0.99]"
+                        className="rounded-2xl border border-dashed border-black/15 dark:border-white/15 hover:border-black/40 dark:hover:border-white/40 p-5 sm:p-7 flex flex-col items-center justify-center text-center cursor-pointer transition-all bg-black/[0.01] dark:bg-white/[0.01] hover:bg-black/[0.03] dark:hover:bg-white/[0.03] group active:scale-[0.99]"
                       >
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-black/5 dark:bg-white/10 text-black dark:text-white dark:text-black dark:text-white flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-transform">
+                        <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-black/5 dark:bg-white/10 text-black dark:text-white flex items-center justify-center mb-2.5 group-hover:scale-105 transition-transform">
                           <Globe size={22} className="sm:size-6" />
                         </div>
                         <h4 className="text-xs sm:text-sm font-bold text-[#1C1C1E] dark:text-white mb-1">
-                          Safari Reader Mode · Веб-страницы
+                          Перевод веб-страницы по ссылке
                         </h4>
-                        <p className="text-[11px] sm:text-xs text-[#8E8E93] max-w-xs mb-2.5 sm:mb-3 leading-relaxed">
-                          Нажмите, чтобы ввести ссылку на любую статью или новость без рекламы
+                        <p className="text-[11px] sm:text-xs text-[#8E8E93] max-w-xs mb-2.5 leading-relaxed">
+                          Введите URL-адрес статьи или новости для извлечения чистого текста
                         </p>
                         <div className="flex items-center gap-1.5 text-xs text-black dark:text-white font-semibold">
-                          <span>Ввести адрес страницы</span> <ArrowUpRight size={13} />
+                          <span>Ввести адрес</span> <ArrowUpRight size={13} />
                         </div>
                       </div>
                     )}
@@ -2461,39 +2460,31 @@ export default function App() {
 
       </main>
 
-      {/* ================= URL TRANSLATION MODAL (Safari Browser Window) ================= */}
+      {/* ================= URL TRANSLATION MODAL ================= */}
       {urlModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xl flex items-center justify-center p-3.5 sm:p-4 animate-in fade-in duration-200">
-          <div className="ios-glass ios-card-specular rounded-[28px] sm:rounded-[36px] p-5 sm:p-7 w-full max-w-lg border border-black/10 dark:border-white/10 shadow-2xl relative max-h-[92vh] overflow-y-auto no-scrollbar">
+          <div className="ios-glass ios-card-specular rounded-[24px] sm:rounded-[32px] p-5 sm:p-6 w-full max-w-lg border border-black/10 dark:border-white/10 shadow-2xl relative max-h-[92vh] overflow-y-auto no-scrollbar">
             
-            {/* Safari Window Header */}
+            {/* Modal Header */}
             <div className="flex items-center justify-between pb-3 sm:pb-3.5 mb-3.5 sm:mb-4 border-b border-black/[0.05] dark:border-white/[0.08]">
               <div className="flex items-center gap-2">
-                <button 
-                  onClick={() => setUrlModal(false)} 
-                  className="w-3 h-3 rounded-full bg-[#FF5F56] border border-[#E0443E] hover:opacity-80 transition-opacity" 
-                  title="Закрыть" 
-                />
-                <span className="w-3 h-3 rounded-full bg-[#FFBD2E] border border-[#DEA123]" />
-                <span className="w-3 h-3 rounded-full bg-[#27C93F] border border-[#1AAB29]" />
-                <span className="text-xs font-semibold text-[#8E8E93] ml-1.5 flex items-center gap-1.5">
-                  <Compass size={13} className="text-black dark:text-white" /> Safari Reader View
-                </span>
+                <Globe size={18} className="text-black dark:text-white" />
+                <h3 className="text-sm sm:text-base font-bold tracking-tight text-[#1C1C1E] dark:text-white">
+                  Перевод веб-страницы
+                </h3>
               </div>
               <button 
                 onClick={() => setUrlModal(false)} 
                 className="apple-icon-btn text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1 rounded-full"
+                title="Закрыть"
               >
-                <X size={15} />
+                <X size={16} />
               </button>
             </div>
 
             <div className="mb-3.5 sm:mb-4">
-              <h3 className="text-base sm:text-lg font-bold tracking-tight text-[#1C1C1E] dark:text-white">
-                Перевод веб-страницы
-              </h3>
               <p className="text-[11px] sm:text-xs text-[#8E8E93]">
-                Интеллектуальное извлечение основного текста статьи без рекламы, меню и баннеров
+                Извлечение и перевод основного текста веб-страницы без рекламы
               </p>
             </div>
 
@@ -2533,9 +2524,9 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Safari Bookmarks / Speed Dial Grid */}
+              {/* Bookmarks / Speed Dial Grid */}
               <div>
-                <span className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider block mb-2">Избранные закладки:</span>
+                <span className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider block mb-2">Примеры сайтов:</span>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {URL_PRESETS.map((p, idx) => (
                     <button
@@ -2544,11 +2535,11 @@ export default function App() {
                       onClick={() => setInputUrl(p.url)}
                       className={`p-2.5 sm:p-3 rounded-2xl border text-left transition-all flex items-start gap-2.5 ${
                         inputUrl === p.url 
-                          ? 'apple-btn-glass !black dark:border-white !text-black dark:text-white' 
-                          : 'apple-btn-glass'
+                          ? 'border-black dark:border-white bg-black/5 dark:bg-white/10 text-neutral-900 dark:text-white' 
+                          : 'apple-btn-glass text-[#8E8E93] hover:text-neutral-900 dark:hover:text-white border-black/[0.06] dark:border-white/[0.08]'
                       }`}
                     >
-                      <span className="text-base sm:text-lg">{p.icon}</span>
+                      <Globe size={16} className="mt-0.5 flex-shrink-0 text-black dark:text-white" />
                       <div className="min-w-0">
                         <span className="text-xs font-bold block text-[#1C1C1E] dark:text-white truncate">{p.label}</span>
                         <span className="text-[10px] text-[#8E8E93] block truncate">{p.desc}</span>
@@ -2571,7 +2562,7 @@ export default function App() {
                 ) : (
                   <>
                     <BookOpen size={15} />
-                    <span>Открыть в Reader Mode</span>
+                    <span>Извлечь и перевести</span>
                   </>
                 )}
               </button>
