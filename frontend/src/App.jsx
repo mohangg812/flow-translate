@@ -1114,7 +1114,7 @@ export default function App() {
 
       {/* ================= FROSTED GLASS BAR ================= */}
       <header className="sticky top-0 z-40 backdrop-blur-3xl bg-white/70 dark:bg-[#0E0E12]/80 border-b border-black/[0.06] dark:border-white/[0.08] transition-all duration-300 safe-top">
-        <div className="max-w-4xl mx-auto px-3.5 sm:px-6 h-16 flex items-center justify-between">
+        <div className="w-full px-4 sm:px-6 md:px-8 h-16 flex items-center justify-between">
           
           {/* Brand Title (Crisp, High Contrast in Dark Mode, Minimalist Typography) */}
           <div className="flex items-baseline gap-1.5 select-none py-1">
@@ -1197,7 +1197,7 @@ export default function App() {
       </header>
 
       {/* ================= MAIN CONTAINER ================= */}
-      <main className="max-w-4xl mx-auto px-3.5 sm:px-6 mt-3 sm:mt-6 space-y-4 sm:space-y-7">
+      <main className="max-w-[1380px] mx-auto px-3.5 sm:px-6 lg:px-8 mt-3 sm:mt-6 space-y-4 sm:space-y-6">
 
         {/* Dynamic Activity Capsule (Only visible during active background operations) */}
         {(isOcrProcessing || isTranslating || isSpeakingSource || isSpeakingTarget) && (
@@ -1621,7 +1621,7 @@ export default function App() {
                     else processDocumentFile(file);
                   }
                 }}
-                className={`ios-glass ios-card-specular neon-border-hover rounded-[28px] sm:rounded-[32px] p-4 sm:p-6 min-h-[220px] sm:min-h-[260px] flex flex-col justify-between transition-all duration-300 hover:shadow-2xl focus-within:ring-2 focus-within:ring-black/20 dark:focus-within:ring-white/30 relative ${isDragging ? 'ring-4 ring-black/40 dark:ring-white/40 bg-black/5 dark:bg-white/5 scale-[1.01]' : ''}`}
+                className={`ios-glass ios-card-specular neon-border-hover rounded-[24px] sm:rounded-[28px] p-5 sm:p-6 min-h-[250px] sm:min-h-[290px] flex flex-col justify-between transition-all duration-300 hover:shadow-2xl focus-within:ring-2 focus-within:ring-black/20 dark:focus-within:ring-white/30 relative ${isDragging ? 'ring-4 ring-black/40 dark:ring-white/40 bg-black/5 dark:bg-white/5 scale-[1.01]' : ''}`}
               >
               {isDragging && (
                 <div className="absolute inset-0 z-30 backdrop-blur-md bg-white/80 dark:bg-black/80 rounded-[28px] sm:rounded-[32px] flex flex-col items-center justify-center gap-2 sm:gap-3 text-black dark:text-white font-bold animate-in fade-in p-4 text-center">
@@ -1948,7 +1948,7 @@ export default function App() {
             </div>
 
             {/* Target Card */}
-            <div className="ios-glass ios-card-specular neon-border-hover rounded-[28px] sm:rounded-[32px] p-4 sm:p-6 min-h-[220px] sm:min-h-[260px] flex flex-col justify-between transition-all duration-300 hover:shadow-2xl relative overflow-hidden">
+            <div className="ios-glass ios-card-specular neon-border-hover rounded-[24px] sm:rounded-[28px] p-5 sm:p-6 min-h-[250px] sm:min-h-[290px] flex flex-col justify-between transition-all duration-300 hover:shadow-2xl relative overflow-hidden">
               
               {isTranslating && (
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white to-transparent animate-shimmer" />
@@ -2040,147 +2040,192 @@ export default function App() {
 
           </section>
 
-        {/* ================= СЕКЦИЯ 2: FAVORITES & ИСТОРИЯ (ЯРЛЫЧКИ) ================= */}
-        <section className="space-y-4 pt-1 sm:pt-2 pb-8">
+        {/* ================= СЕКЦИЯ 2: ИСТОРИЯ И СОХРАНЕННЫЕ (КРУГЛЫЕ КНОПКИ ПО ЦЕНТРУ КАК В РЕФЕРЕНСЕ) ================= */}
+        <section className="space-y-6 pt-3 sm:pt-6 pb-12">
           
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            {/* Tab Switcher: Favorites vs Recent History (Ярлычки) */}
-            <div className="flex items-center apple-glass-pill p-1 rounded-full w-fit">
+          {/* Centered Circular Action Buttons (Google Translate Reference Style) */}
+          <div className="flex items-center justify-center gap-10 sm:gap-14 py-2">
+            
+            {/* 1. Кнопка "История" */}
+            <div className="flex flex-col items-center gap-2 group">
               <button
-                onClick={() => setActiveBottomTab(activeBottomTab === 'favorites' ? null : 'favorites')}
-                className={`px-3.5 sm:px-4 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-2 spring-press ${
-                  activeBottomTab === 'favorites'
-                    ? 'apple-tab-active text-[#1C1C1E] dark:text-white'
-                    : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
-                }`}
-                title={activeBottomTab === 'favorites' ? 'Свернуть' : 'Открыть закрепленные слова'}
-              >
-                <Star size={14} className="text-amber-500" fill={activeBottomTab === 'favorites' ? "currentColor" : "none"} />
-                <span>Закрепленные</span>
-                {totalEntries > 0 && (
-                  <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-[#8E8E93]">
-                    {totalEntries}
-                  </span>
-                )}
-              </button>
-
-              <button
+                type="button"
                 onClick={() => setActiveBottomTab(activeBottomTab === 'history' ? null : 'history')}
-                className={`px-3.5 sm:px-4 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-2 spring-press ${
+                className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center transition-all duration-200 spring-press relative ${
                   activeBottomTab === 'history'
-                    ? 'apple-tab-active text-[#1C1C1E] dark:text-white'
-                    : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
+                    ? 'bg-black text-white dark:bg-white dark:text-black shadow-lg scale-105 ring-2 ring-black/20 dark:ring-white/40'
+                    : 'apple-btn-glass text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white border border-black/10 dark:border-white/10 hover:border-black/25 dark:hover:border-white/30 hover:scale-105'
                 }`}
-                title={activeBottomTab === 'history' ? 'Свернуть' : 'Открыть историю переводов'}
+                title={activeBottomTab === 'history' ? 'Свернуть историю' : 'Открыть историю переводов'}
               >
-                <History size={14} className="text-black dark:text-white" />
-                <span>История</span>
+                <History size={20} className="sm:size-[22px] transition-transform group-hover:rotate-[-8deg]" />
                 {recentHistory.length > 0 && (
-                  <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white">
+                  <span className={`absolute -top-1 -right-1 text-[10px] font-bold px-1.5 py-0.2 min-w-5 h-5 rounded-full flex items-center justify-center shadow-sm ${
+                    activeBottomTab === 'history'
+                      ? 'bg-neutral-800 text-white dark:bg-neutral-200 dark:text-black'
+                      : 'bg-black/10 dark:bg-white/20 text-neutral-800 dark:text-neutral-200'
+                  }`}>
                     {recentHistory.length}
                   </span>
                 )}
               </button>
+              <span className={`text-xs font-medium tracking-tight select-none transition-colors ${
+                activeBottomTab === 'history'
+                  ? 'text-neutral-900 dark:text-white font-semibold'
+                  : 'text-neutral-500 dark:text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-white'
+              }`}>
+                История
+              </span>
             </div>
 
-            {/* Right-side action controls (Only rendered when a tab is active) */}
-            {activeBottomTab === 'favorites' ? (
-              <div className="flex items-center gap-2 flex-wrap">
-                {/* Study Mode Button */}
-                {entries.length > 0 && (
-                  <button
-                    onClick={() => { setCurrentCardIndex(0); setIsCardFlipped(false); setFlashcardModal(true); }}
-                    className="text-xs font-semibold apple-btn-primary px-3.5 sm:px-4 py-1.5 rounded-full flex items-center gap-1.5 spring-press"
-                  >
-                    <RotateCw size={13} /> Учить слова
-                  </button>
+            {/* 2. Кнопка "Сохраненные" */}
+            <div className="flex flex-col items-center gap-2 group">
+              <button
+                type="button"
+                onClick={() => setActiveBottomTab(activeBottomTab === 'favorites' ? null : 'favorites')}
+                className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center transition-all duration-200 spring-press relative ${
+                  activeBottomTab === 'favorites'
+                    ? 'bg-black text-white dark:bg-white dark:text-black shadow-lg scale-105 ring-2 ring-black/20 dark:ring-white/40'
+                    : 'apple-btn-glass text-[#8E8E93] hover:text-amber-500 dark:hover:text-amber-400 border border-black/10 dark:border-white/10 hover:border-black/25 dark:hover:border-white/30 hover:scale-105'
+                }`}
+                title={activeBottomTab === 'favorites' ? 'Свернуть сохраненные' : 'Открыть сохраненные слова'}
+              >
+                <Star 
+                  size={20} 
+                  className={`sm:size-[22px] transition-transform group-hover:scale-110 ${activeBottomTab === 'favorites' ? 'text-amber-400' : ''}`}
+                  fill={activeBottomTab === 'favorites' ? 'currentColor' : 'none'} 
+                />
+                {totalEntries > 0 && (
+                  <span className={`absolute -top-1 -right-1 text-[10px] font-bold px-1.5 py-0.2 min-w-5 h-5 rounded-full flex items-center justify-center shadow-sm ${
+                    activeBottomTab === 'favorites'
+                      ? 'bg-neutral-800 text-white dark:bg-neutral-200 dark:text-black'
+                      : 'bg-black/10 dark:bg-white/20 text-neutral-800 dark:text-neutral-200'
+                  }`}>
+                    {totalEntries}
+                  </span>
                 )}
+              </button>
+              <span className={`text-xs font-medium tracking-tight select-none transition-colors ${
+                activeBottomTab === 'favorites'
+                  ? 'text-neutral-900 dark:text-white font-semibold'
+                  : 'text-neutral-500 dark:text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-white'
+              }`}>
+                Сохраненные
+              </span>
+            </div>
 
-                {/* View Mode Toggle */}
-                <div className="flex items-center apple-glass-pill p-1 rounded-full">
+          </div>
+
+          {/* Action Toolbar & Panel (Rendered below circles when open) */}
+          {activeBottomTab && (
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-black/[0.05] dark:border-white/[0.08] animate-in fade-in duration-200">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-neutral-900 dark:text-white uppercase tracking-wider">
+                  {activeBottomTab === 'favorites' ? 'Сохраненные слова' : 'История переводов'}
+                </span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-neutral-600 dark:text-neutral-300">
+                  {activeBottomTab === 'favorites' ? totalEntries : recentHistory.length}
+                </span>
+              </div>
+
+              {activeBottomTab === 'favorites' ? (
+                <div className="flex items-center gap-2 flex-wrap">
+                  {/* Study Mode Button */}
+                  {entries.length > 0 && (
+                    <button
+                      onClick={() => { setCurrentCardIndex(0); setIsCardFlipped(false); setFlashcardModal(true); }}
+                      className="text-xs font-semibold apple-btn-primary px-3.5 sm:px-4 py-1.5 rounded-full flex items-center gap-1.5 spring-press"
+                    >
+                      <RotateCw size={13} /> Учить слова
+                    </button>
+                  )}
+
+                  {/* View Mode Toggle */}
+                  <div className="flex items-center apple-glass-pill p-1 rounded-full">
+                    <button
+                      onClick={() => setViewMode('list')}
+                      className={`p-1.5 rounded-full transition-all spring-press ${viewMode === 'list' ? 'apple-tab-active text-black dark:text-white' : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'}`}
+                      title="Список"
+                    >
+                      <ListFilter size={14} />
+                    </button>
+                    <button
+                      onClick={() => setViewMode('grid')}
+                      className={`p-1.5 rounded-full transition-all spring-press ${viewMode === 'grid' ? 'apple-tab-active text-black dark:text-white' : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'}`}
+                      title="Сетка"
+                    >
+                      <LayoutGrid size={14} />
+                    </button>
+                  </div>
+
                   <button
-                    onClick={() => setViewMode('list')}
-                    className={`p-1.5 rounded-full transition-all spring-press ${viewMode === 'list' ? 'apple-tab-active text-black dark:text-white' : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'}`}
-                    title="Список"
+                    onClick={() => setShowSearch(!showSearch)}
+                    className={`apple-icon-btn p-2 rounded-full text-xs font-semibold spring-press ${
+                      showSearch 
+                        ? 'apple-btn-primary !text-white' 
+                        : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
+                    }`}
+                    title="Поиск"
                   >
-                    <ListFilter size={14} />
+                    <Search size={15} />
                   </button>
+
+                  {categories.length > 0 && (
+                    <div className="relative">
+                      <select
+                        value={filterCat}
+                        onChange={(e) => { setFilterCat(e.target.value); setPage(1); }}
+                        className="appearance-none apple-btn-glass text-xs font-semibold px-3 py-1.5 rounded-full focus:outline-none cursor-pointer pr-6 text-[#1C1C1E] dark:text-white"
+                      >
+                        <option value="" className="dark:bg-[#1C1C1E]">Все теги</option>
+                        {categories.map(c => <option key={c.id} value={c.id} className="dark:bg-[#1C1C1E]">{c.name}</option>)}
+                      </select>
+                      <span className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[8px] text-[#8E8E93]">▾</span>
+                    </div>
+                  )}
+
                   <button
-                    onClick={() => setViewMode('grid')}
-                    className={`p-1.5 rounded-full transition-all spring-press ${viewMode === 'grid' ? 'apple-tab-active text-black dark:text-white' : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'}`}
-                    title="Сетка"
+                    onClick={() => setNewCatModal(true)}
+                    className="text-xs font-semibold text-black dark:text-white apple-btn-glass px-3.5 py-1.5 rounded-full transition-all whitespace-nowrap spring-press"
                   >
-                    <LayoutGrid size={14} />
+                    + Тег
+                  </button>
+
+                  {/* Explicit Collapse button */}
+                  <button
+                    onClick={() => setActiveBottomTab(null)}
+                    className="apple-icon-btn p-2 rounded-full text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white spring-press"
+                    title="Скрыть панель"
+                  >
+                    <X size={15} />
                   </button>
                 </div>
-
-                <button
-                  onClick={() => setShowSearch(!showSearch)}
-                  className={`apple-icon-btn p-2 rounded-full text-xs font-semibold spring-press ${
-                    showSearch 
-                      ? 'apple-btn-primary !text-white' 
-                      : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
-                  }`}
-                  title="Поиск"
-                >
-                  <Search size={15} />
-                </button>
-
-                {categories.length > 0 && (
-                  <div className="relative">
-                    <select
-                      value={filterCat}
-                      onChange={(e) => { setFilterCat(e.target.value); setPage(1); }}
-                      className="appearance-none apple-btn-glass text-xs font-semibold px-3 py-1.5 rounded-full focus:outline-none cursor-pointer pr-6 text-[#1C1C1E] dark:text-white"
+              ) : activeBottomTab === 'history' ? (
+                /* History controls */
+                <div className="flex items-center gap-2">
+                  {recentHistory.length > 0 && (
+                    <button
+                      onClick={clearHistory}
+                      className="text-xs font-semibold px-3 py-1.5 rounded-full text-rose-500 hover:bg-rose-500/10 border border-rose-500/20 transition-all flex items-center gap-1.5 spring-press"
+                      title="Очистить историю переводов"
                     >
-                      <option value="" className="dark:bg-[#1C1C1E]">Все теги</option>
-                      {categories.map(c => <option key={c.id} value={c.id} className="dark:bg-[#1C1C1E]">{c.name}</option>)}
-                    </select>
-                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[8px] text-[#8E8E93]">▾</span>
-                  </div>
-                )}
+                      <Trash2 size={13} />
+                      <span>Очистить историю</span>
+                    </button>
+                  )}
 
-                <button
-                  onClick={() => setNewCatModal(true)}
-                  className="text-xs font-semibold text-black dark:text-white apple-btn-glass px-3.5 py-1.5 rounded-full transition-all whitespace-nowrap spring-press"
-                >
-                  + Тег
-                </button>
-
-                {/* Explicit Collapse button */}
-                <button
-                  onClick={() => setActiveBottomTab(null)}
-                  className="apple-icon-btn p-2 rounded-full text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white spring-press"
-                  title="Скрыть панель"
-                >
-                  <X size={15} />
-                </button>
-              </div>
-            ) : activeBottomTab === 'history' ? (
-              /* History controls */
-              <div className="flex items-center gap-2">
-                {recentHistory.length > 0 && (
+                  {/* Explicit Collapse button */}
                   <button
-                    onClick={clearHistory}
-                    className="text-xs font-semibold px-3 py-1.5 rounded-full text-rose-500 hover:bg-rose-500/10 border border-rose-500/20 transition-all flex items-center gap-1.5 spring-press"
-                    title="Очистить историю переводов"
+                    onClick={() => setActiveBottomTab(null)}
+                    className="apple-icon-btn p-2 rounded-full text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white spring-press"
+                    title="Скрыть панель"
                   >
-                    <Trash2 size={13} />
-                    <span>Очистить историю</span>
+                    <X size={15} />
                   </button>
-                )}
-
-                {/* Explicit Collapse button */}
-                <button
-                  onClick={() => setActiveBottomTab(null)}
-                  className="apple-icon-btn p-2 rounded-full text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white spring-press"
-                  title="Скрыть панель"
-                >
-                  <X size={15} />
-                </button>
-              </div>
-            ) : null}
-          </div>
+                </div>
+              ) : null}
+            </div>
+          )}
 
           {/* TAB 1: FAVORITES CONTENT */}
           {activeBottomTab === 'favorites' && (
