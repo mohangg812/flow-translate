@@ -1240,8 +1240,8 @@ export default function App() {
           </div>
         )}
 
-        {/* Apple Segmented Mode Switcher (Centered) */}
-        <div className="flex items-center justify-center w-full overflow-x-auto no-scrollbar py-0.5 px-1 touch-pan-x">
+        {/* Apple Segmented Mode Switcher (Centered & Lowered) */}
+        <div className="flex items-center justify-center w-full overflow-x-auto no-scrollbar pt-4 sm:pt-8 pb-1 sm:pb-2 px-1 touch-pan-x">
           <div className="apple-segmented-pill flex items-center gap-1 border border-black/[0.04] dark:border-white/[0.08] p-1 rounded-full flex-nowrap">
             <button
               onClick={() => { setActiveMode('text'); }}

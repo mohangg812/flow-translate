@@ -45,10 +45,13 @@ async def seed_admin():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Запуск приложения Flow Translate...")
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    logger.info("Таблицы базы данных PostgreSQL успешно инициализированы.")
-    await seed_admin()
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        logger.info("Таблицы базы данных PostgreSQL успешно инициализированы.")
+        await seed_admin()
+    except Exception as e:
+        logger.warning(f"База данных недоступна ({e}). Сервер запущен в автономном режиме перевода.")
     yield
     logger.info("Остановка сервера Flow Translate.")
 
