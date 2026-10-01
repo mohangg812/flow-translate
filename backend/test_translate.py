@@ -48,3 +48,38 @@ def test_translation_languages_validation():
     valid_req = TranslateRequest(text="Привет", source_lang="ru", target_lang="en")
     assert valid_req.source_lang == "ru"
     assert valid_req.target_lang == "en"
+
+
+def test_translation_text_max_length():
+    """Тест 4: Граничный лимит ровно 2000 символов"""
+    # 2000 символов допустимо
+    text_2000 = "a" * 2000
+    req_2000 = TranslateRequest(text=text_2000, source_lang="en", target_lang="ru")
+    assert len(req_2000.text) == 2000
+
+    # 2001 символ должен вызывать ошибку валидации схемы
+    text_2001 = "a" * 2001
+    with pytest.raises(ValidationError):
+        TranslateRequest(text=text_2001, source_lang="en", target_lang="ru")
+
+
+def test_dictionary_entry_is_favorite_schema():
+    """Тест 5: Флаг is_favorite может быть явно задан как False при создании"""
+    from app.schemas.dictionary import DictionaryEntryCreate
+
+    entry_fav_false = DictionaryEntryCreate(
+        source_text="Hello",
+        translated_text="Привет",
+        source_lang="en",
+        target_lang="ru",
+        is_favorite=False
+    )
+    assert entry_fav_false.is_favorite is False
+
+    entry_fav_default = DictionaryEntryCreate(
+        source_text="Hello",
+        translated_text="Привет",
+        source_lang="en",
+        target_lang="ru"
+    )
+    assert entry_fav_default.is_favorite is True

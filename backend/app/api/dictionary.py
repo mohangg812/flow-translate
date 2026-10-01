@@ -169,7 +169,8 @@ async def add_entry(
 
     if existing_entry:
         existing_entry.updated_at = func.now()
-        existing_entry.is_favorite = True
+        if payload.is_favorite is not None:
+            existing_entry.is_favorite = payload.is_favorite
         existing_entry.translated_text = tr_text
         if payload.notes is not None:
             existing_entry.notes = payload.notes
