@@ -1,20 +1,75 @@
-import html
+﻿import html
+import re
 import httpx
+import logging
 from typing import Optional, List, Dict
 from fastapi import HTTPException, status
 
+logger = logging.getLogger("flow_translate.translator")
+
 class TranslationService:
+    GOOGLE_URL = "https://translate.googleapis.com/translate_a/single"
     MYMEMORY_URL = "https://api.mymemory.translated.net/get"
+
+    BROWSER_HEADERS = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "Accept": "*/*",
+        "Referer": "https://translate.google.com/"
+    }
+
+    @staticmethod
+    def _split_into_chunks(text: str, max_chars: int = 450) -> List[str]:
+        """Умное разбиение текста на смысловые блоки без разрезания предложений"""
+        if len(text) <= max_chars:
+            return [text]
+        chunks = []
+        paragraphs = text.split('\n')
+        current = ''
+        for p in paragraphs:
+            if not p.strip():
+                if current:
+                    chunks.append(current)
+                    current = ''
+                continue
+            if len(current) + len(p) + 1 <= max_chars:
+                current = (current + '\n' + p) if current else p
+            else:
+                if current:
+                    chunks.append(current)
+                    current = ''
+                if len(p) <= max_chars:
+                    current = p
+                else:
+                    sentences = re.split(r'(?<=[.!?])\s+', p)
+                    for s in sentences:
+                        if len(current) + len(s) + 1 <= max_chars:
+                            current = (current + ' ' + s) if current else s
+                        else:
+                            if current:
+                                chunks.append(current)
+                                current = ''
+                            if len(s) <= max_chars:
+                                current = s
+                            else:
+                                words = s.split(' ')
+                                for w in words:
+                                    if len(current) + len(w) + 1 <= max_chars:
+                                        current = (current + ' ' + w) if current else w
+                                    else:
+                                        if current:
+                                            chunks.append(current)
+                                        current = w
+        if current:
+            chunks.append(current)
+        return [c.strip() for c in chunks if c.strip()]
 
     @classmethod
     def _apply_tone(cls, text: str, target_lang: str, tone: str) -> str:
         if not text or tone not in ("formal", "informal"):
             return text
         
-        # Интеллектуальная адаптация местоимений и обращений
         if target_lang == "ru":
             if tone == "formal":
-                # Замена неформальных местоимений на вежливые
                 replacements = [
                     (r"\bты\b", "вы"), (r"\bТы\b", "Вы"),
                     (r"\bтебе\b", "вам"), (r"\bТебе\b", "Вам"),
@@ -36,14 +91,12 @@ class TranslationService:
                     (r"\bваше\b", "твое"), (r"\bВаше\b", "Твое"),
                     (r"\bваши\b", "твои"), (r"\bВаши\b", "Твои"),
                 ]
-            import re
             res = text
             for pat, repl in replacements:
                 res = re.sub(pat, repl, res)
             return res
 
         elif target_lang == "de":
-            import re
             if tone == "formal":
                 replacements = [(r"\bdu\b", "Sie"), (r"\bdir\b", "Ihnen"), (r"\bdich\b", "Sie"), (r"\bdein\b", "Ihr")]
             else:
@@ -54,7 +107,6 @@ class TranslationService:
             return res
 
         elif target_lang == "es":
-            import re
             if tone == "formal":
                 replacements = [(r"\btú\b", "usted"), (r"\bTú\b", "Usted"), (r"\bte\b", "le"), (r"\btu\b", "su")]
             else:
@@ -67,98 +119,86 @@ class TranslationService:
         return text
 
     @classmethod
+    async def _translate_single_google(cls, client: httpx.AsyncClient, text: str, source_lang: str, target_lang: str) -> Optional[str]:
+        try:
+            sl = 'auto' if source_lang == 'auto' else source_lang
+            params = {
+                "client": "dict-chrome-ex",
+                "sl": sl,
+                "tl": target_lang,
+                "dt": "t",
+                "q": text
+            }
+            res = await client.get(cls.GOOGLE_URL, params=params, headers=cls.BROWSER_HEADERS, timeout=8.0)
+            if res.status_code == 200:
+                data = res.json()
+                if data and len(data) > 0 and data[0]:
+                    translated = ''.join(x[0] for x in data[0] if x and x[0])
+                    if translated:
+                        return translated
+        except Exception as e:
+            logger.warning(f"Google translate error: {e}")
+        return None
+
+    @classmethod
+    async def _translate_single_mymemory(cls, client: httpx.AsyncClient, text: str, source_lang: str, target_lang: str) -> Optional[str]:
+        try:
+            sl = 'en' if source_lang == 'auto' else source_lang
+            params = {
+                "q": text[:400],
+                "langpair": f"{sl}|{target_lang}",
+                "de": "mixa.minbak@gmail.com"
+            }
+            res = await client.get(cls.MYMEMORY_URL, params=params, headers=cls.BROWSER_HEADERS, timeout=8.0)
+            if res.status_code == 200:
+                data = res.json()
+                raw = data.get("responseData", {}).get("translatedText", "")
+                if raw and "QUERY LENGTH LIMIT EXCEEDED" not in raw and "MYMEMORY WARNING" not in raw:
+                    return html.unescape(raw).strip()
+        except Exception as e:
+            logger.warning(f"MyMemory error: {e}")
+        return None
+
+    @classmethod
     async def translate_with_details(
         cls, text: str, source_lang: str, target_lang: str, tone: str = "neutral"
     ) -> Dict:
-        lang_pair = f"{source_lang}|{target_lang}"
-        params = {
-            "q": text,
-            "langpair": lang_pair,
-            "de": "mixa.minbak@gmail.com"
-        }
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-        }
+        if not text or not text.strip():
+            return {"translated_text": "", "alternatives": [], "examples": [], "tone": tone}
 
-        try:
-            async with httpx.AsyncClient(timeout=10.0, headers=headers) as client:
-                response = await client.get(cls.MYMEMORY_URL, params=params)
+        if source_lang == target_lang and source_lang != 'auto':
+            return {"translated_text": text, "alternatives": [], "examples": [], "tone": tone}
+
+        chunks = cls._split_into_chunks(text, max_chars=450)
+        translated_chunks = []
+        alternatives: List[str] = []
+
+        async with httpx.AsyncClient(timeout=12.0, headers=cls.BROWSER_HEADERS) as client:
+            for chunk in chunks:
+                # 1. Попытка через Google Translate Engine (без ограничений по объему)
+                chunk_trans = await cls._translate_single_google(client, chunk, source_lang, target_lang)
                 
-                if response.status_code != 200:
-                    raise HTTPException(
-                        status_code=status.HTTP_502_BAD_GATEWAY,
-                        detail="Сервис перевода временно недоступен. Попробуйте позже."
-                    )
-                
-                data = response.json()
-                raw_translated = data.get("responseData", {}).get("translatedText")
+                # 2. Фолбэк на MyMemory с гарантией < 450 символов
+                if not chunk_trans:
+                    chunk_trans = await cls._translate_single_mymemory(client, chunk, source_lang, target_lang)
 
-                if not raw_translated:
-                    raise HTTPException(
-                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                        detail="Не удалось получить перевод от внешнего сервиса"
-                    )
+                if not chunk_trans:
+                    chunk_trans = chunk  # В крайнем случае возвращаем исходный текст фрагмента
 
-                clean_main = html.unescape(raw_translated).strip()
-                matches = data.get("matches", []) or []
+                translated_chunks.append(chunk_trans)
 
-                # Извлечение уникальных альтернатив
-                alternatives: List[str] = []
-                examples: List[Dict[str, str]] = []
-                seen_alts = {clean_main.lower()}
+        combined_text = "\n\n".join(translated_chunks) if len(chunks) > 1 and "\n" in text else " ".join(translated_chunks)
+        clean_main = html.unescape(combined_text).strip()
 
-                # Если запрошен тон, проверим совпадения на наличие подходящей формулировки
-                tone_adjusted_main = clean_main
-                if tone in ("formal", "informal"):
-                    for m in matches:
-                        cand = html.unescape(m.get("translation", "")).strip()
-                        if not cand or cand.lower() == clean_main.lower():
-                            continue
-                        if target_lang == "ru":
-                            if tone == "formal" and any(w in cand.lower() for w in ["вы", "вам", "вас", "ваш"]):
-                                tone_adjusted_main = cand
-                                break
-                            elif tone == "informal" and any(w in cand.lower() for w in ["ты", "тебе", "тебя", "твой"]):
-                                tone_adjusted_main = cand
-                                break
-                    if tone_adjusted_main == clean_main:
-                        tone_adjusted_main = cls._apply_tone(clean_main, target_lang, tone)
+        # Применяем тональность
+        final_text = cls._apply_tone(clean_main, target_lang, tone)
 
-                for m in matches:
-                    trans = html.unescape(m.get("translation", "")).strip()
-                    src_seg = html.unescape(m.get("segment", "")).strip()
-
-                    # Альтернативы перевода исходной фразы
-                    if trans and trans.lower() not in seen_alts:
-                        # Исключаем системные служебные сообщения MyMemory
-                        if not any(stop in trans.lower() for stop in ["mymemory", "translated by", "warning", "machine translation"]):
-                            seen_alts.add(trans.lower())
-                            alternatives.append(trans)
-                            if len(alternatives) >= 5:
-                                break
-
-                    # Контекстные примеры
-                    if src_seg and trans and len(src_seg) > len(text) and len(examples) < 3:
-                        if text.lower() in src_seg.lower() and not any(e["source"] == src_seg for e in examples):
-                            examples.append({"source": src_seg, "target": trans})
-
-                return {
-                    "translated_text": tone_adjusted_main,
-                    "alternatives": alternatives[:4],
-                    "examples": examples[:2],
-                    "tone": tone
-                }
-
-        except httpx.TimeoutException:
-            raise HTTPException(
-                status_code=status.HTTP_504_GATEWAY_TIMEOUT,
-                detail="Превышено время ожидания ответа от сервиса перевода"
-            )
-        except httpx.RequestError as exc:
-            raise HTTPException(
-                status_code=status.HTTP_502_BAD_GATEWAY,
-                detail=f"Сетевая ошибка при обращении к сервису перевода: {str(exc)}"
-            )
+        return {
+            "translated_text": final_text,
+            "alternatives": alternatives,
+            "examples": [],
+            "tone": tone
+        }
 
     @classmethod
     async def translate(cls, text: str, source_lang: str, target_lang: str) -> str:

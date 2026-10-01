@@ -222,6 +222,89 @@ export default function App() {
   const docInputRef = useRef(null);
   const debouncedSearch = useDebounce(search, 400);
 
+  // Client-side Robust Translation Helper (Handles long text > 500 chars via smart chunking)
+  const robustTranslateClient = async (inputText, srcLang, tgtLang, signal) => {
+    if (!inputText || !inputText.trim()) return '';
+    const cleanSrc = srcLang === 'auto' ? (detectLanguage(inputText) || 'en') : srcLang;
+    if (cleanSrc === tgtLang) return inputText;
+
+    const splitChunks = (str, maxLen = 450) => {
+      if (str.length <= maxLen) return [str];
+      const paras = str.split('\n');
+      const chunks = [];
+      let cur = '';
+      for (const p of paras) {
+        if (!p.trim()) {
+          if (cur) { chunks.push(cur); cur = ''; }
+          continue;
+        }
+        if (cur.length + p.length + 1 <= maxLen) {
+          cur = cur ? `${cur}\n${p}` : p;
+        } else {
+          if (cur) { chunks.push(cur); cur = ''; }
+          if (p.length <= maxLen) {
+            cur = p;
+          } else {
+            const sentences = p.split(/(?<=[.!?])\s+/);
+            for (const s of sentences) {
+              if (cur.length + s.length + 1 <= maxLen) {
+                cur = cur ? `${cur} ${s}` : s;
+              } else {
+                if (cur) { chunks.push(cur); cur = ''; }
+                if (s.length <= maxLen) {
+                  cur = s;
+                } else {
+                  for (let i = 0; i < s.length; i += maxLen) {
+                    chunks.push(s.slice(i, i + maxLen));
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      if (cur) chunks.push(cur);
+      return chunks.length ? chunks : [str];
+    };
+
+    const chunks = splitChunks(inputText, 450);
+    const translatedChunks = [];
+
+    for (const c of chunks) {
+      let chunkTrans = '';
+      try {
+        const gUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${cleanSrc}&tl=${tgtLang}&dt=t&q=${encodeURIComponent(c)}`;
+        const gRes = await fetch(gUrl, { signal });
+        if (gRes.ok) {
+          const gData = await gRes.json();
+          if (gData && gData[0]) {
+            chunkTrans = gData[0].map(item => item && item[0] ? item[0] : '').join('');
+          }
+        }
+      } catch (_) {}
+
+      if (!chunkTrans) {
+        try {
+          const mUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(c.slice(0, 400))}&langpair=${cleanSrc}|${tgtLang}`;
+          const mRes = await fetch(mUrl, { signal });
+          if (mRes.ok) {
+            const mData = await mRes.json();
+            const raw = mData?.responseData?.translatedText;
+            if (raw && !raw.includes('QUERY LENGTH LIMIT EXCEEDED') && !raw.includes('MYMEMORY WARNING')) {
+              const doc = new DOMParser().parseFromString(raw, 'text/html');
+              chunkTrans = doc.body.textContent || raw;
+            }
+          }
+        } catch (_) {}
+      }
+
+      translatedChunks.push(chunkTrans || c);
+    }
+
+    const joiner = inputText.includes('\n') && chunks.length > 1 ? '\n\n' : ' ';
+    return translatedChunks.join(joiner).trim();
+  };
+
   useEffect(() => {
     const handleMouseMove = (e) => {
       setMousePos({ x: e.clientX, y: e.clientY });
@@ -458,14 +541,7 @@ export default function App() {
             });
             transResult = res.data.translated_text;
           } catch (_) {
-            const pair = `${speakLang}|${targetTransLang}`;
-            const fb = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(spokenText)}&langpair=${pair}`);
-            const fbJson = await fb.json();
-            const raw = fbJson?.responseData?.translatedText;
-            if (raw) {
-              const doc = new DOMParser().parseFromString(raw, 'text/html');
-              transResult = doc.body.textContent || raw;
-            }
+            transResult = await robustTranslateClient(spokenText, speakLang, targetTransLang);
           }
 
           if (transResult) {
@@ -709,34 +785,11 @@ export default function App() {
           if (apiErr.name === 'CanceledError' || apiErr.code === 'ERR_CANCELED') {
             throw apiErr;
           }
-          const pair = `${effectiveSource}|${targetLang}`;
-          const fallbackRes = await fetch(
-            `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${pair}`,
-            { signal: controller.signal }
-          );
-          const fallbackJson = await fallbackRes.json();
-          const raw = fallbackJson?.responseData?.translatedText;
-          if (raw) {
-            const doc = new DOMParser().parseFromString(raw, 'text/html');
-            const mainTrans = doc.body.textContent || raw;
-
-            // Extract alternatives from matches
-            const rawMatches = fallbackJson?.matches || [];
-            const alts = [];
-            const seen = new Set([mainTrans.toLowerCase().trim()]);
-            for (const m of rawMatches) {
-              const d = new DOMParser().parseFromString(m.translation || '', 'text/html');
-              const t = (d.body.textContent || m.translation || '').trim();
-              if (t && !seen.has(t.toLowerCase()) && !t.toLowerCase().includes('mymemory') && !t.toLowerCase().includes('translated by')) {
-                seen.add(t.toLowerCase());
-                alts.push(t);
-                if (alts.length >= 4) break;
-              }
-            }
-
+          const mainTrans = await robustTranslateClient(text, effectiveSource, targetLang, controller.signal);
+          if (mainTrans) {
             resData = {
               translated_text: mainTrans,
-              alternatives: alts,
+              alternatives: [],
               examples: [],
               is_saved_in_dictionary: false,
               saved_entry_id: null,
