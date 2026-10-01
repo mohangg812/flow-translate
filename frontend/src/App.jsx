@@ -1240,8 +1240,8 @@ export default function App() {
           </div>
         )}
 
-        {/* Apple Segmented Mode Switcher (Fully Responsive for Mobile) */}
-        <div className="flex items-center justify-start w-full overflow-x-auto no-scrollbar py-0.5 px-1 touch-pan-x">
+        {/* Apple Segmented Mode Switcher (Centered) */}
+        <div className="flex items-center justify-center w-full overflow-x-auto no-scrollbar py-0.5 px-1 touch-pan-x">
           <div className="apple-segmented-pill flex items-center gap-1 border border-black/[0.04] dark:border-white/[0.08] p-1 rounded-full flex-nowrap">
             <button
               onClick={() => { setActiveMode('text'); }}
@@ -1946,8 +1946,8 @@ export default function App() {
               </div>
             </div>
 
-            {/* Target Card */}
-            <div className="ios-glass ios-card-specular neon-border-hover rounded-[24px] sm:rounded-[28px] p-5 sm:p-6 min-h-[250px] sm:min-h-[290px] flex flex-col justify-between transition-all duration-300 hover:shadow-2xl relative overflow-hidden">
+            {/* Target Card (Distinct Surface Color matching Google Translate Reference) */}
+            <div className="bg-[#F1F3F4] dark:bg-[#1E1F20] border border-black/[0.06] dark:border-white/[0.06] rounded-[24px] sm:rounded-[28px] p-5 sm:p-6 min-h-[250px] sm:min-h-[290px] flex flex-col justify-between transition-all duration-300 hover:shadow-2xl relative overflow-hidden shadow-sm">
               
               {isTranslating && (
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white to-transparent animate-shimmer" />
@@ -1983,7 +1983,7 @@ export default function App() {
                 ) : (
                   <div>
                     <h3 className="text-lg sm:text-2xl md:text-3xl font-bold text-[#1C1C1E] dark:text-white select-text leading-snug tracking-tight break-words">
-                      {translatedText || <span className="text-[#AEAEB2] dark:text-[#48484A] font-normal">Перевод</span>}
+                      {translatedText || <span className="text-[#8E8E93] dark:text-[#5F6368] font-normal">Перевод</span>}
                     </h3>
                   </div>
                 )}
