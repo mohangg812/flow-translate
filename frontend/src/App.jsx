@@ -220,7 +220,20 @@ export default function App() {
   const translateAbortRef = useRef(null);
   const imageInputRef = useRef(null);
   const docInputRef = useRef(null);
+  const sourceTextareaRef = useRef(null);
   const debouncedSearch = useDebounce(search, 400);
+
+  // Auto-resize input textarea to dynamically stretch with content
+  const adjustTextareaHeight = useCallback(() => {
+    const el = sourceTextareaRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${Math.max(120, el.scrollHeight)}px`;
+  }, []);
+
+  useEffect(() => {
+    requestAnimationFrame(adjustTextareaHeight);
+  }, [sourceText, activeMode, adjustTextareaHeight]);
 
   // Client-side Robust Translation Helper (Handles long text > 500 chars via smart chunking)
   const robustTranslateClient = async (inputText, srcLang, tgtLang, signal) => {
@@ -1825,12 +1838,13 @@ export default function App() {
                     )}
 
                     <textarea
+                      ref={sourceTextareaRef}
                       value={sourceText}
-                      onChange={(e) => setSourceText(e.target.value)}
+                      onChange={(e) => { setSourceText(e.target.value); adjustTextareaHeight(); }}
                       placeholder="Распознанный текст появится здесь..."
                       maxLength={2000}
-                      rows={imagePreviewUrl ? 2 : 3}
-                      className="w-full text-lg sm:text-2xl md:text-3xl font-bold bg-transparent border-none resize-none focus:outline-none placeholder-[#AEAEB2] dark:placeholder-[#48484A] leading-snug tracking-tight text-[#1C1C1E] dark:text-white"
+                      style={{ minHeight: '130px' }}
+                      className="w-full text-lg sm:text-2xl md:text-3xl font-bold bg-transparent border-none resize-none focus:outline-none placeholder-[#AEAEB2] dark:placeholder-[#48484A] leading-snug tracking-tight text-[#1C1C1E] dark:text-white overflow-hidden"
                     />
                   </div>
                 )}
@@ -1878,12 +1892,13 @@ export default function App() {
                     )}
 
                     <textarea
+                      ref={sourceTextareaRef}
                       value={sourceText}
-                      onChange={(e) => setSourceText(e.target.value)}
+                      onChange={(e) => { setSourceText(e.target.value); adjustTextareaHeight(); }}
                       placeholder="Текст документа для перевода..."
                       maxLength={2000}
-                      rows={loadedFile ? 2 : 3}
-                      className="w-full text-lg sm:text-2xl md:text-3xl font-bold bg-transparent border-none resize-none focus:outline-none placeholder-[#AEAEB2] dark:placeholder-[#48484A] leading-snug tracking-tight text-[#1C1C1E] dark:text-white"
+                      style={{ minHeight: '130px' }}
+                      className="w-full text-lg sm:text-2xl md:text-3xl font-bold bg-transparent border-none resize-none focus:outline-none placeholder-[#AEAEB2] dark:placeholder-[#48484A] leading-snug tracking-tight text-[#1C1C1E] dark:text-white overflow-hidden"
                     />
                   </div>
                 )}
@@ -1935,12 +1950,13 @@ export default function App() {
                     )}
 
                     <textarea
+                      ref={sourceTextareaRef}
                       value={sourceText}
-                      onChange={(e) => setSourceText(e.target.value)}
+                      onChange={(e) => { setSourceText(e.target.value); adjustTextareaHeight(); }}
                       placeholder="Текст статьи для перевода..."
                       maxLength={2000}
-                      rows={loadedFile ? 2 : 3}
-                      className="w-full text-lg sm:text-2xl md:text-3xl font-bold bg-transparent border-none resize-none focus:outline-none placeholder-[#AEAEB2] dark:placeholder-[#48484A] leading-snug tracking-tight text-[#1C1C1E] dark:text-white"
+                      style={{ minHeight: '130px' }}
+                      className="w-full text-lg sm:text-2xl md:text-3xl font-bold bg-transparent border-none resize-none focus:outline-none placeholder-[#AEAEB2] dark:placeholder-[#48484A] leading-snug tracking-tight text-[#1C1C1E] dark:text-white overflow-hidden"
                     />
                   </div>
                 )}
@@ -1948,12 +1964,13 @@ export default function App() {
                 {/* MODE: STANDARD TEXT */}
                 {activeMode === 'text' && (
                   <textarea
+                    ref={sourceTextareaRef}
                     value={sourceText}
-                    onChange={(e) => setSourceText(e.target.value)}
+                    onChange={(e) => { setSourceText(e.target.value); adjustTextareaHeight(); }}
                     placeholder="Введите текст или перетащите фото / документ сюда..."
                     maxLength={2000}
-                    rows={3}
-                    className="w-full text-lg sm:text-2xl md:text-3xl font-bold bg-transparent border-none resize-none focus:outline-none placeholder-[#AEAEB2] dark:placeholder-[#48484A] leading-snug tracking-tight text-[#1C1C1E] dark:text-white"
+                    style={{ minHeight: '160px' }}
+                    className="w-full text-lg sm:text-2xl md:text-3xl font-bold bg-transparent border-none resize-none focus:outline-none placeholder-[#AEAEB2] dark:placeholder-[#48484A] leading-snug tracking-tight text-[#1C1C1E] dark:text-white overflow-hidden"
                   />
                 )}
               </div>
@@ -2053,7 +2070,7 @@ export default function App() {
                   </div>
                 ) : (
                   <div>
-                    <h3 className="text-lg sm:text-2xl md:text-3xl font-bold text-[#1C1C1E] dark:text-white select-text leading-snug tracking-tight break-words">
+                    <h3 className="text-lg sm:text-2xl md:text-3xl font-bold text-[#1C1C1E] dark:text-white select-text leading-snug tracking-tight break-words whitespace-pre-wrap">
                       {translatedText || <span className="text-[#8E8E93] dark:text-[#5F6368] font-normal">Перевод</span>}
                     </h3>
                   </div>
@@ -2480,49 +2497,65 @@ export default function App() {
                   </p>
                 </div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {recentHistory.map((item) => (
                     <div
                       key={item.id}
-                      className="bg-white/90 dark:bg-white/[0.04] hover:bg-white dark:hover:bg-white/[0.07] px-4 sm:px-5 py-3.5 rounded-2xl shadow-sm flex items-center justify-between gap-3 group transition-all duration-200 border border-black/[0.03] dark:border-white/[0.04] hover-lift neon-border-hover overflow-hidden"
+                      className="bg-white/90 dark:bg-white/[0.04] hover:bg-white dark:hover:bg-white/[0.07] p-4 sm:p-5 rounded-2xl shadow-sm transition-all duration-200 border border-black/[0.03] dark:border-white/[0.04] hover-lift neon-border-hover space-y-3"
                     >
-                      <div 
-                        onClick={() => restoreFromHistory(item)}
-                        className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 min-w-0 flex-1 cursor-pointer overflow-hidden"
-                        title="Нажмите, чтобы открыть этот перевод в редакторе"
-                      >
-                        <div className="flex items-center gap-2 min-w-0 sm:max-w-[48%] overflow-hidden flex-shrink-0 sm:flex-shrink">
-                          <span className="mono-label text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white border border-black/10 dark:border-white/15 flex-shrink-0">
+                      {/* Header of history card: Language pill + Timestamp + Action buttons */}
+                      <div className="flex items-center justify-between gap-2 border-b border-black/[0.04] dark:border-white/[0.04] pb-2.5">
+                        <div className="flex items-center gap-2">
+                          <span className="mono-label text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white border border-black/10 dark:border-white/15">
                             {item.source_lang} → {item.target_lang}
                           </span>
-                          <span className="font-bold text-sm sm:text-base text-[#1C1C1E] dark:text-white truncate tracking-tight min-w-0">
-                            {item.source_text}
-                          </span>
+                          {item.timestamp && (
+                            <span className="text-[10px] text-[#8E8E93]">
+                              {new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          )}
                         </div>
-                        <span className="hidden sm:inline text-[#8E8E93] group-hover:text-black dark:group-hover:text-white transition-colors font-light flex-shrink-0">→</span>
-                        <div className="min-w-0 flex-1 overflow-hidden">
-                          <span className="font-semibold text-sm sm:text-base text-black/80 dark:text-white/90 truncate tracking-tight block">
-                            {item.translated_text}
-                          </span>
+
+                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                          <button
+                            onClick={() => speak(item.translated_text || item.source_text, item.target_lang, true)}
+                            className="apple-icon-btn spring-press text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1.5 rounded-full"
+                            title="Озвучить перевод"
+                          >
+                            <Volume2 size={15} />
+                          </button>
+                          <button
+                            onClick={() => restoreFromHistory(item)}
+                            className="apple-btn-glass spring-press text-xs font-semibold px-3 py-1 rounded-full text-black dark:text-white hover:scale-105 transition-all flex items-center gap-1"
+                            title="Восстановить в карточки"
+                          >
+                            <RotateCw size={12} />
+                            <span>Открыть</span>
+                          </button>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-1.5 flex-shrink-0 z-10 ml-2">
-                        <button
-                          onClick={() => speak(item.translated_text, item.target_lang, true)}
-                          className="apple-icon-btn spring-press text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-2 rounded-full"
-                          title="Озвучить перевод"
-                        >
-                          <Volume2 size={16} />
-                        </button>
-                        <button
-                          onClick={() => restoreFromHistory(item)}
-                          className="apple-btn-glass spring-press text-xs font-semibold px-2.5 sm:px-3 py-1 rounded-full text-black dark:text-white hover:scale-105 transition-all flex items-center gap-1"
-                          title="Восстановить в карточки"
-                        >
-                          <RotateCw size={12} />
-                          <span className="hidden sm:inline">Открыть</span>
-                        </button>
+                      {/* Content of history card: Stretches vertically, wraps all words cleanly, adapts to window */}
+                      <div 
+                        onClick={() => restoreFromHistory(item)}
+                        className="cursor-pointer space-y-2 group"
+                        title="Нажмите, чтобы открыть этот перевод в редакторе"
+                      >
+                        <div>
+                          <p className="text-[11px] font-semibold uppercase tracking-wider text-[#8E8E93] mb-0.5">Исходный текст</p>
+                          <p className="font-bold text-sm sm:text-base text-[#1C1C1E] dark:text-white tracking-tight break-words whitespace-pre-wrap leading-relaxed">
+                            {item.source_text}
+                          </p>
+                        </div>
+
+                        {item.translated_text && (
+                          <div className="pt-2 border-t border-black/[0.03] dark:border-white/[0.04]">
+                            <p className="text-[11px] font-semibold uppercase tracking-wider text-[#8E8E93] mb-0.5">Перевод</p>
+                            <p className="font-semibold text-sm sm:text-base text-black/90 dark:text-white/90 tracking-tight break-words whitespace-pre-wrap leading-relaxed">
+                              {item.translated_text}
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
