@@ -233,6 +233,7 @@ export default function App() {
   const [imageNaturalDims, setImageNaturalDims] = useState({ width: 0, height: 0 });
   const [lensMode, setLensMode] = useState('boxes'); // 'boxes' | 'overlay' | 'clean'
   const [selectedBlockId, setSelectedBlockId] = useState(null);
+  const [selectedSnippet, setSelectedSnippet] = useState(null);
   const [copiedLensId, setCopiedLensId] = useState(null);
   const [isLensTranslating, setIsLensTranslating] = useState(false);
   const [isCameraActive, setIsCameraActive] = useState(false);
@@ -646,6 +647,33 @@ export default function App() {
     navigator.clipboard.writeText(text);
     setCopiedLensId(id);
     setTimeout(() => setCopiedLensId(null), 1800);
+  };
+
+  // Mouse cursor selection on photo: instantly translates highlighted words
+  const handleMouseUpSelection = () => {
+    const selection = window.getSelection();
+    const str = selection ? selection.toString().trim() : '';
+    if (str && str.length > 0) {
+      const clean = str.replace(/\s+/g, ' ');
+      setSourceText(clean);
+      setSelectedSnippet(clean);
+    }
+  };
+
+  const handleWordClick = (wordText) => {
+    if (!wordText) return;
+    const str = wordText.trim();
+    if (str) {
+      setSourceText(str);
+      setSelectedSnippet(str);
+    }
+  };
+
+  const handleResetToFullText = () => {
+    if (fullOcrText) {
+      setSourceText(fullOcrText);
+      setSelectedSnippet(null);
+    }
   };
 
   // Google Lens: Translate all detected blocks for AR in-image overlay
@@ -2102,207 +2130,104 @@ export default function App() {
                         </div>
                       </div>
                     ) : imagePreviewUrl ? (
-                      <div className="relative rounded-2xl overflow-hidden bg-black/[0.03] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 p-3 flex flex-col items-center select-none animate-in fade-in">
+                      <div className="relative rounded-2xl overflow-hidden bg-black/[0.03] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 p-3 sm:p-4 flex flex-col items-center animate-in fade-in">
                         {/* Lens Toolbar */}
-                        <div className="w-full flex flex-wrap items-center justify-between pb-2 mb-2 border-b border-black/[0.05] dark:border-white/[0.08] gap-2 text-xs">
-                          <div className="flex items-center gap-1.5 font-bold text-[#1C1C1E] dark:text-white">
-                            <Scan size={14} className="text-black dark:text-white" />
+                        <div className="w-full flex flex-wrap items-center justify-between pb-2.5 mb-2.5 border-b border-black/[0.05] dark:border-white/[0.08] gap-2 text-xs">
+                          <div className="flex items-center gap-2 font-bold text-[#1C1C1E] dark:text-white">
+                            <Scan size={15} className="text-black dark:text-white" />
                             <span>Объектив</span>
-                            {ocrBlocks.length > 0 && (
+                            {((rawOcrData.words && rawOcrData.words.length > 0) || ocrBlocks.length > 0) && (
                               <span className="text-[10px] px-2 py-0.5 bg-black/5 dark:bg-white/10 rounded-full text-[#8E8E93] font-semibold">
-                                {ocrBlocks.length} {ocrGranularity === 'words' ? (ocrBlocks.length === 1 ? 'слово' : ocrBlocks.length < 5 ? 'слова' : 'слов') : (ocrBlocks.length === 1 ? 'строка' : ocrBlocks.length < 5 ? 'строки' : 'строк')}
+                                {(rawOcrData.words?.length || ocrBlocks.length)} слов распознано
                               </span>
                             )}
                           </div>
 
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            {/* Granularity switch: Строки / Слова */}
-                            <div className="flex items-center bg-black/5 dark:bg-white/10 p-0.5 rounded-full text-[10px]">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {selectedSnippet && (
                               <button
-                                onClick={() => switchGranularity('lines')}
-                                className={`px-2 py-0.5 rounded-full font-semibold transition-all ${
-                                  ocrGranularity === 'lines'
-                                    ? 'bg-black text-white dark:bg-white dark:text-black shadow-sm'
-                                    : 'text-[#8E8E93] hover:text-black dark:hover:text-white'
-                                }`}
-                                title="Выделять строки целиком"
+                                onClick={handleResetToFullText}
+                                className="text-[11px] font-semibold text-black dark:text-white underline hover:opacity-80 transition-opacity"
+                                title="Вернуть весь исходный текст фото"
                               >
-                                Строки
+                                Весь текст фото
                               </button>
-                              <button
-                                onClick={() => switchGranularity('words')}
-                                className={`px-2 py-0.5 rounded-full font-semibold transition-all ${
-                                  ocrGranularity === 'words'
-                                    ? 'bg-black text-white dark:bg-white dark:text-black shadow-sm'
-                                    : 'text-[#8E8E93] hover:text-black dark:hover:text-white'
-                                }`}
-                                title="Выделять отдельные слова"
-                              >
-                                Слова
-                              </button>
-                            </div>
+                            )}
 
-                            {/* OCR Language Selector Pills: Авто / RU / EN / DE / ES */}
-                            <div className="flex items-center bg-black/5 dark:bg-white/10 p-0.5 rounded-full text-[10px]">
-                              {[
-                                { key: 'auto', label: 'Авто' },
-                                { key: 'rus', label: 'RU' },
-                                { key: 'eng', label: 'EN' },
-                                { key: 'deu', label: 'DE' },
-                                { key: 'spa', label: 'ES' },
-                              ].map((langItem) => (
-                                <button
-                                  key={langItem.key}
-                                  onClick={() => handleSelectOcrLang(langItem.key)}
-                                  className={`px-1.5 py-0.5 rounded-full font-semibold transition-all ${
-                                    ocrLangChoice === langItem.key
-                                      ? 'bg-black text-white dark:bg-white dark:text-black shadow-sm'
-                                      : 'text-[#8E8E93] hover:text-black dark:hover:text-white'
-                                  }`}
-                                  title={`Язык OCR: ${langItem.label}`}
-                                >
-                                  {langItem.label}
-                                </button>
-                              ))}
-                            </div>
-
-                            {/* View Mode Switcher: Рамки / AR-Перевод / Оригинал */}
-                            <div className="flex items-center bg-black/5 dark:bg-white/10 p-0.5 rounded-full text-[11px]">
+                            {fullOcrText && (
                               <button
-                                onClick={() => switchLensMode('boxes')}
-                                className={`px-2 py-0.5 rounded-full font-semibold transition-all ${
-                                  lensMode === 'boxes'
-                                    ? 'bg-black text-white dark:bg-white dark:text-black shadow-sm'
-                                    : 'text-[#8E8E93] hover:text-black dark:hover:text-white'
-                                }`}
-                                title="Интерактивные рамки распознавания"
+                                onClick={() => handleCopyLensText(fullOcrText, 'all')}
+                                className="px-2.5 py-1 rounded-full font-semibold apple-btn-glass text-[11px] text-black dark:text-white flex items-center gap-1 transition-all active:scale-95"
+                                title="Скопировать весь распознанный текст изображения"
                               >
-                                Рамки
+                                {copiedLensId === 'all' ? <Check size={11} className="text-emerald-500" /> : <Copy size={11} />}
+                                <span>{copiedLensId === 'all' ? 'Скопировано!' : 'Копировать всё'}</span>
                               </button>
-                              <button
-                                onClick={() => switchLensMode('overlay')}
-                                className={`px-2 py-0.5 rounded-full font-semibold transition-all flex items-center gap-1 ${
-                                  lensMode === 'overlay'
-                                    ? 'bg-black text-white dark:bg-white dark:text-black shadow-sm'
-                                    : 'text-[#8E8E93] hover:text-black dark:hover:text-white'
-                                }`}
-                                title="Наложить перевод прямо поверх фото"
-                              >
-                                {isLensTranslating ? <Loader2 size={10} className="animate-spin" /> : null}
-                                AR-Перевод
-                              </button>
-                              <button
-                                onClick={() => switchLensMode('clean')}
-                                className={`px-2 py-0.5 rounded-full font-semibold transition-all ${
-                                  lensMode === 'clean'
-                                    ? 'bg-black text-white dark:bg-white dark:text-black shadow-sm'
-                                    : 'text-[#8E8E93] hover:text-black dark:hover:text-white'
-                                }`}
-                                title="Оригинал без наложений"
-                              >
-                                Оригинал
-                              </button>
-                            </div>
+                            )}
                           </div>
                         </div>
 
-                        {/* Interactive Lens Stage */}
-                        <div className="relative inline-block max-w-full max-h-[300px] sm:max-h-[360px] overflow-hidden rounded-xl">
+                        {/* Interactive Live Text Stage: User can highlight words with mouse cursor */}
+                        <div 
+                          className="live-text-container select-text"
+                          onMouseUp={handleMouseUpSelection}
+                        >
                           {/* Laser Scan Beam */}
                           {isOcrProcessing && <div className="lens-laser-beam" />}
 
                           <img 
                             src={imagePreviewUrl} 
-                            alt="Google Lens Scan" 
-                            className={`max-h-[300px] sm:max-h-[360px] w-auto object-contain rounded-xl block transition-all duration-300 ${isOcrProcessing ? 'opacity-70 blur-[1px]' : ''}`} 
+                            alt="Фото для распознавания" 
+                            className={`max-h-[300px] sm:max-h-[380px] w-auto object-contain rounded-xl block transition-all duration-300 pointer-events-none select-none ${isOcrProcessing ? 'opacity-70 blur-[1px]' : ''}`} 
                           />
 
-                          {/* Bounding Boxes Layer */}
-                          {imageNaturalDims.width > 0 && imageNaturalDims.height > 0 && !isOcrProcessing && lensMode === 'boxes' && ocrBlocks.map((block) => {
-                            const left = (block.bbox.x0 / imageNaturalDims.width) * 100;
-                            const top = (block.bbox.y0 / imageNaturalDims.height) * 100;
-                            const width = ((block.bbox.x1 - block.bbox.x0) / imageNaturalDims.width) * 100;
-                            const height = ((block.bbox.y1 - block.bbox.y0) / imageNaturalDims.height) * 100;
-                            const isSelected = selectedBlockId === block.id;
+                          {/* Live Text Overlay: Exact selectable spans on top of words */}
+                          {imageNaturalDims.width > 0 && imageNaturalDims.height > 0 && !isOcrProcessing && (
+                            <div 
+                              className="live-text-overlay select-text"
+                              onMouseUp={handleMouseUpSelection}
+                            >
+                              {(rawOcrData.words && rawOcrData.words.length > 0 ? rawOcrData.words : ocrBlocks).map((w) => {
+                                const left = (w.bbox.x0 / imageNaturalDims.width) * 100;
+                                const top = (w.bbox.y0 / imageNaturalDims.height) * 100;
+                                const width = ((w.bbox.x1 - w.bbox.x0) / imageNaturalDims.width) * 100;
+                                const height = ((w.bbox.y1 - w.bbox.y0) / imageNaturalDims.height) * 100;
 
-                            return (
-                              <div
-                                key={block.id}
-                                onClick={(e) => { e.stopPropagation(); handleSelectLensBlock(block); }}
-                                style={{ left: `${left}%`, top: `${top}%`, width: `${width}%`, height: `${height}%` }}
-                                className={`lens-box ${isSelected ? 'lens-box-selected' : ''}`}
-                                title={`Нажмите, чтобы выделить: "${block.text}"`}
-                              />
-                            );
-                          })}
+                                return (
+                                  <span
+                                    key={w.id}
+                                    onClick={(e) => { e.stopPropagation(); handleWordClick(w.text); }}
+                                    style={{
+                                      left: `${left}%`,
+                                      top: `${top}%`,
+                                      width: `${Math.max(1.2, width)}%`,
+                                      height: `${Math.max(2, height)}%`,
+                                      fontSize: `${Math.max(11, Math.min(22, height * 2.6))}px`,
+                                      lineHeight: `${Math.max(12, height * 2.6)}px`
+                                    }}
+                                    className="live-text-word"
+                                    title="Выделите мышью или нажмите для мгновенного перевода"
+                                  >
+                                    {w.text}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          )}
 
-                          {/* Floating Action Popover for Selected Block */}
-                          {selectedBlockId && !isOcrProcessing && lensMode === 'boxes' && (() => {
-                            const block = ocrBlocks.find((b) => b.id === selectedBlockId);
-                            if (!block || !imageNaturalDims.width || !imageNaturalDims.height) return null;
-                            const left = ((block.bbox.x0 + block.bbox.x1) / (2 * imageNaturalDims.width)) * 100;
-                            const top = (block.bbox.y0 / imageNaturalDims.height) * 100;
-
-                            return (
-                              <div
-                                style={{
-                                  left: `${Math.min(85, Math.max(15, left))}%`,
-                                  top: `${Math.max(6, top)}%`
-                                }}
-                                className="lens-action-popover animate-in fade-in zoom-in-95 duration-150"
-                                onClick={(e) => e.stopPropagation()}
+                          {/* Floating Indicator when a selection is active */}
+                          {selectedSnippet && !isOcrProcessing && (
+                            <div className="live-text-badge animate-in fade-in zoom-in-95 duration-150">
+                              <Check size={12} className="text-emerald-400" />
+                              <span className="truncate max-w-[200px]">Выделено: «{selectedSnippet}»</span>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); handleResetToFullText(); }}
+                                className="ml-1 text-[10px] underline text-[#AEAEB2] hover:text-white"
                               >
-                                <button
-                                  onClick={() => { setSourceText(block.text); }}
-                                  className="lens-popover-btn"
-                                  title="Перевести этот фрагмент"
-                                >
-                                  <Languages size={11} />
-                                  <span>Перевести</span>
-                                </button>
-                                <button
-                                  onClick={() => handleCopyLensText(block.text, block.id)}
-                                  className="lens-popover-btn"
-                                  title="Скопировать"
-                                >
-                                  {copiedLensId === block.id ? <Check size={11} className="text-emerald-400" /> : <Copy size={11} />}
-                                  <span>{copiedLensId === block.id ? 'Скопировано' : 'Копировать'}</span>
-                                </button>
-                                <button
-                                  onClick={() => speak(block.text, sourceLang === 'auto' ? (detectLanguage(block.text) || 'en') : sourceLang)}
-                                  className="lens-popover-btn px-1.5"
-                                  title="Озвучить"
-                                >
-                                  <Volume2 size={11} />
-                                </button>
-                              </div>
-                            );
-                          })()}
-
-                          {/* AR Overlay Translation Layer */}
-                          {imageNaturalDims.width > 0 && imageNaturalDims.height > 0 && !isOcrProcessing && lensMode === 'overlay' && ocrBlocks.map((block) => {
-                            const left = (block.bbox.x0 / imageNaturalDims.width) * 100;
-                            const top = (block.bbox.y0 / imageNaturalDims.height) * 100;
-                            const width = ((block.bbox.x1 - block.bbox.x0) / imageNaturalDims.width) * 100;
-                            const height = ((block.bbox.y1 - block.bbox.y0) / imageNaturalDims.height) * 100;
-
-                            return (
-                              <div
-                                key={block.id}
-                                style={{
-                                  left: `${left}%`,
-                                  top: `${top}%`,
-                                  minWidth: `${width}%`,
-                                  minHeight: `${height}%`,
-                                  fontSize: `${Math.max(10, Math.min(15, height * 2.8))}px`
-                                }}
-                                className="lens-ar-pill animate-in fade-in zoom-in-95 duration-200"
-                                title={`Оригинал: ${block.text}`}
-                              >
-                                {block.translatedText || (isLensTranslating ? '...' : block.text)}
-                              </div>
-                            );
-                          })}
+                                Сбросить
+                              </button>
+                            </div>
+                          )}
 
                           {/* OCR Scanning Overlay Indicator */}
                           {isOcrProcessing && (
@@ -2315,34 +2240,11 @@ export default function App() {
                           )}
                         </div>
 
-                        {/* Lens Hint & Actions Footer */}
-                        <div className="w-full flex flex-wrap items-center justify-between pt-2.5 mt-1 border-t border-black/[0.04] dark:border-white/[0.06] text-[11px] text-[#8E8E93] gap-2">
-                          <div className="flex items-center gap-2 min-w-0">
-                            <span className="truncate">
-                              {selectedBlockId ? 'Выделен отдельный фрагмент' : 'Нажмите на любую рамку для точечного перевода'}
-                            </span>
-                            {selectedBlockId && (
-                              <button
-                                onClick={() => { setSelectedBlockId(null); setSourceText(fullOcrText.slice(0, 2000)); }}
-                                className="text-black dark:text-white font-semibold underline hover:opacity-80 transition-opacity flex-shrink-0"
-                              >
-                                Весь текст
-                              </button>
-                            )}
-                          </div>
-
-                          <div className="flex items-center gap-1.5 flex-shrink-0">
-                            {fullOcrText && (
-                              <button
-                                onClick={() => handleCopyLensText(fullOcrText, 'all')}
-                                className="px-2.5 py-1 rounded-full font-semibold apple-btn-glass text-[11px] text-black dark:text-white flex items-center gap-1 transition-all active:scale-95"
-                                title="Скопировать весь распознанный текст изображения"
-                              >
-                                {copiedLensId === 'all' ? <Check size={11} className="text-emerald-500" /> : <Copy size={11} />}
-                                <span>{copiedLensId === 'all' ? 'Скопировано!' : 'Копировать всё'}</span>
-                              </button>
-                            )}
-                          </div>
+                        {/* Hint Footer */}
+                        <div className="w-full flex items-center justify-center pt-2 mt-1 text-[11px] text-[#8E8E93] text-center">
+                          <span>
+                            💡 Выделите курсором мыши любые слова прямо на фото или в поле ниже — они сразу переведутся
+                          </span>
                         </div>
                       </div>
                     ) : (
@@ -2381,14 +2283,40 @@ export default function App() {
                       </div>
                     )}
 
+                    {selectedSnippet && (
+                      <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-black/5 dark:bg-white/10 text-xs text-[#1C1C1E] dark:text-white animate-in fade-in">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0 animate-pulse" />
+                          <span className="font-semibold truncate">Перевод выделенного: «{selectedSnippet}»</span>
+                        </div>
+                        <button
+                          onClick={handleResetToFullText}
+                          className="text-[11px] font-bold underline hover:opacity-75 transition-opacity flex-shrink-0 ml-2"
+                        >
+                          Вернуть всё фото
+                        </button>
+                      </div>
+                    )}
+
                     <textarea
                       ref={sourceTextareaRef}
                       value={sourceText}
+                      onMouseUp={(e) => {
+                        const start = e.target.selectionStart;
+                        const end = e.target.selectionEnd;
+                        if (start !== undefined && end !== undefined && end > start) {
+                          const sel = e.target.value.substring(start, end).trim();
+                          if (sel && sel.length > 0 && sel !== sourceText) {
+                            setSourceText(sel);
+                            setSelectedSnippet(sel);
+                          }
+                        }
+                      }}
                       onChange={(e) => { setSourceText(e.target.value); adjustTextareaHeight(); }}
                       placeholder="Распознанный текст появится здесь..."
                       maxLength={2000}
                       style={{ minHeight: '130px' }}
-                      className="w-full text-lg sm:text-2xl md:text-3xl font-bold bg-transparent border-none resize-none focus:outline-none placeholder-[#AEAEB2] dark:placeholder-[#48484A] leading-snug tracking-tight text-[#1C1C1E] dark:text-white overflow-hidden"
+                      className="w-full text-lg sm:text-2xl md:text-3xl font-bold bg-transparent border-none resize-none focus:outline-none placeholder-[#AEAEB2] dark:placeholder-[#48484A] leading-snug tracking-tight text-[#1C1C1E] dark:text-white overflow-hidden select-text"
                     />
                   </div>
                 )}
