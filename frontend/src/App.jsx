@@ -8,7 +8,7 @@ import {
   Lock, Mail, LayoutGrid, ListFilter, RotateCw, ChevronLeft, ChevronRight,
   Camera, FileText, Globe, Download, UploadCloud,
   FileCheck, ExternalLink, Loader2, ArrowUpRight, Scan, BookOpen, Compass, Bookmark,
-  Mic, MicOff, MessageSquare, History, SlidersHorizontal, Trash2
+  Mic, MicOff, MessageSquare, History, SlidersHorizontal, Trash2, Video
 } from 'lucide-react';
 
 const SOURCE_LANGUAGES = [
@@ -223,6 +223,18 @@ export default function App() {
   const sourceTextareaRef = useRef(null);
   const debouncedSearch = useDebounce(search, 400);
 
+  // Google Lens & Live Camera State
+  const [ocrBlocks, setOcrBlocks] = useState([]);
+  const [fullOcrText, setFullOcrText] = useState('');
+  const [imageNaturalDims, setImageNaturalDims] = useState({ width: 0, height: 0 });
+  const [lensMode, setLensMode] = useState('boxes'); // 'boxes' | 'overlay' | 'clean'
+  const [selectedBlockId, setSelectedBlockId] = useState(null);
+  const [isLensTranslating, setIsLensTranslating] = useState(false);
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [isCameraLoading, setIsCameraLoading] = useState(false);
+  const videoRef = useRef(null);
+  const streamRef = useRef(null);
+
   // Auto-resize input textarea to dynamically stretch with content
   const adjustTextareaHeight = useCallback(() => {
     const el = sourceTextareaRef.current;
@@ -339,13 +351,65 @@ export default function App() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  // OCR Processing Function via Tesseract.js (Apple Live Text / Google Lens)
+  // Camera handlers for live viewfinder
+  const startCamera = async () => {
+    setIsCameraLoading(true);
+    try {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+        });
+        streamRef.current = stream;
+        setIsCameraActive(true);
+      } else {
+        alert('Камера не поддерживается вашим браузером');
+      }
+    } catch (err) {
+      alert('Ошибка доступа к камере: ' + (err.message || 'Разрешите доступ к веб-камере в браузере'));
+    } finally {
+      setIsCameraLoading(false);
+    }
+  };
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(t => t.stop());
+      streamRef.current = null;
+    }
+    setIsCameraActive(false);
+  };
+
+  useEffect(() => {
+    if (isCameraActive && videoRef.current && streamRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+    }
+  }, [isCameraActive]);
+
+  const captureCameraFrame = () => {
+    if (!videoRef.current) return;
+    const video = videoRef.current;
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob((blob) => {
+      stopCamera();
+      if (blob) {
+        processImageFile(blob);
+      }
+    }, 'image/jpeg', 0.92);
+  };
+
+  // OCR Processing Function via Tesseract.js (Google Lens / Apple Live Text)
   const processImageFile = useCallback(async (file) => {
     if (!file) return;
     setIsOcrProcessing(true);
     setOcrProgress(0);
     setOcrStatusText('Подготовка изображения...');
     setActiveMode('image');
+    setSelectedBlockId(null);
+    setOcrBlocks([]);
 
     if (imagePreviewUrl) {
       URL.revokeObjectURL(imagePreviewUrl);
@@ -353,12 +417,22 @@ export default function App() {
     const previewUrl = URL.createObjectURL(file);
     setImagePreviewUrl(previewUrl);
 
+    // Measure natural dimensions for bounding box coordinate scaling
+    const imgObj = new Image();
+    imgObj.onload = () => {
+      setImageNaturalDims({
+        width: imgObj.naturalWidth || 800,
+        height: imgObj.naturalHeight || 600
+      });
+    };
+    imgObj.src = previewUrl;
+
     try {
       const langMap = { en: 'eng', ru: 'rus', de: 'deu', es: 'spa', auto: 'eng+rus+deu+spa' };
       const ocrLang = langMap[sourceLang] || 'eng+rus';
 
       setOcrStatusText('Инициализация нейросети...');
-      const { data: { text } } = await Tesseract.recognize(
+      const { data } = await Tesseract.recognize(
         file,
         ocrLang,
         {
@@ -366,16 +440,37 @@ export default function App() {
             if (m.status === 'recognizing text') {
               const p = Math.round(m.progress * 100);
               setOcrProgress(p);
-              setOcrStatusText(`Распознавание текста: ${p}%`);
+              setOcrStatusText(`Распознавание блоков: ${p}%`);
             }
           }
         }
       );
 
-      const cleanText = text.replace(/\n\s*\n/g, '\n').trim();
+      const rawText = data?.text || '';
+      const cleanText = rawText.replace(/\n\s*\n/g, '\n').trim();
+
+      // Extract lines with bounding boxes for Google Lens HUD
+      const blocks = [];
+      const lines = data?.lines || [];
+      lines.forEach((line, idx) => {
+        const lineText = line.text?.trim();
+        if (lineText && line.bbox) {
+          blocks.push({
+            id: `line-${idx}`,
+            text: lineText,
+            bbox: line.bbox,
+            confidence: Math.round(line.confidence || 0),
+            translatedText: ''
+          });
+        }
+      });
+
+      setOcrBlocks(blocks);
+      setFullOcrText(cleanText);
+
       if (cleanText) {
         setSourceText(cleanText.slice(0, 2000));
-        setLoadedFile({ name: file.name || 'Снимок экрана', size: (file.size / 1024).toFixed(1) + ' KB', type: 'image' });
+        setLoadedFile({ name: file.name || 'Снимок Google Lens', size: (file.size / 1024).toFixed(1) + ' KB', type: 'image' });
       } else {
         alert('Текст на изображении не обнаружен. Попробуйте более четкое фото.');
       }
@@ -387,6 +482,45 @@ export default function App() {
       setOcrProgress(0);
     }
   }, [sourceLang, imagePreviewUrl]);
+
+  // Google Lens: Translate all detected blocks for AR in-image overlay
+  const handleTranslateLensOverlay = useCallback(async () => {
+    if (!ocrBlocks || ocrBlocks.length === 0) return;
+    setIsLensTranslating(true);
+    try {
+      const updated = await Promise.all(
+        ocrBlocks.map(async (b) => {
+          if (b.translatedText) return b;
+          try {
+            const trans = await robustTranslateClient(b.text, sourceLang === 'auto' ? (detectLanguage(b.text) || 'en') : sourceLang, targetLang);
+            return { ...b, translatedText: trans };
+          } catch (_) {
+            return b;
+          }
+        })
+      );
+      setOcrBlocks(updated);
+    } finally {
+      setIsLensTranslating(false);
+    }
+  }, [ocrBlocks, sourceLang, targetLang, robustTranslateClient]);
+
+  const switchLensMode = (mode) => {
+    setLensMode(mode);
+    if (mode === 'overlay') {
+      handleTranslateLensOverlay();
+    }
+  };
+
+  const handleSelectLensBlock = (block) => {
+    if (selectedBlockId === block.id) {
+      setSelectedBlockId(null);
+      setSourceText(fullOcrText.slice(0, 2000));
+    } else {
+      setSelectedBlockId(block.id);
+      setSourceText(block.text);
+    }
+  };
 
   // Global Paste listener (Ctrl + V for screenshot OCR)
   useEffect(() => {
@@ -1774,65 +1908,199 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* MODE: IMAGE (Apple Live Text / Google Lens Viewfinder) */}
+                {/* MODE: IMAGE (Google Lens & Live Text Viewfinder) */}
                 {activeMode === 'image' && (
-                  <div className="space-y-2.5 sm:space-y-3 mb-2">
-                    {imagePreviewUrl ? (
-                      <div className="relative rounded-2xl overflow-hidden bg-black/[0.03] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 p-2 flex items-center justify-center max-h-44 sm:max-h-52">
-                        {/* 4 Apple Camera Viewfinder Corner Brackets */}
-                        <span className="viewfinder-bracket top-2 left-2 border-t-2 border-l-2 rounded-tl" />
-                        <span className="viewfinder-bracket top-2 right-2 border-t-2 border-r-2 rounded-tr" />
-                        <span className="viewfinder-bracket bottom-2 left-2 border-b-2 border-l-2 rounded-bl" />
-                        <span className="viewfinder-bracket bottom-2 right-2 border-b-2 border-r-2 rounded-br" />
+                  <div className="space-y-3 mb-2">
+                    {isCameraActive ? (
+                      <div className="relative rounded-2xl overflow-hidden bg-black border border-black/10 dark:border-white/10 p-3 flex flex-col items-center justify-center animate-in fade-in">
+                        <div className="relative w-full max-h-72 overflow-hidden rounded-xl flex items-center justify-center bg-black/60">
+                          <video ref={videoRef} autoPlay playsInline className="w-full max-h-72 rounded-xl object-cover" />
+                          <span className="viewfinder-bracket top-3 left-3 border-t-2 border-l-2 rounded-tl border-white" />
+                          <span className="viewfinder-bracket top-3 right-3 border-t-2 border-r-2 rounded-tr border-white" />
+                          <span className="viewfinder-bracket bottom-3 left-3 border-b-2 border-l-2 rounded-bl border-white" />
+                          <span className="viewfinder-bracket bottom-3 right-3 border-b-2 border-r-2 rounded-br border-white" />
+                        </div>
 
-                        {/* Laser Scan Beam */}
-                        {isOcrProcessing && <div className="animate-scan-beam" />}
+                        <div className="flex items-center gap-3 pt-3">
+                          <button
+                            onClick={captureCameraFrame}
+                            className="apple-btn-primary px-5 py-2 rounded-full font-bold text-xs flex items-center gap-2 shadow-lg active:scale-95"
+                          >
+                            <Camera size={14} /> <span>Сделать снимок</span>
+                          </button>
+                          <button
+                            onClick={stopCamera}
+                            className="apple-btn-glass px-4 py-2 rounded-full font-semibold text-xs text-white hover:text-rose-400 active:scale-95"
+                          >
+                            Отмена
+                          </button>
+                        </div>
+                      </div>
+                    ) : imagePreviewUrl ? (
+                      <div className="relative rounded-2xl overflow-hidden bg-black/[0.03] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 p-3 flex flex-col items-center select-none animate-in fade-in">
+                        {/* Lens Toolbar */}
+                        <div className="w-full flex items-center justify-between pb-2 mb-2 border-b border-black/[0.05] dark:border-white/[0.08] text-xs">
+                          <div className="flex items-center gap-1.5 font-bold text-[#1C1C1E] dark:text-white">
+                            <Scan size={14} className="text-black dark:text-white" />
+                            <span>Объектив</span>
+                            {ocrBlocks.length > 0 && (
+                              <span className="text-[10px] px-2 py-0.5 bg-black/5 dark:bg-white/10 rounded-full text-[#8E8E93] font-semibold">
+                                {ocrBlocks.length} {ocrBlocks.length === 1 ? 'строка' : ocrBlocks.length < 5 ? 'строки' : 'строк'}
+                              </span>
+                            )}
+                          </div>
 
-                        <img 
-                          src={imagePreviewUrl} 
-                          alt="OCR Scan" 
-                          className={`max-h-40 sm:max-h-48 rounded-xl object-contain transition-all duration-300 ${isOcrProcessing ? 'opacity-70 blur-[1px]' : ''}`} 
-                        />
+                          <div className="flex items-center gap-1 bg-black/5 dark:bg-white/10 p-0.5 rounded-full">
+                            <button
+                              onClick={() => switchLensMode('boxes')}
+                              className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold transition-all ${
+                                lensMode === 'boxes'
+                                  ? 'bg-black text-white dark:bg-white dark:text-black shadow-sm'
+                                  : 'text-[#8E8E93] hover:text-black dark:hover:text-white'
+                              }`}
+                              title="Интерактивные рамки распознавания"
+                            >
+                              Рамки
+                            </button>
+                            <button
+                              onClick={() => switchLensMode('overlay')}
+                              className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold transition-all flex items-center gap-1 ${
+                                lensMode === 'overlay'
+                                  ? 'bg-black text-white dark:bg-white dark:text-black shadow-sm'
+                                  : 'text-[#8E8E93] hover:text-black dark:hover:text-white'
+                              }`}
+                              title="Наложить перевод прямо поверх фото"
+                            >
+                              {isLensTranslating ? <Loader2 size={10} className="animate-spin" /> : null}
+                              AR-Перевод
+                            </button>
+                            <button
+                              onClick={() => switchLensMode('clean')}
+                              className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold transition-all ${
+                                lensMode === 'clean'
+                                  ? 'bg-black text-white dark:bg-white dark:text-black shadow-sm'
+                                  : 'text-[#8E8E93] hover:text-black dark:hover:text-white'
+                              }`}
+                              title="Оригинал без наложений"
+                            >
+                              Оригинал
+                            </button>
+                          </div>
+                        </div>
 
-                        {isOcrProcessing && (
-                          <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex flex-col items-center justify-center gap-2 text-white p-2 text-center">
-                            <div className="flex items-center gap-2 bg-black/70 px-3.5 py-1.5 rounded-full border border-white/20 shadow-lg">
-                              <Loader2 size={16} className="animate-spin text-black dark:text-white" />
-                              <span className="text-xs font-semibold truncate">{ocrStatusText || 'Нейросеть считывает...'}</span>
+                        {/* Interactive Lens Stage */}
+                        <div className="relative inline-block max-w-full max-h-[300px] sm:max-h-[360px] overflow-hidden rounded-xl">
+                          {/* Laser Scan Beam */}
+                          {isOcrProcessing && <div className="lens-laser-beam" />}
+
+                          <img 
+                            src={imagePreviewUrl} 
+                            alt="Google Lens Scan" 
+                            className={`max-h-[300px] sm:max-h-[360px] w-auto object-contain rounded-xl block transition-all duration-300 ${isOcrProcessing ? 'opacity-70 blur-[1px]' : ''}`} 
+                          />
+
+                          {/* Bounding Boxes Layer */}
+                          {imageNaturalDims.width > 0 && imageNaturalDims.height > 0 && !isOcrProcessing && lensMode === 'boxes' && ocrBlocks.map((block) => {
+                            const left = (block.bbox.x0 / imageNaturalDims.width) * 100;
+                            const top = (block.bbox.y0 / imageNaturalDims.height) * 100;
+                            const width = ((block.bbox.x1 - block.bbox.x0) / imageNaturalDims.width) * 100;
+                            const height = ((block.bbox.y1 - block.bbox.y0) / imageNaturalDims.height) * 100;
+                            const isSelected = selectedBlockId === block.id;
+
+                            return (
+                              <div
+                                key={block.id}
+                                onClick={(e) => { e.stopPropagation(); handleSelectLensBlock(block); }}
+                                style={{ left: `${left}%`, top: `${top}%`, width: `${width}%`, height: `${height}%` }}
+                                className={`lens-box ${isSelected ? 'lens-box-selected' : ''}`}
+                                title={`Нажмите, чтобы перевести: "${block.text}"`}
+                              />
+                            );
+                          })}
+
+                          {/* AR Overlay Translation Layer */}
+                          {imageNaturalDims.width > 0 && imageNaturalDims.height > 0 && !isOcrProcessing && lensMode === 'overlay' && ocrBlocks.map((block) => {
+                            const left = (block.bbox.x0 / imageNaturalDims.width) * 100;
+                            const top = (block.bbox.y0 / imageNaturalDims.height) * 100;
+                            const width = ((block.bbox.x1 - block.bbox.x0) / imageNaturalDims.width) * 100;
+                            const height = ((block.bbox.y1 - block.bbox.y0) / imageNaturalDims.height) * 100;
+
+                            return (
+                              <div
+                                key={block.id}
+                                style={{
+                                  left: `${left}%`,
+                                  top: `${top}%`,
+                                  minWidth: `${width}%`,
+                                  minHeight: `${height}%`,
+                                  fontSize: `${Math.max(10, Math.min(15, height * 2.8))}px`
+                                }}
+                                className="lens-ar-pill animate-in fade-in zoom-in-95 duration-200"
+                                title={`Оригинал: ${block.text}`}
+                              >
+                                {block.translatedText || (isLensTranslating ? '...' : block.text)}
+                              </div>
+                            );
+                          })}
+
+                          {/* OCR Scanning Overlay Indicator */}
+                          {isOcrProcessing && (
+                            <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex flex-col items-center justify-center gap-2 text-white p-2 text-center z-30">
+                              <div className="flex items-center gap-2 bg-black/75 px-3.5 py-1.5 rounded-full border border-white/20 shadow-lg">
+                                <Loader2 size={16} className="animate-spin text-white" />
+                                <span className="text-xs font-semibold truncate">{ocrStatusText || 'Нейросеть сканирует...'}</span>
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          )}
+                        </div>
 
-                        {!isOcrProcessing && (
-                          <div className="absolute bottom-2.5 right-2.5 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-bold text-white flex items-center gap-1 border border-white/15 shadow-sm">
-                            Распознанный текст
-                          </div>
-                        )}
+                        {/* Lens Hint Footer */}
+                        <div className="w-full flex items-center justify-between pt-2 mt-1 text-[11px] text-[#8E8E93]">
+                          <span>
+                            {selectedBlockId ? 'Выделен отдельный фрагмент' : 'Нажмите на любую рамку для точечного перевода'}
+                          </span>
+                          {selectedBlockId && (
+                            <button
+                              onClick={() => { setSelectedBlockId(null); setSourceText(fullOcrText.slice(0, 2000)); }}
+                              className="text-black dark:text-white font-semibold underline hover:opacity-80 transition-opacity"
+                            >
+                              Перевести весь текст
+                            </button>
+                          )}
+                        </div>
                       </div>
                     ) : (
-                      <div 
-                        onClick={() => imageInputRef.current?.click()}
-                        className="relative rounded-2xl border border-dashed border-black/15 dark:border-white/15 hover:border-black/40 dark:hover:border-white/40 p-5 sm:p-7 flex flex-col items-center justify-center text-center cursor-pointer transition-all bg-black/[0.01] dark:bg-white/[0.01] hover:bg-black/[0.03] dark:hover:bg-white/[0.03] group active:scale-[0.99]"
-                      >
-                        <span className="viewfinder-bracket top-2.5 left-2.5 border-t-2 border-l-2 rounded-tl border-black/30 dark:border-white/30 group-hover:border-black dark:group-hover:border-white" />
-                        <span className="viewfinder-bracket top-2.5 right-2.5 border-t-2 border-r-2 rounded-tr border-black/30 dark:border-white/30 group-hover:border-black dark:group-hover:border-white" />
-                        <span className="viewfinder-bracket bottom-2.5 left-2.5 border-b-2 border-l-2 rounded-bl border-black/30 dark:border-white/30 group-hover:border-black dark:group-hover:border-white" />
-                        <span className="viewfinder-bracket bottom-2.5 right-2.5 border-b-2 border-r-2 rounded-br border-black/30 dark:border-white/30 group-hover:border-black dark:group-hover:border-white" />
+                      <div className="relative rounded-2xl border border-dashed border-black/15 dark:border-white/15 p-5 sm:p-7 flex flex-col items-center justify-center text-center transition-all bg-black/[0.01] dark:bg-white/[0.01]">
+                        <span className="viewfinder-bracket top-2.5 left-2.5 border-t-2 border-l-2 rounded-tl border-black/30 dark:border-white/30" />
+                        <span className="viewfinder-bracket top-2.5 right-2.5 border-t-2 border-r-2 rounded-tr border-black/30 dark:border-white/30" />
+                        <span className="viewfinder-bracket bottom-2.5 left-2.5 border-b-2 border-l-2 rounded-bl border-black/30 dark:border-white/30" />
+                        <span className="viewfinder-bracket bottom-2.5 right-2.5 border-b-2 border-r-2 rounded-br border-black/30 dark:border-white/30" />
 
-                        <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-black/5 dark:bg-white/10 text-black dark:text-white flex items-center justify-center mb-2.5 group-hover:scale-105 transition-transform">
-                          <Camera size={22} className="sm:size-6" />
+                        <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-black/5 dark:bg-white/10 text-black dark:text-white flex items-center justify-center mb-2.5">
+                          <Scan size={22} className="sm:size-6" />
                         </div>
                         <h4 className="text-xs sm:text-sm font-bold text-[#1C1C1E] dark:text-white mb-1">
-                          Распознавание текста с фото
+                          Google Объектив (Lens Scanner)
                         </h4>
-                        <p className="text-[11px] sm:text-xs text-[#8E8E93] max-w-xs mb-2.5 leading-relaxed">
-                          <span className="sm:hidden">Нажмите, чтобы сделать фото или выбрать из медиатеки</span>
-                          <span className="hidden sm:inline">Перетащите изображение сюда или выберите файл на устройстве</span>
+                        <p className="text-[11px] sm:text-xs text-[#8E8E93] max-w-xs mb-3 leading-relaxed">
+                          Распознавание строк и слов с интерактивным выделением и AR-переводом
                         </p>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[9px] sm:text-[10px] font-medium px-2.5 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-[#8E8E93] dark:text-[#A1A1AA]">
-                            JPG · PNG · WEBP · Скриншоты
-                          </span>
+
+                        <div className="flex items-center gap-2 flex-wrap justify-center">
+                          <button
+                            onClick={() => imageInputRef.current?.click()}
+                            className="apple-btn-primary px-4 py-2 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-sm active:scale-95"
+                          >
+                            <Camera size={13} /> <span>Выбрать фото</span>
+                          </button>
+                          <button
+                            onClick={startCamera}
+                            disabled={isCameraLoading}
+                            className="apple-btn-glass px-4 py-2 rounded-full text-xs font-semibold flex items-center gap-1.5 text-black dark:text-white active:scale-95"
+                          >
+                            {isCameraLoading ? <Loader2 size={13} className="animate-spin" /> : <Video size={13} />}
+                            <span>Камера</span>
+                          </button>
                         </div>
                       </div>
                     )}

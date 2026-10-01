@@ -476,3 +476,78 @@
   .apple-icon-btn { min-height: 40px; min-width: 40px; display: inline-flex; align-items: center; justify-content: center; }
   .animate-orb-1, .animate-orb-2, .animate-orb-3 { filter: blur(48px) !important; opacity: 0.15 !important; }
 }
+
+/* ================= GOOGLE LENS & LIVE TEXT HUD ================= */
+.lens-viewport {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  user-select: none;
+}
+
+.lens-laser-beam {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #FFFFFF, transparent);
+  box-shadow: 0 0 16px 4px rgba(255, 255, 255, 0.9), 0 0 32px 8px rgba(255, 255, 255, 0.4);
+  pointer-events: none;
+  z-index: 25;
+  animation: scanBeam 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.lens-box {
+  position: absolute;
+  cursor: pointer;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3), inset 0 0 6px rgba(255, 255, 255, 0.15);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(1px);
+  z-index: 10;
+}
+
+.lens-box:hover {
+  background: rgba(255, 255, 255, 0.28);
+  border-color: #FFFFFF;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.7), inset 0 0 8px rgba(255, 255, 255, 0.3);
+  transform: scale(1.02);
+  z-index: 20;
+}
+
+.lens-box-selected {
+  background: rgba(255, 255, 255, 0.4) !important;
+  border-color: #FFFFFF !important;
+  box-shadow: 0 0 18px 2px rgba(255, 255, 255, 0.9) !important;
+  z-index: 22 !important;
+}
+
+.lens-ar-pill {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(14, 14, 18, 0.92);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 4px;
+  padding: 1px 4px;
+  font-weight: 600;
+  line-height: 1.1;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  z-index: 15;
+  transition: all 0.2s ease;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dark .lens-ar-pill {
+  background: rgba(255, 255, 255, 0.95);
+  color: #09090B;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
