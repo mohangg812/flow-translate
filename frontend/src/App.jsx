@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import Tesseract from 'tesseract.js';
+import Tesseract, { createWorker } from 'tesseract.js';
 import api from './api';
 import { 
   Volume2, Star, Edit3, Search, LogOut, 
@@ -225,10 +225,15 @@ export default function App() {
 
   // Google Lens & Live Camera State
   const [ocrBlocks, setOcrBlocks] = useState([]);
+  const [rawOcrData, setRawOcrData] = useState({ lines: [], words: [] });
+  const [ocrGranularity, setOcrGranularity] = useState('lines'); // 'lines' | 'words'
+  const [ocrLangChoice, setOcrLangChoice] = useState('auto'); // 'auto' | 'rus' | 'eng' | 'rus+eng' | 'deu' | 'spa'
+  const [currentOcrFile, setCurrentOcrFile] = useState(null);
   const [fullOcrText, setFullOcrText] = useState('');
   const [imageNaturalDims, setImageNaturalDims] = useState({ width: 0, height: 0 });
   const [lensMode, setLensMode] = useState('boxes'); // 'boxes' | 'overlay' | 'clean'
   const [selectedBlockId, setSelectedBlockId] = useState(null);
+  const [copiedLensId, setCopiedLensId] = useState(null);
   const [isLensTranslating, setIsLensTranslating] = useState(false);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [isCameraLoading, setIsCameraLoading] = useState(false);
@@ -401,8 +406,89 @@ export default function App() {
     }, 'image/jpeg', 0.92);
   };
 
+  // High-precision Canvas Preprocessor for OCR
+  // 1. Auto-normalizes EXIF rotation
+  // 2. Clamps resolution to optimal 1600-1800px (speed & memory)
+  // 3. Analyzes background luminance: inverts dark backgrounds so Tesseract gets black text on white
+  const preprocessImageForOcr = (file) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        let targetW = img.naturalWidth || 800;
+        let targetH = img.naturalHeight || 600;
+        const MAX_DIM = 1800;
+        if (targetW > MAX_DIM || targetH > MAX_DIM) {
+          if (targetW > targetH) {
+            targetH = Math.round((targetH * MAX_DIM) / targetW);
+            targetW = MAX_DIM;
+          } else {
+            targetW = Math.round((targetW * MAX_DIM) / targetH);
+            targetH = MAX_DIM;
+          }
+        }
+
+        const previewCanvas = document.createElement('canvas');
+        previewCanvas.width = targetW;
+        previewCanvas.height = targetH;
+        const pCtx = previewCanvas.getContext('2d');
+        pCtx.drawImage(img, 0, 0, targetW, targetH);
+
+        let isDark = false;
+        try {
+          const imgData = pCtx.getImageData(0, 0, targetW, targetH);
+          const data = imgData.data;
+          let totalLuma = 0;
+          const step = Math.max(1, Math.floor(data.length / (4 * 4000)));
+          let count = 0;
+          for (let i = 0; i < data.length; i += 4 * step) {
+            totalLuma += 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+            count++;
+          }
+          const avgLuma = count > 0 ? totalLuma / count : 128;
+          if (avgLuma < 110) {
+            isDark = true;
+          }
+        } catch (_) {}
+
+        const ocrCanvas = document.createElement('canvas');
+        ocrCanvas.width = targetW;
+        ocrCanvas.height = targetH;
+        const oCtx = ocrCanvas.getContext('2d');
+        oCtx.drawImage(previewCanvas, 0, 0);
+
+        if (isDark) {
+          try {
+            const ocrImgData = oCtx.getImageData(0, 0, targetW, targetH);
+            const d = ocrImgData.data;
+            for (let i = 0; i < d.length; i += 4) {
+              d[i] = 255 - d[i];
+              d[i + 1] = 255 - d[i + 1];
+              d[i + 2] = 255 - d[i + 2];
+            }
+            oCtx.putImageData(ocrImgData, 0, 0);
+          } catch (_) {}
+        }
+
+        previewCanvas.toBlob((previewBlob) => {
+          ocrCanvas.toBlob((ocrBlob) => {
+            resolve({
+              previewBlob: previewBlob || file,
+              ocrBlob: ocrBlob || previewBlob || file,
+              dims: { width: targetW, height: targetH },
+              isDark
+            });
+          }, 'image/png');
+        }, 'image/jpeg', 0.95);
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
+  };
+
   // OCR Processing Function via Tesseract.js (Google Lens / Apple Live Text)
-  const processImageFile = useCallback(async (file) => {
+  const processImageFile = useCallback(async (file, explicitLang) => {
     if (!file) return;
     setIsOcrProcessing(true);
     setOcrProgress(0);
@@ -410,69 +496,124 @@ export default function App() {
     setActiveMode('image');
     setSelectedBlockId(null);
     setOcrBlocks([]);
-
-    if (imagePreviewUrl) {
-      URL.revokeObjectURL(imagePreviewUrl);
-    }
-    const previewUrl = URL.createObjectURL(file);
-    setImagePreviewUrl(previewUrl);
-
-    // Measure natural dimensions for bounding box coordinate scaling
-    const imgObj = new Image();
-    imgObj.onload = () => {
-      setImageNaturalDims({
-        width: imgObj.naturalWidth || 800,
-        height: imgObj.naturalHeight || 600
-      });
-    };
-    imgObj.src = previewUrl;
+    setCurrentOcrFile(file);
 
     try {
-      const langMap = { en: 'eng', ru: 'rus', de: 'deu', es: 'spa', auto: 'eng+rus+deu+spa' };
-      const ocrLang = langMap[sourceLang] || 'eng+rus';
+      // 1. High-precision preprocessing (inversion for dark mode, coordinate alignment)
+      const { previewBlob, ocrBlob, dims } = await preprocessImageForOcr(file);
+
+      if (imagePreviewUrl) {
+        URL.revokeObjectURL(imagePreviewUrl);
+      }
+      const previewUrl = URL.createObjectURL(previewBlob);
+      setImagePreviewUrl(previewUrl);
+      setImageNaturalDims(dims);
+
+      // 2. Language selection: avoid 4-language collision in auto mode!
+      let langToUse = explicitLang || ocrLangChoice;
+      if (langToUse === 'auto') {
+        const langMap = { en: 'eng', ru: 'rus', de: 'deu', es: 'spa' };
+        langToUse = langMap[sourceLang] || 'rus+eng';
+      }
 
       setOcrStatusText('Инициализация нейросети...');
-      const { data } = await Tesseract.recognize(
-        file,
-        ocrLang,
-        {
-          logger: (m) => {
-            if (m.status === 'recognizing text') {
-              const p = Math.round(m.progress * 100);
-              setOcrProgress(p);
-              setOcrStatusText(`Распознавание блоков: ${p}%`);
-            }
+      const worker = await createWorker(langToUse, 1, {
+        logger: (m) => {
+          if (m.status === 'loading language traineddata') {
+            const p = Math.round((m.progress || 0) * 100);
+            setOcrProgress(p);
+            setOcrStatusText(`Загрузка модели: ${p}%`);
+          } else if (m.status === 'recognizing text') {
+            const p = Math.round((m.progress || 0) * 100);
+            setOcrProgress(p);
+            setOcrStatusText(`Распознавание: ${p}%`);
           }
-        }
-      );
-
-      const rawText = data?.text || '';
-      const cleanText = rawText.replace(/\n\s*\n/g, '\n').trim();
-
-      // Extract lines with bounding boxes for Google Lens HUD
-      const blocks = [];
-      const lines = data?.lines || [];
-      lines.forEach((line, idx) => {
-        const lineText = line.text?.trim();
-        if (lineText && line.bbox) {
-          blocks.push({
-            id: `line-${idx}`,
-            text: lineText,
-            bbox: line.bbox,
-            confidence: Math.round(line.confidence || 0),
-            translatedText: ''
-          });
         }
       });
 
-      setOcrBlocks(blocks);
+      // 3. Recognize with blocks enabled!
+      const res = await worker.recognize(ocrBlob, {}, { blocks: true });
+      await worker.terminate();
+
+      // 4. Extract lines and words with strict noise and confidence filtering
+      const extractedLines = [];
+      const extractedWords = [];
+
+      res.data.blocks?.forEach((b) => {
+        b.paragraphs?.forEach((p) => {
+          p.lines?.forEach((line) => {
+            const validWords = (line.words || []).filter((w) => {
+              const txt = (w.text || '').trim();
+              return (w.confidence || 0) >= 35 && /[a-zA-Z0-9\u0400-\u04FF\u00C0-\u024F]/.test(txt);
+            });
+
+            validWords.forEach((w) => {
+              const cleaned = w.text.trim().replace(/^[^a-zA-Z0-9\u0400-\u04FF\u00C0-\u024F]+|[^a-zA-Z0-9\u0400-\u04FF\u00C0-\u024F]+$/g, '');
+              if (cleaned) {
+                extractedWords.push({
+                  id: `word-${extractedWords.length}`,
+                  text: cleaned,
+                  bbox: w.bbox,
+                  confidence: Math.round(w.confidence || 0),
+                  translatedText: ''
+                });
+              }
+            });
+
+            // Split line into column chunks if words are horizontally spaced far apart
+            if (validWords.length > 0) {
+              let currentChunk = [validWords[0]];
+              for (let i = 1; i < validWords.length; i++) {
+                const prev = validWords[i - 1];
+                const curr = validWords[i];
+                const gap = curr.bbox.x0 - prev.bbox.x1;
+                const wordH = prev.bbox.y1 - prev.bbox.y0;
+                if (gap > Math.max(38, wordH * 1.8)) {
+                  const blk = buildLineBlock(currentChunk, extractedLines.length);
+                  if (blk) extractedLines.push(blk);
+                  currentChunk = [curr];
+                } else {
+                  currentChunk.push(curr);
+                }
+              }
+              if (currentChunk.length > 0) {
+                const blk = buildLineBlock(currentChunk, extractedLines.length);
+                if (blk) extractedLines.push(blk);
+              }
+            }
+          });
+        });
+      });
+
+      function buildLineBlock(wordList, index) {
+        const text = wordList.map((w) => w.text.trim()).join(' ').replace(/^[^a-zA-Z0-9\u0400-\u04FF\u00C0-\u024F]+|[^a-zA-Z0-9\u0400-\u04FF\u00C0-\u024F]+$/g, '');
+        if (!text) return null;
+        const x0 = Math.min(...wordList.map((w) => w.bbox.x0));
+        const y0 = Math.min(...wordList.map((w) => w.bbox.y0));
+        const x1 = Math.max(...wordList.map((w) => w.bbox.x1));
+        const y1 = Math.max(...wordList.map((w) => w.bbox.y1));
+        const avgConf = Math.round(wordList.reduce((acc, w) => acc + (w.confidence || 0), 0) / wordList.length);
+        return {
+          id: `line-${index}`,
+          text,
+          bbox: { x0, y0, x1, y1 },
+          confidence: avgConf,
+          translatedText: ''
+        };
+      }
+
+      setRawOcrData({ lines: extractedLines, words: extractedWords });
+      const activeBlocks = ocrGranularity === 'words' ? extractedWords : extractedLines;
+      setOcrBlocks(activeBlocks);
+
+      const cleanText = extractedLines.map((l) => l.text).filter(Boolean).join('\n');
       setFullOcrText(cleanText);
 
       if (cleanText) {
         setSourceText(cleanText.slice(0, 2000));
         setLoadedFile({ name: file.name || 'Снимок Google Lens', size: (file.size / 1024).toFixed(1) + ' KB', type: 'image' });
       } else {
-        alert('Текст на изображении не обнаружен. Попробуйте более четкое фото.');
+        alert('Текст на изображении не обнаружен. Попробуйте выбрать другой язык распознавания или более четкое фото.');
       }
     } catch (err) {
       console.error('OCR Error:', err);
@@ -481,7 +622,31 @@ export default function App() {
       setIsOcrProcessing(false);
       setOcrProgress(0);
     }
-  }, [sourceLang, imagePreviewUrl]);
+  }, [sourceLang, imagePreviewUrl, ocrLangChoice, ocrGranularity]);
+
+  const switchGranularity = (gran) => {
+    setOcrGranularity(gran);
+    setSelectedBlockId(null);
+    if (gran === 'words') {
+      setOcrBlocks(rawOcrData.words || []);
+    } else {
+      setOcrBlocks(rawOcrData.lines || []);
+    }
+  };
+
+  const handleSelectOcrLang = (langKey) => {
+    setOcrLangChoice(langKey);
+    if (currentOcrFile && !isOcrProcessing) {
+      processImageFile(currentOcrFile, langKey);
+    }
+  };
+
+  const handleCopyLensText = (text, id) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    setCopiedLensId(id);
+    setTimeout(() => setCopiedLensId(null), 1800);
+  };
 
   // Google Lens: Translate all detected blocks for AR in-image overlay
   const handleTranslateLensOverlay = useCallback(async () => {
@@ -1939,52 +2104,105 @@ export default function App() {
                     ) : imagePreviewUrl ? (
                       <div className="relative rounded-2xl overflow-hidden bg-black/[0.03] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 p-3 flex flex-col items-center select-none animate-in fade-in">
                         {/* Lens Toolbar */}
-                        <div className="w-full flex items-center justify-between pb-2 mb-2 border-b border-black/[0.05] dark:border-white/[0.08] text-xs">
+                        <div className="w-full flex flex-wrap items-center justify-between pb-2 mb-2 border-b border-black/[0.05] dark:border-white/[0.08] gap-2 text-xs">
                           <div className="flex items-center gap-1.5 font-bold text-[#1C1C1E] dark:text-white">
                             <Scan size={14} className="text-black dark:text-white" />
                             <span>Объектив</span>
                             {ocrBlocks.length > 0 && (
                               <span className="text-[10px] px-2 py-0.5 bg-black/5 dark:bg-white/10 rounded-full text-[#8E8E93] font-semibold">
-                                {ocrBlocks.length} {ocrBlocks.length === 1 ? 'строка' : ocrBlocks.length < 5 ? 'строки' : 'строк'}
+                                {ocrBlocks.length} {ocrGranularity === 'words' ? (ocrBlocks.length === 1 ? 'слово' : ocrBlocks.length < 5 ? 'слова' : 'слов') : (ocrBlocks.length === 1 ? 'строка' : ocrBlocks.length < 5 ? 'строки' : 'строк')}
                               </span>
                             )}
                           </div>
 
-                          <div className="flex items-center gap-1 bg-black/5 dark:bg-white/10 p-0.5 rounded-full">
-                            <button
-                              onClick={() => switchLensMode('boxes')}
-                              className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold transition-all ${
-                                lensMode === 'boxes'
-                                  ? 'bg-black text-white dark:bg-white dark:text-black shadow-sm'
-                                  : 'text-[#8E8E93] hover:text-black dark:hover:text-white'
-                              }`}
-                              title="Интерактивные рамки распознавания"
-                            >
-                              Рамки
-                            </button>
-                            <button
-                              onClick={() => switchLensMode('overlay')}
-                              className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold transition-all flex items-center gap-1 ${
-                                lensMode === 'overlay'
-                                  ? 'bg-black text-white dark:bg-white dark:text-black shadow-sm'
-                                  : 'text-[#8E8E93] hover:text-black dark:hover:text-white'
-                              }`}
-                              title="Наложить перевод прямо поверх фото"
-                            >
-                              {isLensTranslating ? <Loader2 size={10} className="animate-spin" /> : null}
-                              AR-Перевод
-                            </button>
-                            <button
-                              onClick={() => switchLensMode('clean')}
-                              className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold transition-all ${
-                                lensMode === 'clean'
-                                  ? 'bg-black text-white dark:bg-white dark:text-black shadow-sm'
-                                  : 'text-[#8E8E93] hover:text-black dark:hover:text-white'
-                              }`}
-                              title="Оригинал без наложений"
-                            >
-                              Оригинал
-                            </button>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {/* Granularity switch: Строки / Слова */}
+                            <div className="flex items-center bg-black/5 dark:bg-white/10 p-0.5 rounded-full text-[10px]">
+                              <button
+                                onClick={() => switchGranularity('lines')}
+                                className={`px-2 py-0.5 rounded-full font-semibold transition-all ${
+                                  ocrGranularity === 'lines'
+                                    ? 'bg-black text-white dark:bg-white dark:text-black shadow-sm'
+                                    : 'text-[#8E8E93] hover:text-black dark:hover:text-white'
+                                }`}
+                                title="Выделять строки целиком"
+                              >
+                                Строки
+                              </button>
+                              <button
+                                onClick={() => switchGranularity('words')}
+                                className={`px-2 py-0.5 rounded-full font-semibold transition-all ${
+                                  ocrGranularity === 'words'
+                                    ? 'bg-black text-white dark:bg-white dark:text-black shadow-sm'
+                                    : 'text-[#8E8E93] hover:text-black dark:hover:text-white'
+                                }`}
+                                title="Выделять отдельные слова"
+                              >
+                                Слова
+                              </button>
+                            </div>
+
+                            {/* OCR Language Selector Pills: Авто / RU / EN / DE / ES */}
+                            <div className="flex items-center bg-black/5 dark:bg-white/10 p-0.5 rounded-full text-[10px]">
+                              {[
+                                { key: 'auto', label: 'Авто' },
+                                { key: 'rus', label: 'RU' },
+                                { key: 'eng', label: 'EN' },
+                                { key: 'deu', label: 'DE' },
+                                { key: 'spa', label: 'ES' },
+                              ].map((langItem) => (
+                                <button
+                                  key={langItem.key}
+                                  onClick={() => handleSelectOcrLang(langItem.key)}
+                                  className={`px-1.5 py-0.5 rounded-full font-semibold transition-all ${
+                                    ocrLangChoice === langItem.key
+                                      ? 'bg-black text-white dark:bg-white dark:text-black shadow-sm'
+                                      : 'text-[#8E8E93] hover:text-black dark:hover:text-white'
+                                  }`}
+                                  title={`Язык OCR: ${langItem.label}`}
+                                >
+                                  {langItem.label}
+                                </button>
+                              ))}
+                            </div>
+
+                            {/* View Mode Switcher: Рамки / AR-Перевод / Оригинал */}
+                            <div className="flex items-center bg-black/5 dark:bg-white/10 p-0.5 rounded-full text-[11px]">
+                              <button
+                                onClick={() => switchLensMode('boxes')}
+                                className={`px-2 py-0.5 rounded-full font-semibold transition-all ${
+                                  lensMode === 'boxes'
+                                    ? 'bg-black text-white dark:bg-white dark:text-black shadow-sm'
+                                    : 'text-[#8E8E93] hover:text-black dark:hover:text-white'
+                                }`}
+                                title="Интерактивные рамки распознавания"
+                              >
+                                Рамки
+                              </button>
+                              <button
+                                onClick={() => switchLensMode('overlay')}
+                                className={`px-2 py-0.5 rounded-full font-semibold transition-all flex items-center gap-1 ${
+                                  lensMode === 'overlay'
+                                    ? 'bg-black text-white dark:bg-white dark:text-black shadow-sm'
+                                    : 'text-[#8E8E93] hover:text-black dark:hover:text-white'
+                                }`}
+                                title="Наложить перевод прямо поверх фото"
+                              >
+                                {isLensTranslating ? <Loader2 size={10} className="animate-spin" /> : null}
+                                AR-Перевод
+                              </button>
+                              <button
+                                onClick={() => switchLensMode('clean')}
+                                className={`px-2 py-0.5 rounded-full font-semibold transition-all ${
+                                  lensMode === 'clean'
+                                    ? 'bg-black text-white dark:bg-white dark:text-black shadow-sm'
+                                    : 'text-[#8E8E93] hover:text-black dark:hover:text-white'
+                                }`}
+                                title="Оригинал без наложений"
+                              >
+                                Оригинал
+                              </button>
+                            </div>
                           </div>
                         </div>
 
@@ -2013,10 +2231,53 @@ export default function App() {
                                 onClick={(e) => { e.stopPropagation(); handleSelectLensBlock(block); }}
                                 style={{ left: `${left}%`, top: `${top}%`, width: `${width}%`, height: `${height}%` }}
                                 className={`lens-box ${isSelected ? 'lens-box-selected' : ''}`}
-                                title={`Нажмите, чтобы перевести: "${block.text}"`}
+                                title={`Нажмите, чтобы выделить: "${block.text}"`}
                               />
                             );
                           })}
+
+                          {/* Floating Action Popover for Selected Block */}
+                          {selectedBlockId && !isOcrProcessing && lensMode === 'boxes' && (() => {
+                            const block = ocrBlocks.find((b) => b.id === selectedBlockId);
+                            if (!block || !imageNaturalDims.width || !imageNaturalDims.height) return null;
+                            const left = ((block.bbox.x0 + block.bbox.x1) / (2 * imageNaturalDims.width)) * 100;
+                            const top = (block.bbox.y0 / imageNaturalDims.height) * 100;
+
+                            return (
+                              <div
+                                style={{
+                                  left: `${Math.min(85, Math.max(15, left))}%`,
+                                  top: `${Math.max(6, top)}%`
+                                }}
+                                className="lens-action-popover animate-in fade-in zoom-in-95 duration-150"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <button
+                                  onClick={() => { setSourceText(block.text); }}
+                                  className="lens-popover-btn"
+                                  title="Перевести этот фрагмент"
+                                >
+                                  <Languages size={11} />
+                                  <span>Перевести</span>
+                                </button>
+                                <button
+                                  onClick={() => handleCopyLensText(block.text, block.id)}
+                                  className="lens-popover-btn"
+                                  title="Скопировать"
+                                >
+                                  {copiedLensId === block.id ? <Check size={11} className="text-emerald-400" /> : <Copy size={11} />}
+                                  <span>{copiedLensId === block.id ? 'Скопировано' : 'Копировать'}</span>
+                                </button>
+                                <button
+                                  onClick={() => speak(block.text, sourceLang === 'auto' ? (detectLanguage(block.text) || 'en') : sourceLang)}
+                                  className="lens-popover-btn px-1.5"
+                                  title="Озвучить"
+                                >
+                                  <Volume2 size={11} />
+                                </button>
+                              </div>
+                            );
+                          })()}
 
                           {/* AR Overlay Translation Layer */}
                           {imageNaturalDims.width > 0 && imageNaturalDims.height > 0 && !isOcrProcessing && lensMode === 'overlay' && ocrBlocks.map((block) => {
@@ -2054,19 +2315,34 @@ export default function App() {
                           )}
                         </div>
 
-                        {/* Lens Hint Footer */}
-                        <div className="w-full flex items-center justify-between pt-2 mt-1 text-[11px] text-[#8E8E93]">
-                          <span>
-                            {selectedBlockId ? 'Выделен отдельный фрагмент' : 'Нажмите на любую рамку для точечного перевода'}
-                          </span>
-                          {selectedBlockId && (
-                            <button
-                              onClick={() => { setSelectedBlockId(null); setSourceText(fullOcrText.slice(0, 2000)); }}
-                              className="text-black dark:text-white font-semibold underline hover:opacity-80 transition-opacity"
-                            >
-                              Перевести весь текст
-                            </button>
-                          )}
+                        {/* Lens Hint & Actions Footer */}
+                        <div className="w-full flex flex-wrap items-center justify-between pt-2.5 mt-1 border-t border-black/[0.04] dark:border-white/[0.06] text-[11px] text-[#8E8E93] gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="truncate">
+                              {selectedBlockId ? 'Выделен отдельный фрагмент' : 'Нажмите на любую рамку для точечного перевода'}
+                            </span>
+                            {selectedBlockId && (
+                              <button
+                                onClick={() => { setSelectedBlockId(null); setSourceText(fullOcrText.slice(0, 2000)); }}
+                                className="text-black dark:text-white font-semibold underline hover:opacity-80 transition-opacity flex-shrink-0"
+                              >
+                                Весь текст
+                              </button>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                            {fullOcrText && (
+                              <button
+                                onClick={() => handleCopyLensText(fullOcrText, 'all')}
+                                className="px-2.5 py-1 rounded-full font-semibold apple-btn-glass text-[11px] text-black dark:text-white flex items-center gap-1 transition-all active:scale-95"
+                                title="Скопировать весь распознанный текст изображения"
+                              >
+                                {copiedLensId === 'all' ? <Check size={11} className="text-emerald-500" /> : <Copy size={11} />}
+                                <span>{copiedLensId === 'all' ? 'Скопировано!' : 'Копировать всё'}</span>
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     ) : (

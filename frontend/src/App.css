@@ -530,24 +530,71 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(14, 14, 18, 0.92);
+  background: rgba(14, 14, 18, 0.94);
   color: #FFFFFF;
   border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 4px;
-  padding: 1px 4px;
+  padding: 2px 6px;
   font-weight: 600;
-  line-height: 1.1;
+  line-height: 1.2;
   text-align: center;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
   z-index: 15;
   transition: all 0.2s ease;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  word-break: break-word;
+  white-space: normal;
 }
 
 .dark .lens-ar-pill {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.96);
   color: #09090B;
-  border: 1px solid rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.lens-action-popover {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  margin-top: -6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  background: rgba(18, 18, 22, 0.95);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 9999px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 2px 6px rgba(0, 0, 0, 0.2);
+  z-index: 35;
+  pointer-events: auto;
+  white-space: nowrap;
+}
+
+.dark .lens-action-popover {
+  background: rgba(28, 28, 34, 0.96);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.lens-popover-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.lens-popover-btn:hover {
+  background: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.lens-popover-btn:active {
+  transform: scale(0.96);
 }
