@@ -1,4 +1,4 @@
-﻿import html
+import html
 import re
 import httpx
 import logging
@@ -133,7 +133,17 @@ class TranslationService:
             if res.status_code == 200:
                 data = res.json()
                 if data and len(data) > 0 and data[0]:
-                    translated = ''.join(x[0] for x in data[0] if x and x[0])
+                    parts = []
+                    for seg in data[0]:
+                        if seg and seg[0]:
+                            t_part = seg[0]
+                            s_part = seg[1] if len(seg) > 1 and seg[1] else ""
+                            if s_part.endswith("\n") and not t_part.endswith("\n"):
+                                t_part += "\n"
+                            elif s_part.endswith(" ") and not t_part.endswith(" "):
+                                t_part += " "
+                            parts.append(t_part)
+                    translated = "".join(parts)
                     if translated:
                         return translated
         except Exception as e:

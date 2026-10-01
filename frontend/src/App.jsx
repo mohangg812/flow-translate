@@ -278,7 +278,20 @@ export default function App() {
         if (gRes.ok) {
           const gData = await gRes.json();
           if (gData && gData[0]) {
-            chunkTrans = gData[0].map(item => item && item[0] ? item[0] : '').join('');
+            const parts = [];
+            for (const item of gData[0]) {
+              if (item && item[0]) {
+                let tPart = item[0];
+                const sPart = item[1] || '';
+                if (sPart.endsWith('\n') && !tPart.endsWith('\n')) {
+                  tPart += '\n';
+                } else if (sPart.endsWith(' ') && !tPart.endsWith(' ')) {
+                  tPart += ' ';
+                }
+                parts.push(tPart);
+              }
+            }
+            chunkTrans = parts.join('');
           }
         }
       } catch (_) {}
@@ -1112,6 +1125,17 @@ export default function App() {
     } catch (_) {}
   };
 
+  const handleToggleUserStatus = async (userId) => {
+    try {
+      const res = await api.patch(`/admin/users/${userId}/toggle-status`);
+      setAdminUsers(prev => prev.map(u => u.id === userId ? { ...u, is_active: res.data.is_active } : u));
+      const statsRes = await api.get('/admin/stats');
+      setAdminStats(statsRes.data);
+    } catch (err) {
+      alert(err.response?.data?.detail || 'Ошибка изменения статуса пользователя');
+    }
+  };
+
   useEffect(() => {
     if (showAdmin && user?.role === 'admin') loadAdminData();
   }, [showAdmin, user]);
@@ -1308,31 +1332,25 @@ export default function App() {
               <span>Текст</span>
             </button>
             <button
-              onClick={() => {
-                setActiveMode('image');
-                if (!imagePreviewUrl) imageInputRef.current?.click();
-              }}
+              onClick={() => { setActiveMode('image'); }}
               className={`px-3 sm:px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 flex-shrink-0 active:scale-95 ${
                 activeMode === 'image' 
                   ? 'apple-tab-active scale-[1.02]' 
                   : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
               }`}
-              title="Загрузить фото"
+              title="Режим Фото"
             >
               <Camera size={13} className={activeMode === 'image' ? 'text-current' : ''} />
               <span>Фото</span>
             </button>
             <button
-              onClick={() => {
-                setActiveMode('doc');
-                if (!loadedFile || loadedFile.type !== 'doc') docInputRef.current?.click();
-              }}
+              onClick={() => { setActiveMode('doc'); }}
               className={`px-3 sm:px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 flex-shrink-0 active:scale-95 ${
                 activeMode === 'doc' 
                   ? 'apple-tab-active scale-[1.02]' 
                   : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
               }`}
-              title="Загрузить файл"
+              title="Режим Файлы"
             >
               <FileText size={13} className={activeMode === 'doc' ? 'text-current' : ''} />
               <span>Файлы</span>
@@ -2315,11 +2333,11 @@ export default function App() {
                     {entries.map((item) => (
                       <div
                         key={item.id}
-                        className="bg-white/90 dark:bg-white/[0.04] hover:bg-white dark:hover:bg-white/[0.07] px-5 py-3.5 rounded-2xl shadow-sm flex items-center justify-between gap-3 group transition-all duration-200 border border-black/[0.03] dark:border-white/[0.04] hover-lift neon-border-hover"
+                        className="bg-white/90 dark:bg-white/[0.04] hover:bg-white dark:hover:bg-white/[0.07] px-5 py-3.5 rounded-2xl shadow-sm flex items-center justify-between gap-3 group transition-all duration-200 border border-black/[0.03] dark:border-white/[0.04] hover-lift neon-border-hover overflow-hidden"
                       >
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 min-w-0 flex-1">
-                          <div className="flex items-center gap-2 min-w-0">
-                            <span className="font-bold text-sm sm:text-base text-[#1C1C1E] dark:text-white truncate tracking-tight">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 min-w-0 flex-1 overflow-hidden">
+                          <div className="flex items-center gap-2 min-w-0 sm:max-w-[48%] overflow-hidden flex-shrink-0 sm:flex-shrink">
+                            <span className="font-bold text-sm sm:text-base text-[#1C1C1E] dark:text-white truncate tracking-tight min-w-0">
                               {item.source_text}
                             </span>
                             {item.category_name && (
@@ -2332,9 +2350,11 @@ export default function App() {
                             )}
                           </div>
                           <span className="hidden sm:inline text-[#8E8E93] font-light flex-shrink-0">→</span>
-                          <span className="font-semibold text-sm sm:text-base text-black dark:text-white dark:text-white truncate tracking-tight">
-                            {item.translated_text}
-                          </span>
+                          <div className="min-w-0 flex-1 overflow-hidden">
+                            <span className="font-semibold text-sm sm:text-base text-black dark:text-white truncate tracking-tight block">
+                              {item.translated_text}
+                            </span>
+                          </div>
                         </div>
 
                         <div className="flex items-center gap-1 flex-shrink-0">
@@ -2464,28 +2484,30 @@ export default function App() {
                   {recentHistory.map((item) => (
                     <div
                       key={item.id}
-                      className="bg-white/90 dark:bg-white/[0.04] hover:bg-white dark:hover:bg-white/[0.07] px-4 sm:px-5 py-3.5 rounded-2xl shadow-sm flex items-center justify-between gap-3 group transition-all duration-200 border border-black/[0.03] dark:border-white/[0.04] hover-lift neon-border-hover"
+                      className="bg-white/90 dark:bg-white/[0.04] hover:bg-white dark:hover:bg-white/[0.07] px-4 sm:px-5 py-3.5 rounded-2xl shadow-sm flex items-center justify-between gap-3 group transition-all duration-200 border border-black/[0.03] dark:border-white/[0.04] hover-lift neon-border-hover overflow-hidden"
                     >
                       <div 
                         onClick={() => restoreFromHistory(item)}
-                        className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 min-w-0 flex-1 cursor-pointer"
+                        className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 min-w-0 flex-1 cursor-pointer overflow-hidden"
                         title="Нажмите, чтобы открыть этот перевод в редакторе"
                       >
-                        <div className="flex items-center gap-2">
-                          <span className="mono-label text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white border border-black/10 dark:border-white/15 flex-shrink-0">
+                        <div className="flex items-center gap-2 min-w-0 sm:max-w-[48%] overflow-hidden flex-shrink-0 sm:flex-shrink">
+                          <span className="mono-label text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white border border-black/10 dark:border-white/15 flex-shrink-0">
                             {item.source_lang} → {item.target_lang}
                           </span>
-                          <span className="font-bold text-sm sm:text-base text-[#1C1C1E] dark:text-white truncate tracking-tight">
+                          <span className="font-bold text-sm sm:text-base text-[#1C1C1E] dark:text-white truncate tracking-tight min-w-0">
                             {item.source_text}
                           </span>
                         </div>
                         <span className="hidden sm:inline text-[#8E8E93] group-hover:text-black dark:group-hover:text-white transition-colors font-light flex-shrink-0">→</span>
-                        <span className="font-semibold text-sm sm:text-base text-black/80 dark:text-white/90 truncate tracking-tight">
-                          {item.translated_text}
-                        </span>
+                        <div className="min-w-0 flex-1 overflow-hidden">
+                          <span className="font-semibold text-sm sm:text-base text-black/80 dark:text-white/90 truncate tracking-tight block">
+                            {item.translated_text}
+                          </span>
+                        </div>
                       </div>
 
-                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <div className="flex items-center gap-1.5 flex-shrink-0 z-10 ml-2">
                         <button
                           onClick={() => speak(item.translated_text, item.target_lang, true)}
                           className="apple-icon-btn spring-press text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-2 rounded-full"
