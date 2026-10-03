@@ -1,5 +1,8 @@
 import html
 import re
+import time
+import threading
+from collections import OrderedDict
 import httpx
 import logging
 from typing import Optional, List, Dict
@@ -7,9 +10,42 @@ from fastapi import HTTPException, status
 
 logger = logging.getLogger("flow_translate.translator")
 
+
+class TranslationLRUCache:
+    """
+    Высокоскоростной потокобезопасный LRU/TTL кэш для результатов перевода.
+    Разгружает внешние API и обеспечивает отклик менее 1 мс на повторные запросы.
+    """
+    def __init__(self, max_size: int = 5000, ttl_seconds: int = 86400):
+        self.max_size = max_size
+        self.ttl = ttl_seconds
+        self._cache: OrderedDict = OrderedDict()
+        self._lock = threading.Lock()
+
+    def get(self, key: tuple) -> Optional[Dict]:
+        with self._lock:
+            if key not in self._cache:
+                return None
+            val, ts = self._cache[key]
+            if time.time() - ts > self.ttl:
+                del self._cache[key]
+                return None
+            self._cache.move_to_end(key)
+            return dict(val)
+
+    def set(self, key: tuple, value: Dict) -> None:
+        with self._lock:
+            if key in self._cache:
+                self._cache.move_to_end(key)
+            elif len(self._cache) >= self.max_size:
+                self._cache.popitem(last=False)
+            self._cache[key] = (dict(value), time.time())
+
+
 class TranslationService:
     GOOGLE_URL = "https://translate.googleapis.com/translate_a/single"
     MYMEMORY_URL = "https://api.mymemory.translated.net/get"
+    _cache = TranslationLRUCache(max_size=5000, ttl_seconds=86400)
 
     BROWSER_HEADERS = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
@@ -179,6 +215,12 @@ class TranslationService:
         if source_lang == target_lang and source_lang != 'auto':
             return {"translated_text": text, "alternatives": [], "examples": [], "tone": tone}
 
+        # 1. Проверка в кэше
+        cache_key = (source_lang, target_lang, text.strip(), tone)
+        cached_result = cls._cache.get(cache_key)
+        if cached_result is not None:
+            return cached_result
+
         chunks = cls._split_into_chunks(text, max_chars=450)
         translated_chunks = []
         alternatives: List[str] = []
@@ -203,12 +245,18 @@ class TranslationService:
         # Применяем тональность
         final_text = cls._apply_tone(clean_main, target_lang, tone)
 
-        return {
+        result = {
             "translated_text": final_text,
             "alternatives": alternatives,
             "examples": [],
             "tone": tone
         }
+
+        # Сохраняем в кэш, если перевод успешен
+        if final_text:
+            cls._cache.set(cache_key, result)
+
+        return result
 
     @classmethod
     async def translate(cls, text: str, source_lang: str, target_lang: str) -> str:

@@ -8,7 +8,8 @@ import {
   Lock, Mail, LayoutGrid, ListFilter, RotateCw, ChevronLeft, ChevronRight,
   Camera, FileText, Globe, Download, UploadCloud,
   FileCheck, ExternalLink, Loader2, ArrowUpRight, Scan, BookOpen, Compass, Bookmark,
-  Mic, MicOff, MessageSquare, History, SlidersHorizontal, Trash2, Video
+  Mic, MicOff, MessageSquare, History, SlidersHorizontal, Trash2, Video,
+  Keyboard
 } from 'lucide-react';
 
 const SOURCE_LANGUAGES = [
@@ -209,6 +210,7 @@ export default function App() {
   const [flashcardModal, setFlashcardModal] = useState(false);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isCardFlipped, setIsCardFlipped] = useState(false);
+  const [shortcutsModal, setShortcutsModal] = useState(false);
 
   // Admin state
   const [adminStats, setAdminStats] = useState(null);
@@ -1092,9 +1094,9 @@ export default function App() {
     }
   }, [sourceText, sourceLang, targetLang]);
 
-  // Translation Effect
-  useEffect(() => {
-    const text = sourceText.trim();
+  // Core translation execution (used by debounced effect and Ctrl+Enter shortcut)
+  const performTranslation = useCallback(async (forcedText) => {
+    const text = (forcedText !== undefined ? forcedText : sourceText).trim();
     if (!text) {
       setTranslatedText('');
       setAlternatives([]);
@@ -1116,63 +1118,78 @@ export default function App() {
       return;
     }
 
-    const timer = setTimeout(async () => {
-      if (translateAbortRef.current) {
-        translateAbortRef.current.abort();
-      }
-      const controller = new AbortController();
-      translateAbortRef.current = controller;
+    if (translateAbortRef.current) {
+      translateAbortRef.current.abort();
+    }
+    const controller = new AbortController();
+    translateAbortRef.current = controller;
 
-      setIsTranslating(true);
+    setIsTranslating(true);
+    try {
+      let resData = null;
       try {
-        let resData = null;
-        try {
-          const res = await api.post('/translate', {
-            text: text,
-            source_lang: effectiveSource,
-            target_lang: targetLang,
-            tone: tone
-          }, { signal: controller.signal });
-          resData = res.data;
-        } catch (apiErr) {
-          if (apiErr.name === 'CanceledError' || apiErr.code === 'ERR_CANCELED') {
-            throw apiErr;
-          }
-          const mainTrans = await robustTranslateClient(text, effectiveSource, targetLang, controller.signal);
-          if (mainTrans) {
-            resData = {
-              translated_text: mainTrans,
-              alternatives: [],
-              examples: [],
-              is_saved_in_dictionary: false,
-              saved_entry_id: null,
-            };
-          } else {
-            throw apiErr;
-          }
+        const res = await api.post('/translate', {
+          text: text,
+          source_lang: effectiveSource,
+          target_lang: targetLang,
+          tone: tone
+        }, { signal: controller.signal });
+        resData = res.data;
+      } catch (apiErr) {
+        if (apiErr.name === 'CanceledError' || apiErr.code === 'ERR_CANCELED') {
+          throw apiErr;
         }
-
-        if (resData) {
-          setTranslatedText(resData.translated_text);
-          setAlternatives(resData.alternatives || []);
-          setExamples(resData.examples || []);
-          setIsInDictionary(resData.is_saved_in_dictionary || false);
-          setSavedEntryId(resData.saved_entry_id || null);
-          addToHistory(text, resData.translated_text, effectiveSource, targetLang);
+        const mainTrans = await robustTranslateClient(text, effectiveSource, targetLang, controller.signal);
+        if (mainTrans) {
+          resData = {
+            translated_text: mainTrans,
+            alternatives: [],
+            examples: [],
+            is_saved_in_dictionary: false,
+            saved_entry_id: null,
+          };
+        } else {
+          throw apiErr;
         }
-      } catch (err) {
-        if (err.name !== 'CanceledError' && err.code !== 'ERR_CANCELED') {
-          console.error('Translation error:', err);
-        }
-      } finally {
-        setIsTranslating(false);
       }
+
+      if (resData) {
+        setTranslatedText(resData.translated_text);
+        setAlternatives(resData.alternatives || []);
+        setExamples(resData.examples || []);
+        setIsInDictionary(resData.is_saved_in_dictionary || false);
+        setSavedEntryId(resData.saved_entry_id || null);
+        addToHistory(text, resData.translated_text, effectiveSource, targetLang);
+      }
+    } catch (err) {
+      if (err.name !== 'CanceledError' && err.code !== 'ERR_CANCELED') {
+        console.error('Translation error:', err);
+      }
+    } finally {
+      setIsTranslating(false);
+    }
+  }, [sourceText, sourceLang, targetLang, detectedLang, tone, robustTranslateClient]);
+
+  // Translation Effect (Debounced 450ms)
+  useEffect(() => {
+    const text = sourceText.trim();
+    if (!text) {
+      setTranslatedText('');
+      setAlternatives([]);
+      setExamples([]);
+      setIsInDictionary(false);
+      setSavedEntryId(null);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      performTranslation();
     }, 450);
 
     return () => clearTimeout(timer);
-  }, [sourceText, sourceLang, targetLang, detectedLang, tone]);
+  }, [sourceText, performTranslation]);
 
-  const swapLanguages = () => {
+  const swapLanguages = useCallback(() => {
     setIsSwapping(true);
     setTimeout(() => setIsSwapping(false), 300);
     const effectiveSource = sourceLang === 'auto' ? detectedLang : sourceLang;
@@ -1181,6 +1198,83 @@ export default function App() {
     const tempText = sourceText;
     setSourceText(translatedText);
     setTranslatedText(tempText);
+  }, [sourceLang, targetLang, detectedLang, sourceText, translatedText]);
+
+  // Global Keyboard Shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // 1. Esc -> Close any active modal or tab
+      if (e.key === 'Escape') {
+        if (shortcutsModal) { setShortcutsModal(false); return; }
+        if (authModal) { setAuthModal(null); return; }
+        if (urlModal) { setUrlModal(false); return; }
+        if (manualModal) { setManualModal(false); return; }
+        if (newCatModal) { setNewCatModal(false); return; }
+        if (flashcardModal) { setFlashcardModal(false); return; }
+        if (editingEntry) { setEditingEntry(null); return; }
+        if (activeBottomTab) { setActiveBottomTab(null); return; }
+        return;
+      }
+
+      // 2. Ctrl + Shift + S or Cmd + Shift + S -> Swap languages
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'S' || e.key === 's' || e.code === 'KeyS')) {
+        e.preventDefault();
+        swapLanguages();
+        return;
+      }
+
+      // 3. Ctrl + Enter or Cmd + Enter -> Immediate Translation
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        performTranslation();
+        return;
+      }
+
+      // 4. Ctrl + / or Cmd + / -> Toggle shortcuts modal
+      if ((e.ctrlKey || e.metaKey) && e.key === '/') {
+        e.preventDefault();
+        setShortcutsModal(prev => !prev);
+        return;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [
+    shortcutsModal,
+    authModal,
+    urlModal,
+    manualModal,
+    newCatModal,
+    flashcardModal,
+    editingEntry,
+    activeBottomTab,
+    swapLanguages,
+    performTranslation
+  ]);
+
+  // Export dictionary entries as CSV with UTF-8 BOM
+  const handleExportCsv = () => {
+    if (!entries || entries.length === 0) return;
+    const headers = ['Оригинал', 'Перевод', 'Язык оригинала', 'Язык перевода', 'Категория', 'Дата добавления'];
+    const rows = entries.map(item => [
+      `"${(item.source_text || '').replace(/"/g, '""')}"`,
+      `"${(item.translated_text || '').replace(/"/g, '""')}"`,
+      `"${(item.source_lang || '')}"`,
+      `"${(item.target_lang || '')}"`,
+      `"${(item.category_name || item.category?.name || 'Без категории').replace(/"/g, '""')}"`,
+      `"${item.created_at ? new Date(item.created_at).toLocaleDateString('ru-RU') : ''}"`
+    ]);
+    const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `flow_translate_dictionary_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const copyTranslation = () => {
@@ -1542,6 +1636,15 @@ export default function App() {
           {/* Right Controls */}
           <div className="flex items-center gap-3">
             
+            {/* Keyboard Shortcuts Trigger */}
+            <button
+              onClick={() => setShortcutsModal(true)}
+              className="p-1.5 sm:p-2 rounded-full text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white transition-all spring-press apple-glass-pill"
+              title="Горячие клавиши (Ctrl + /)"
+            >
+              <Keyboard size={15} />
+            </button>
+
             {/* Apple Segmented Theme Switcher */}
             <div className="flex items-center apple-glass-pill p-1 rounded-full">
               <button
@@ -2750,6 +2853,17 @@ export default function App() {
                     + Тег
                   </button>
 
+                  {/* CSV Export Button */}
+                  {entries.length > 0 && (
+                    <button
+                      onClick={handleExportCsv}
+                      className="text-xs font-semibold text-black dark:text-white apple-btn-glass px-3.5 py-1.5 rounded-full transition-all whitespace-nowrap spring-press flex items-center gap-1.5"
+                      title="Экспорт сохраненных слов в формате CSV (Excel, Anki)"
+                    >
+                      <Download size={13} /> Экспорт
+                    </button>
+                  )}
+
                   {/* Explicit Collapse button */}
                   <button
                     onClick={() => setActiveBottomTab(null)}
@@ -3591,6 +3705,76 @@ export default function App() {
                 Сохранить изменения
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Keyboard Shortcuts Cheatsheet Modal */}
+      {shortcutsModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xl flex items-center justify-center p-3.5 sm:p-4 animate-in fade-in duration-200">
+          <div className="ios-glass ios-card-specular rounded-[28px] sm:rounded-[36px] p-5 sm:p-7 w-full max-w-md border border-black/10 dark:border-white/10 shadow-2xl relative max-h-[92vh] overflow-y-auto no-scrollbar">
+            <button onClick={() => setShortcutsModal(false)} className="apple-icon-btn absolute right-4 top-4 sm:right-5 sm:top-5 text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white p-1.5 rounded-full"><X size={16} /></button>
+            <div className="flex items-center gap-2.5 mb-4">
+              <div className="w-8 h-8 rounded-xl bg-black/5 dark:bg-white/10 flex items-center justify-center text-black dark:text-white">
+                <Keyboard size={18} />
+              </div>
+              <div>
+                <h3 className="text-base sm:text-lg font-bold tracking-tight text-[#1C1C1E] dark:text-white">Горячие клавиши</h3>
+                <p className="text-[11px] text-[#8E8E93]">Быстрое управление Flow Translate с клавиатуры</p>
+              </div>
+            </div>
+
+            <div className="space-y-2 text-xs">
+              <div className="flex items-center justify-between p-2.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.05] dark:border-white/[0.08]">
+                <span className="text-[#1C1C1E] dark:text-white font-medium">Мгновенный перевод</span>
+                <div className="flex items-center gap-1">
+                  <kbd className="px-2 py-0.5 rounded-lg bg-black/10 dark:bg-white/15 text-[11px] font-mono font-bold text-black dark:text-white">Ctrl</kbd>
+                  <span className="text-[#8E8E93]">+</span>
+                  <kbd className="px-2 py-0.5 rounded-lg bg-black/10 dark:bg-white/15 text-[11px] font-mono font-bold text-black dark:text-white">Enter</kbd>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between p-2.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.05] dark:border-white/[0.08]">
+                <span className="text-[#1C1C1E] dark:text-white font-medium">Сменить языки местами (Swap)</span>
+                <div className="flex items-center gap-1">
+                  <kbd className="px-2 py-0.5 rounded-lg bg-black/10 dark:bg-white/15 text-[11px] font-mono font-bold text-black dark:text-white">Ctrl</kbd>
+                  <span className="text-[#8E8E93]">+</span>
+                  <kbd className="px-2 py-0.5 rounded-lg bg-black/10 dark:bg-white/15 text-[11px] font-mono font-bold text-black dark:text-white">Shift</kbd>
+                  <span className="text-[#8E8E93]">+</span>
+                  <kbd className="px-2 py-0.5 rounded-lg bg-black/10 dark:bg-white/15 text-[11px] font-mono font-bold text-black dark:text-white">S</kbd>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between p-2.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.05] dark:border-white/[0.08]">
+                <span className="text-[#1C1C1E] dark:text-white font-medium">Закрыть активное окно</span>
+                <kbd className="px-2 py-0.5 rounded-lg bg-black/10 dark:bg-white/15 text-[11px] font-mono font-bold text-black dark:text-white">Esc</kbd>
+              </div>
+
+              <div className="flex items-center justify-between p-2.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.05] dark:border-white/[0.08]">
+                <span className="text-[#1C1C1E] dark:text-white font-medium">Вставка скриншота из буфера (OCR)</span>
+                <div className="flex items-center gap-1">
+                  <kbd className="px-2 py-0.5 rounded-lg bg-black/10 dark:bg-white/15 text-[11px] font-mono font-bold text-black dark:text-white">Ctrl</kbd>
+                  <span className="text-[#8E8E93]">+</span>
+                  <kbd className="px-2 py-0.5 rounded-lg bg-black/10 dark:bg-white/15 text-[11px] font-mono font-bold text-black dark:text-white">V</kbd>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between p-2.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.05] dark:border-white/[0.08]">
+                <span className="text-[#1C1C1E] dark:text-white font-medium">Открыть / скрыть горячие клавиши</span>
+                <div className="flex items-center gap-1">
+                  <kbd className="px-2 py-0.5 rounded-lg bg-black/10 dark:bg-white/15 text-[11px] font-mono font-bold text-black dark:text-white">Ctrl</kbd>
+                  <span className="text-[#8E8E93]">+</span>
+                  <kbd className="px-2 py-0.5 rounded-lg bg-black/10 dark:bg-white/15 text-[11px] font-mono font-bold text-black dark:text-white">/</kbd>
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShortcutsModal(false)}
+              className="w-full apple-btn-primary font-semibold py-2.5 rounded-2xl text-xs mt-4 spring-press"
+            >
+              Понятно
+            </button>
           </div>
         </div>
       )}

@@ -45,6 +45,11 @@ async def seed_admin():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Запуск приложения Flow Translate...")
+    if settings.SECRET_KEY == "4e9938d66d1b3e500807fa4175afc664bd00fe62123d6bd83526b92ea81d856c":
+        logger.warning(
+            "[SECURITY WARNING] В конфигурации используется стандартный SECRET_KEY! "
+            "Для продакшн-окружения рекомендуется переопределить SECRET_KEY в .env."
+        )
     try:
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
@@ -73,7 +78,7 @@ app.add_middleware(
         "http://127.0.0.1:3000",
         "https://mohangg812.github.io",
     ],
-    allow_origin_regex=r"^(https?://(localhost|127\.0\.0\.1)(:[0-9]+)?|https://.*\.github\.io|https://.*\.loca\.lt|https://.*\.onrender\.com)$",
+    allow_origin_regex=r"^(https?://(localhost|127\.0\.0\.1)(:[0-9]+)?|https://mohangg812\.github\.io|https://[a-zA-Z0-9-]+\.loca\.lt|https://flow-translate.*\.onrender\.com)$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

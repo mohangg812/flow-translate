@@ -28,6 +28,11 @@ class Settings(BaseSettings):
     SMTP_USER: str = ""
     SMTP_PASSWORD: str = ""
 
+    # Публичные URL для почтовых ссылок подтверждения и интеграций
+    BACKEND_PUBLIC_URL: str = "http://127.0.0.1:8000"
+    FRONTEND_URL: str = "http://localhost:5173"
+    ENVIRONMENT: str = "development"
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 

@@ -29,6 +29,8 @@ from app.core.security import (
     create_access_token,
     decode_access_token
 )
+from app.core.config import settings
+from app.core.rate_limit import auth_rate_limiter
 from app.services.email import EmailService
 
 logger = logging.getLogger("flow_translate.auth")
@@ -64,7 +66,12 @@ async def get_current_user(
     return user
 
 
-@router.post("/register", status_code=status.HTTP_201_CREATED, summary="Регистрация нового пользователя с Google Authenticator")
+@router.post(
+    "/register",
+    status_code=status.HTTP_201_CREATED,
+    summary="Регистрация нового пользователя с Google Authenticator",
+    dependencies=[Depends(auth_rate_limiter)]
+)
 async def register(
     payload: UserRegister,
     background_tasks: BackgroundTasks,
@@ -120,9 +127,9 @@ async def register(
         await db.commit()
         await db.refresh(new_user)
 
-    # Текущий 6-значный код на момент регистрации
+    # Текущий 6-значный код на момент регистрации (отправляется только в email)
     current_code = pyotp.TOTP(totp_secret).now()
-    verify_url = f"http://127.0.0.1:8000/api/v1/auth/verify-email?token={email_verify_token}"
+    verify_url = f"{settings.BACKEND_PUBLIC_URL.rstrip('/')}/api/v1/auth/verify-email?token={email_verify_token}"
     
     # Фоновая отправка письма (если настроен SMTP, иначе вывод в лог)
     background_tasks.add_task(EmailService.send_verification_email, email_clean, current_code, verify_url)
@@ -131,12 +138,15 @@ async def register(
         "message": "Регистрация начата! Отсканируйте QR-код в Google Authenticator для подтверждения.",
         "email": email_clean,
         "qr_code_url": qr_code_url,
-        "secret_key": totp_secret,
-        "demo_code": current_code
+        "secret_key": totp_secret
     }
 
 
-@router.post("/verify-code", summary="Подтвердить регистрацию кодом из Google Authenticator")
+@router.post(
+    "/verify-code",
+    summary="Подтвердить регистрацию кодом из Google Authenticator",
+    dependencies=[Depends(auth_rate_limiter)]
+)
 async def verify_code(payload: VerifyCodeRequest, db: AsyncSession = Depends(get_db)):
     email_clean = payload.email.lower().strip()
     stmt = select(User).where(User.email == email_clean)
@@ -202,7 +212,12 @@ async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
     return {"message": "Почта успешно подтверждена! Теперь вы можете войти в систему."}
 
 
-@router.post("/login", response_model=Token, summary="Вход в систему (получение JWT)")
+@router.post(
+    "/login",
+    response_model=Token,
+    summary="Вход в систему (получение JWT)",
+    dependencies=[Depends(auth_rate_limiter)]
+)
 async def login(payload: UserLogin, db: AsyncSession = Depends(get_db)):
     email_clean = payload.email.lower().strip()
     stmt = select(User).where(User.email == email_clean)
@@ -253,7 +268,11 @@ async def change_password(
     return {"message": "Пароль успешно изменен"}
 
 
-@router.post("/reset-password", summary="Сброс пароля через Google Authenticator")
+@router.post(
+    "/reset-password",
+    summary="Сброс пароля через Google Authenticator",
+    dependencies=[Depends(auth_rate_limiter)]
+)
 async def reset_password(payload: PasswordResetRequest, db: AsyncSession = Depends(get_db)):
     email_clean = payload.email.lower().strip()
     stmt = select(User).where(User.email == email_clean)
