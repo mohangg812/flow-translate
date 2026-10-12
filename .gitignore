@@ -24,3 +24,9 @@ Thumbs.db
 
 # OCR large binary models
 *.traineddata
+
+# External scripts and data
+*.wh.cpp
+make_excel.py
+*.xlsx
+*.csv

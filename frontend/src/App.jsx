@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import Tesseract, { createWorker } from 'tesseract.js';
 import api from './api';
 import { 
@@ -9,7 +9,7 @@ import {
   Camera, FileText, Globe, Download, UploadCloud,
   FileCheck, ExternalLink, Loader2, ArrowUpRight, Scan, BookOpen, Compass, Bookmark,
   Mic, MicOff, MessageSquare, History, SlidersHorizontal, Trash2, Video,
-  Keyboard
+  Keyboard, Music, Play, Pause, VolumeX, Flame, Zap, Award, Info
 } from 'lucide-react';
 
 const SOURCE_LANGUAGES = [
@@ -113,6 +113,185 @@ function useDebounce(value, delay) {
   return debouncedValue;
 }
 
+const TRANSLATION_CONTEXTS = [
+  { id: 'general', label: 'Общий', icon: '🌐', desc: 'Естественный повседневный перевод' },
+  { id: 'idioms', label: 'Идиомы & Игра слов', icon: '💡', desc: 'Культурная адаптация и смысл для носителя' },
+  { id: 'it', label: 'IT & Код', icon: '💻', desc: 'Технический контекст (код, архитектура, баги)' },
+  { id: 'business', label: 'Бизнес & Финансы', icon: '💼', desc: 'Деловой тон, контракты, финансы' },
+  { id: 'culinary', label: 'Кулинария', icon: '🍕', desc: 'Рецепты, ингредиенты, блюда' },
+  { id: 'slang', label: 'Сленг & Улица', icon: '🔥', desc: 'Молодежный сленг и живая речь' },
+];
+
+const CULTURAL_NUANCE_DATABASE = [
+  {
+    triggers: ['зеленая зелень', 'зеленая зелени', 'зелёная зелень', 'зеленую зелень', 'зелёную зелень', 'зеленой зелени'],
+    title: '«Зелёная зелень» — Эмфатическая тавтология',
+    nativeExplanation: 'В русском языке это стилистическая тавтология (усиление признака). Означает ультра-свежую сочную растительность либо иронично крайнюю неопытность или юность («молодо-зелено»).',
+    americanEquivalent: 'Lush vibrant greenery / Fresh foliage / Green as grass',
+    tip: 'Буквальный перевод «green greenery» звучит для американца нелепо и неестественно. Носитель языка скажет: «intensely lush foliage» или «vibrant greens».'
+  },
+  {
+    triggers: ['руки не доходят', 'руки не дошли', 'рука не доходит'],
+    title: '«Руки не доходят» — Русская парадоксальная идиома',
+    nativeExplanation: 'Буквальный перевод «hands don’t walk» поставит иностранца в тупик. Фраза выражает хроническую нехватку времени или откладывание дела.',
+    americanEquivalent: "I haven't gotten around to it yet / Haven't had the time",
+    tip: 'Для носителя языка используйте: «I’ve been meaning to, but haven’t gotten around to it yet».'
+  },
+  {
+    triggers: ['собаку съел', 'собаку съела', 'собаку съели'],
+    title: '«Собаку съел» — Профессиональное мастерство',
+    nativeExplanation: 'Выражение не имеет отношения к еде. Означает огромный практический опыт и мастерство в каком-либо вопросе.',
+    americanEquivalent: 'To know inside out / An old hand / Veteran at this',
+    tip: 'Американец скажет: «He knows the ropes inside and out» или «She is an old hand at this».'
+  },
+  {
+    triggers: ['горит дедлайн', 'горят дедлайны', 'дедлайн горит', 'дедлайны горят'],
+    title: '«Горит дедлайн» — Аврал и срочность',
+    nativeExplanation: 'Метафора пожара, передающая критический цейтнот и срочность задачи.',
+    americanEquivalent: 'Crunch time / The deadline is breathing down our necks',
+    tip: 'В корпоративной переписке: «We are on a tight deadline» или «It’s crunch time for the team».'
+  },
+  {
+    triggers: ['масло масляное'],
+    title: '«Масло масляное» — Классический плеоназм',
+    nativeExplanation: 'Ироничное указание на избыточное, самоочевидное повторение одного и того же смысла.',
+    americanEquivalent: 'Pleonasm / That’s completely redundant / Stating the obvious',
+    tip: 'Американский аналог: «That’s completely redundant, you are stating the obvious».'
+  },
+  {
+    triggers: ['вешать лапшу', 'вешает лапшу', 'лапшу на уши', 'лапша на ушах'],
+    title: '«Вешать лапшу на уши» — Введение в заблуждение',
+    nativeExplanation: 'Красочная идиома намеренного обмана, преувеличения или дезинформации.',
+    americanEquivalent: 'Pulling someone’s leg / Feeding a line / BS-ing',
+    tip: 'Идиоматический аналог для носителя: «Stop pulling my leg!» или «Don’t feed me that line!».'
+  },
+  {
+    triggers: ['дело в шляпе'],
+    title: '«Дело в шляпе» — Успешное завершение',
+    nativeExplanation: 'Историческая идиома: вопрос окончательно решён, успех гарантирован.',
+    americanEquivalent: 'It’s in the bag / Done deal / Mission accomplished',
+    tip: 'Американский разговорный эквивалент: «It’s in the bag!».'
+  },
+  {
+    triggers: ['втирать дичь', 'втирает дичь'],
+    title: '«Втирать дичь» — Молодежный сленг',
+    nativeExplanation: 'Уверенно рассказывать абсурдные небылицы, нелепицу или откровенную чушь.',
+    americanEquivalent: 'Talking pure nonsense / Spouting complete BS',
+    tip: 'Носитель языка скажет: «He is spouting absolute nonsense».'
+  },
+  {
+    triggers: ['на чиле', 'на расслабоне', 'чилить', 'чилю'],
+    title: '«На чиле, на расслабоне» — Релакс и отдых',
+    nativeExplanation: 'Состояние полного покоя, беззаботности и отсутствия напряжения.',
+    americanEquivalent: 'Chilling out / Kicking back / Just vibing',
+    tip: 'Естественный перевод для американца: «Just kicking back and vibing».'
+  }
+];
+
+function findCulturalNuance(text) {
+  if (!text || typeof text !== 'string') return null;
+  const clean = text.toLowerCase().trim();
+  if (clean.length < 3) return null;
+
+  for (const item of CULTURAL_NUANCE_DATABASE) {
+    if (item.triggers.some(t => clean.includes(t))) {
+      return item;
+    }
+  }
+
+  // Динамический алгоритмический детектор тавтологий (например: белая белизна, темная темнота)
+  const words = clean.split(/\s+/).filter(w => w.length >= 4);
+  for (let i = 0; i < words.length - 1; i++) {
+    const w1 = words[i].replace(/[^а-яa-z]/gi, '');
+    const w2 = words[i+1].replace(/[^а-яa-z]/gi, '');
+    if (w1.length >= 4 && w2.length >= 4) {
+      const stem1 = w1.slice(0, 4);
+      const stem2 = w2.slice(0, 4);
+      if (stem1 === stem2 && w1 !== w2) {
+        return {
+          title: `«${w1} ${w2}» — Тавтологическое усиление`,
+          nativeExplanation: 'В русском языке повторение однокоренных слов используется для экспрессивного подчеркивания признака.',
+          americanEquivalent: `Intensely ${w1} / Emphatic expression`,
+          tip: 'Для естественного английского языка избегайте дословного удвоения, используйте наречие усиления (intensely, deeply, thoroughly).'
+        };
+      }
+    }
+  }
+
+  return null;
+}
+
+function analyzeHipHopLyrics(text) {
+  if (!text || text.trim().length < 8) return null;
+  const clean = text.toLowerCase();
+
+  const ruRapMarkers = [
+    'бит', 'биты', 'флоу', 'йоу', 'йо', 'гэнг', 'гэнгста', 'рэп', 'рэпер', 'рифм', 'баттл',
+    'хайп', 'гетто', 'улиц', 'микрофон', 'микро', 'чипинкос', 'респект', 'блок', 'ствол',
+    'райм', 'панч', 'панчлайн', 'дисс', 'бас', 'сабвуфер', 'чилить', 'флекс', 'флексить',
+    'кэш', 'лавэ', 'бабки', 'мусора', 'район', 'пацан', 'братух', 'братва', 'дым', 'косяк',
+    'трап', 'бумбэп', 'дрил', 'майк', 'грязь', 'барыг', 'шутер', 'раунд', 'текст', 'строк',
+    'врубай', 'кач', 'качает', 'бассы', 'слышишь', 'стелю', 'стелет', 'читка'
+  ];
+
+  const enRapMarkers = [
+    'yo', 'flow', 'beat', 'rhyme', 'rhymes', 'bars', 'verse', 'hook', 'spit', 'mic',
+    'hood', 'hustle', 'cash', 'flex', 'gang', 'gangsta', 'homie', 'trap', 'boom bap',
+    'drill', 'diss', 'cypher', 'swag', 'ice', 'drip', 'chain', 'hustling', 'streets',
+    'banger', 'spitting', 'skrrt', 'brr', 'yeah', 'skrt', 'clout', 'drop the beat'
+  ];
+
+  const adlibPatterns = /\b(йоу|йо|эй|у|ай|е|скр+|skrrt|brr+|yeah|uh|ay|aye|whoa|damn)\b/gi;
+  const adlibsFound = (clean.match(adlibPatterns) || []).length;
+
+  const matchedRu = ruRapMarkers.filter(m => clean.includes(m));
+  const matchedEn = enRapMarkers.filter(m => clean.includes(m));
+  const matchedAll = [...new Set([...matchedRu, ...matchedEn])];
+
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  const words = clean.split(/\s+/).filter(Boolean);
+  const avgWordsPerLine = lines.length > 0 ? (words.length / lines.length) : 0;
+  const isRapStructure = lines.length >= 2 && avgWordsPerLine >= 3 && avgWordsPerLine <= 14;
+
+  let rhymePairs = 0;
+  for (let i = 0; i < lines.length - 1; i++) {
+    const end1 = lines[i].replace(/[^\p{L}]/gu, '').slice(-3);
+    const end2 = lines[i+1].replace(/[^\p{L}]/gu, '').slice(-3);
+    if (end1 && end2 && end1.length >= 2 && end1 === end2) {
+      rhymePairs++;
+    }
+  }
+
+  let score = 0;
+  score += Math.min(matchedAll.length * 18, 65);
+  score += Math.min(adlibsFound * 8, 20);
+  if (isRapStructure) score += 15;
+  if (rhymePairs > 0) score += Math.min(rhymePairs * 10, 20);
+
+  const confidence = Math.min(Math.max(score, 8), 98);
+  const isHipHop = confidence >= 40 || matchedAll.length >= 2;
+
+  return {
+    isHipHop,
+    confidence: isHipHop ? Math.max(confidence, 72) : Math.min(confidence, 34),
+    markers: matchedAll,
+    adlibsCount: adlibsFound,
+    linesCount: lines.length,
+    rhymePairs
+  };
+}
+
+const CHIPINKOS_PRESET_LYRICS = `Йоу, Чипинкос на микрофоне, рэп с улиц!
+Мой флоу качает каждый темный район,
+Тут реальный бит, здесь битва за трон.
+Мы стелем правду, микрофон горит огнем,
+Гэнгста стиль, мы делаем хип-хоп день за днем!`;
+
+const POP_BALLAD_PRESET_LYRICS = `Белые розы, белые розы, беззащитны шипы.
+Что с ними сделал снег и морозы, лед витрин голубых.
+Люди украсят вами свой праздник лишь на несколько дней
+И оставляют умирать на белом холодном окне.`;
+
 export default function App() {
   const [theme, setTheme] = useState(localStorage.getItem('flow_theme') || 'dark');
   const [user, setUser] = useState(null);
@@ -146,8 +325,68 @@ export default function App() {
   const [isSpeakingTarget, setIsSpeakingTarget] = useState(false);
   const [isSwapping, setIsSwapping] = useState(false);
 
-  // Mode State: 'text' | 'image' | 'doc' | 'url' | 'dialogue'
+  // Context Domain Selector state ('general' | 'idioms' | 'it' | 'business' | 'culinary' | 'slang')
+  const [selectedContext, setSelectedContext] = useState('general');
+
+  // Mode State: 'text' | 'image' | 'doc' | 'url' | 'dialogue' | 'rap'
   const [activeMode, setActiveMode] = useState('text');
+
+  // Rap & Hip-Hop Mode State (Chipinkos audio & lyrics detector)
+  const chipinkosAudioRef = useRef(null);
+  const [isPlayingChipinkos, setIsPlayingChipinkos] = useState(false);
+  const [isChipinkosMuted, setIsChipinkosMuted] = useState(false);
+  const [rapLyricsText, setRapLyricsText] = useState(CHIPINKOS_PRESET_LYRICS);
+  const [rapTranslation, setRapTranslation] = useState('');
+  const [isTranslatingRap, setIsTranslatingRap] = useState(false);
+
+  // Cultural Nuances for current translation text
+  const culturalNuance = useMemo(() => {
+    return findCulturalNuance(sourceText);
+  }, [sourceText]);
+
+  // Hip-Hop analysis for rap mode lyrics
+  const hipHopAnalysis = useMemo(() => {
+    return analyzeHipHopLyrics(rapLyricsText);
+  }, [rapLyricsText]);
+
+  // Autoplay Chipinkos track when switching to 'rap' mode, pause when leaving
+  useEffect(() => {
+    if (activeMode === 'rap') {
+      if (chipinkosAudioRef.current) {
+        chipinkosAudioRef.current.currentTime = 0;
+        const playPromise = chipinkosAudioRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => setIsPlayingChipinkos(true))
+            .catch((err) => {
+              console.log('Autoplay blocked until user interaction:', err);
+              setIsPlayingChipinkos(false);
+            });
+        }
+      }
+    } else {
+      if (chipinkosAudioRef.current) {
+        chipinkosAudioRef.current.pause();
+        setIsPlayingChipinkos(false);
+      }
+    }
+  }, [activeMode]);
+
+  const toggleChipinkosAudio = () => {
+    if (!chipinkosAudioRef.current) return;
+    if (isPlayingChipinkos) {
+      chipinkosAudioRef.current.pause();
+      setIsPlayingChipinkos(false);
+    } else {
+      chipinkosAudioRef.current.play().then(() => setIsPlayingChipinkos(true)).catch(() => {});
+    }
+  };
+
+  const toggleChipinkosMute = () => {
+    if (!chipinkosAudioRef.current) return;
+    chipinkosAudioRef.current.muted = !isChipinkosMuted;
+    setIsChipinkosMuted(!isChipinkosMuted);
+  };
   const [isOcrProcessing, setIsOcrProcessing] = useState(false);
   const [ocrProgress, setOcrProgress] = useState(0);
   const [ocrStatusText, setOcrStatusText] = useState('');
@@ -350,6 +589,38 @@ export default function App() {
     const joiner = inputText.includes('\n') && chunks.length > 1 ? '\n\n' : ' ';
     return translatedChunks.join(joiner).trim();
   };
+
+  // Debounced translation for rap lyrics
+  useEffect(() => {
+    if (activeMode !== 'rap') return;
+    const clean = rapLyricsText.trim();
+    if (!clean) {
+      setRapTranslation('');
+      return;
+    }
+    const timer = setTimeout(async () => {
+      setIsTranslatingRap(true);
+      try {
+        const res = await api.post('/translate', {
+          text: clean,
+          source_lang: 'auto',
+          target_lang: 'en',
+          tone: 'informal'
+        });
+        if (res.data?.translated_text) {
+          setRapTranslation(res.data.translated_text);
+        }
+      } catch (_) {
+        try {
+          const fallback = await robustTranslateClient(clean, 'ru', 'en');
+          if (fallback) setRapTranslation(fallback);
+        } catch (e) {}
+      } finally {
+        setIsTranslatingRap(false);
+      }
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [rapLyricsText, activeMode]);
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -1085,14 +1356,14 @@ export default function App() {
   useEffect(() => {
     if (sourceLang === 'auto') {
       const detected = detectLanguage(sourceText);
-      if (detected) {
+      if (detected && detected !== detectedLang) {
         setDetectedLang(detected);
         if (detected === targetLang) {
           setTargetLang(detected === 'ru' ? 'en' : 'ru');
         }
       }
     }
-  }, [sourceText, sourceLang, targetLang]);
+  }, [sourceText, sourceLang, targetLang, detectedLang]);
 
   // Core translation execution (used by debounced effect and Ctrl+Enter shortcut)
   const performTranslation = useCallback(async (forcedText) => {
@@ -1170,7 +1441,7 @@ export default function App() {
     }
   }, [sourceText, sourceLang, targetLang, detectedLang, tone, robustTranslateClient]);
 
-  // Translation Effect (Debounced 450ms)
+  // Translation Effect (Debounced 600ms to prevent premature mid-word re-fetching)
   useEffect(() => {
     const text = sourceText.trim();
     if (!text) {
@@ -1184,7 +1455,7 @@ export default function App() {
 
     const timer = setTimeout(() => {
       performTranslation();
-    }, 450);
+    }, 600);
 
     return () => clearTimeout(timer);
   }, [sourceText, performTranslation]);
@@ -1825,6 +2096,18 @@ export default function App() {
               <MessageSquare size={13} className={activeMode === 'dialogue' ? 'text-current' : ''} />
               <span>Диалог</span>
             </button>
+            <button
+              onClick={() => { setActiveMode('rap'); }}
+              className={`px-3 sm:px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 flex-shrink-0 active:scale-95 ${
+                activeMode === 'rap' 
+                  ? 'apple-tab-active scale-[1.02]' 
+                  : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
+              }`}
+              title="Рэп-студия Чипинкоса & Детектор жанра"
+            >
+              <Music size={13} className={activeMode === 'rap' ? 'text-current' : ''} />
+              <span>Рэп / Треки</span>
+            </button>
           </div>
         </div>
 
@@ -1950,6 +2233,33 @@ export default function App() {
               </div>
             </div>
           </div>
+
+          {/* Audio element for Chipinkos rap track */}
+          <audio ref={chipinkosAudioRef} src="/chipinkos.mp3" loop preload="auto" />
+
+          {/* Translation Domain / Context Chips */}
+          {activeMode !== 'dialogue' && activeMode !== 'rap' && (
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+              <span className="text-[11px] font-bold text-[#8E8E93] mr-1 uppercase tracking-wider hidden sm:inline flex-shrink-0">
+                Контекст:
+              </span>
+              {TRANSLATION_CONTEXTS.map(ctx => (
+                <button
+                  key={ctx.id}
+                  onClick={() => setSelectedContext(ctx.id)}
+                  className={`px-3 py-1 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 flex-shrink-0 active:scale-95 ${
+                    selectedContext === ctx.id
+                      ? 'apple-tab-active scale-[1.02]'
+                      : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white bg-black/[0.03] dark:bg-white/[0.06]'
+                  }`}
+                  title={ctx.desc}
+                >
+                  <span className="text-xs">{ctx.icon}</span>
+                  <span>{ctx.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* DIALOGUE MODE (Monochrome Face-to-Face Live Conversation) */}
           {activeMode === 'dialogue' ? (
@@ -2111,6 +2421,220 @@ export default function App() {
                   <span className="text-[11px] font-semibold text-[#8E8E93]">
                     {isDialogueListeningRight ? 'Слушаю...' : 'Говорить'}
                   </span>
+                </div>
+              </div>
+            </div>
+          ) : activeMode === 'rap' ? (
+            <div className="space-y-4 animate-in fade-in">
+              {/* Чипинкос Music Bar Player */}
+              <div className="ios-glass ios-card-specular rounded-[24px] sm:rounded-[28px] p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3 border border-black/10 dark:border-white/10 shadow-lg relative overflow-hidden">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-bold text-lg shadow-md flex-shrink-0">
+                    🎤
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs sm:text-sm font-bold text-[#1C1C1E] dark:text-white truncate">
+                        Чипинкос — Зачем тебе рэп (Original Track)
+                      </span>
+                      <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-black/10 dark:bg-white/15 text-black dark:text-white border border-black/10 dark:border-white/20 flex-shrink-0">
+                        Фоновый бит
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 pt-1 text-xs text-[#8E8E93]">
+                      <div className="flex items-end gap-0.5 h-3">
+                        <span className={`w-0.5 bg-black dark:bg-white rounded-full transition-all ${isPlayingChipinkos ? 'h-3 animate-pulse' : 'h-1'}`} />
+                        <span className={`w-0.5 bg-black dark:bg-white rounded-full transition-all ${isPlayingChipinkos ? 'h-2 animate-bounce' : 'h-1'}`} />
+                        <span className={`w-0.5 bg-black dark:bg-white rounded-full transition-all ${isPlayingChipinkos ? 'h-3.5 animate-pulse' : 'h-1'}`} />
+                        <span className={`w-0.5 bg-black dark:bg-white rounded-full transition-all ${isPlayingChipinkos ? 'h-1.5 animate-bounce' : 'h-1'}`} />
+                      </div>
+                      <span>{isPlayingChipinkos ? 'Трек Чипинкоса играет' : 'Воспроизведение приостановлено'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Player Controls */}
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <button
+                    onClick={toggleChipinkosAudio}
+                    className="apple-btn-primary px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2 shadow-md active:scale-95"
+                    title={isPlayingChipinkos ? 'Поставить на паузу' : 'Включить трек Чипинкоса'}
+                  >
+                    {isPlayingChipinkos ? <Pause size={14} /> : <Play size={14} />}
+                    <span>{isPlayingChipinkos ? 'Пауза' : 'Слушать'}</span>
+                  </button>
+                  <button
+                    onClick={toggleChipinkosMute}
+                    className="apple-btn-glass p-2 rounded-full text-[#8E8E93] hover:text-black dark:hover:text-white"
+                    title={isChipinkosMuted ? 'Включить звук' : 'Выключить звук'}
+                  >
+                    {isChipinkosMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Preset buttons */}
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <span className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-wider mr-1">
+                  Быстрый тест трека:
+                </span>
+                <button
+                  onClick={() => setRapLyricsText(CHIPINKOS_PRESET_LYRICS)}
+                  className="px-3 py-1.5 rounded-full text-xs font-semibold apple-btn-glass text-black dark:text-white flex items-center gap-1.5 hover:scale-[1.02] active:scale-95"
+                >
+                  <Flame size={13} className="text-amber-500" />
+                  <span>Трек Чипинкоса (Хип-хоп)</span>
+                </button>
+                <button
+                  onClick={() => setRapLyricsText(POP_BALLAD_PRESET_LYRICS)}
+                  className="px-3 py-1.5 rounded-full text-xs font-semibold apple-btn-glass text-black dark:text-white flex items-center gap-1.5 hover:scale-[1.02] active:scale-95"
+                >
+                  <span>🎸</span>
+                  <span>Поп / Баллада (Не хип-хоп)</span>
+                </button>
+                <button
+                  onClick={() => setRapLyricsText('')}
+                  className="px-2.5 py-1.5 rounded-full text-xs font-semibold text-[#8E8E93] hover:text-rose-500"
+                >
+                  Очистить
+                </button>
+              </div>
+
+              {/* Genre Classifier Verdict Card */}
+              {hipHopAnalysis && (
+                <div className={`ios-glass rounded-[24px] sm:rounded-[28px] p-5 sm:p-6 border transition-all shadow-md ${
+                  hipHopAnalysis.isHipHop
+                    ? 'border-emerald-500/40 bg-emerald-500/[0.04] dark:bg-emerald-500/[0.07]'
+                    : 'border-neutral-400/30 bg-neutral-500/[0.03] dark:bg-neutral-500/[0.05]'
+                }`}>
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-2xl">
+                        {hipHopAnalysis.isHipHop ? '🔥' : '🎸'}
+                      </span>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-base sm:text-lg font-bold tracking-tight text-[#1C1C1E] dark:text-white">
+                            {hipHopAnalysis.isHipHop ? 'ЖАНР: ХИП-ХОП / РЭП ТРЕК' : 'ЖАНР: НЕ ХИП-ХОП (Поп / Рок / Лирика)'}
+                          </h3>
+                        </div>
+                        <p className="text-xs text-[#8E8E93] pt-0.5">
+                          {hipHopAnalysis.isHipHop
+                            ? 'Алгоритм подтверждает наличие уличного флоу, рэп-лексики и характерной читки под бит.'
+                            : 'Рэп-маркеров, уличного сленга и хип-хоп ритмики в тексте не обнаружено.'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <div className="text-right">
+                        <span className="text-[10px] uppercase font-bold text-[#8E8E93] block">Совпадение</span>
+                        <span className={`text-xl sm:text-2xl font-extrabold ${hipHopAnalysis.isHipHop ? 'text-emerald-600 dark:text-emerald-400' : 'text-neutral-500'}`}>
+                          {hipHopAnalysis.confidence}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Marker Tags and Metrics */}
+                  <div className="pt-3 space-y-3">
+                    {hipHopAnalysis.markers.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="text-xs font-bold text-[#8E8E93] mr-1">Найденные маркеры жанра:</span>
+                        {hipHopAnalysis.markers.map(m => (
+                          <span key={m} className="text-xs font-semibold px-2 py-0.5 rounded-md bg-black/5 dark:bg-white/10 text-black dark:text-white border border-black/10 dark:border-white/15">
+                            #{m}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-center">
+                      <div className="p-2 rounded-xl bg-black/[0.02] dark:bg-white/[0.04] border border-black/5 dark:border-white/5">
+                        <span className="text-[10px] text-[#8E8E93] block">Строк (Bars)</span>
+                        <span className="text-xs font-bold text-[#1C1C1E] dark:text-white">{hipHopAnalysis.linesCount}</span>
+                      </div>
+                      <div className="p-2 rounded-xl bg-black/[0.02] dark:bg-white/[0.04] border border-black/5 dark:border-white/5">
+                        <span className="text-[10px] text-[#8E8E93] block">Рифмованных пар</span>
+                        <span className="text-xs font-bold text-[#1C1C1E] dark:text-white">{hipHopAnalysis.rhymePairs}</span>
+                      </div>
+                      <div className="p-2 rounded-xl bg-black/[0.02] dark:bg-white/[0.04] border border-black/5 dark:border-white/5">
+                        <span className="text-[10px] text-[#8E8E93] block">Адлибов</span>
+                        <span className="text-xs font-bold text-[#1C1C1E] dark:text-white">{hipHopAnalysis.adlibsCount}</span>
+                      </div>
+                      <div className="p-2 rounded-xl bg-black/[0.02] dark:bg-white/[0.04] border border-black/5 dark:border-white/5">
+                        <span className="text-[10px] text-[#8E8E93] block">Статус флоу</span>
+                        <span className="text-xs font-bold text-[#1C1C1E] dark:text-white">
+                          {hipHopAnalysis.isHipHop ? 'Street Ready' : 'Melodic'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Side-by-Side Lyrics Editor & Translator */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Lyrics Input */}
+                <div className="ios-glass ios-card-specular rounded-[24px] sm:rounded-[28px] p-5 sm:p-6 flex flex-col justify-between shadow-lg min-h-[280px]">
+                  <div>
+                    <div className="flex items-center justify-between pb-2.5 mb-2 border-b border-black/[0.04] dark:border-white/[0.06]">
+                      <span className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider flex items-center gap-1.5">
+                        🎤 Текст трека (Куплет / Припев)
+                      </span>
+                      <span className="text-[10px] text-[#8E8E93]">
+                        {rapLyricsText.length} симв.
+                      </span>
+                    </div>
+
+                    <textarea
+                      value={rapLyricsText}
+                      onChange={(e) => setRapLyricsText(e.target.value)}
+                      placeholder="Вставьте или напишите текст рэп-трека..."
+                      rows={8}
+                      className="w-full bg-transparent resize-none focus:outline-none text-base sm:text-lg font-medium leading-relaxed text-[#1C1C1E] dark:text-white placeholder-[#8E8E93]"
+                    />
+                  </div>
+                </div>
+
+                {/* Lyrics English Translation */}
+                <div className="bg-[#F1F3F4] dark:bg-[#1E1F20] border border-black/[0.06] dark:border-white/[0.06] rounded-[24px] sm:rounded-[28px] p-5 sm:p-6 flex flex-col justify-between shadow-sm min-h-[280px]">
+                  <div>
+                    <div className="flex items-center justify-between pb-2.5 mb-2 border-b border-black/[0.04] dark:border-white/[0.06]">
+                      <span className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider flex items-center gap-1.5">
+                        🇬🇧 Перевод с адаптацией флоу
+                      </span>
+                      <div className="flex items-center gap-2">
+                        {rapTranslation && (
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(rapTranslation);
+                            }}
+                            className="apple-icon-btn p-1.5 rounded-full text-[#8E8E93] hover:text-black dark:hover:text-white"
+                            title="Скопировать перевод"
+                          >
+                            <Copy size={13} />
+                          </button>
+                        )}
+                        <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 uppercase">
+                          English Rap Flow
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className={`transition-opacity duration-200 ${isTranslatingRap ? 'opacity-65' : 'opacity-100'}`}>
+                      {isTranslatingRap && !rapTranslation ? (
+                        <div className="flex items-center gap-2 py-6 text-[#8E8E93]">
+                          <RefreshCw size={16} className="animate-spin" />
+                          <span>Переводим трек...</span>
+                        </div>
+                      ) : (
+                        <p className="text-base sm:text-lg font-bold leading-relaxed text-[#1C1C1E] dark:text-white whitespace-pre-wrap select-text">
+                          {rapTranslation || <span className="text-[#8E8E93] font-normal">Перевод трека появится здесь...</span>}
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -2638,18 +3162,20 @@ export default function App() {
                   </div>
                 </div>
 
-                {isTranslating ? (
-                  <div className="flex items-center gap-3 py-6 text-[#8E8E93]">
-                    <div className="w-5 h-5 rounded-full border-2 border-black dark:border-white border-t-transparent animate-spin" />
-                    <span className="text-base sm:text-lg font-medium text-[#8E8E93]">Переводим текст...</span>
-                  </div>
-                ) : (
-                  <div>
-                    <h3 className="text-lg sm:text-2xl md:text-3xl font-bold text-[#1C1C1E] dark:text-white select-text leading-snug tracking-tight break-words whitespace-pre-wrap">
-                      {translatedText || <span className="text-[#8E8E93] dark:text-[#5F6368] font-normal">Перевод</span>}
-                    </h3>
-                  </div>
-                )}
+                <div className={`transition-opacity duration-200 ${isTranslating && translatedText ? 'opacity-65' : 'opacity-100'}`}>
+                  {isTranslating && !translatedText ? (
+                    <div className="flex items-center gap-3 py-6 text-[#8E8E93]">
+                      <div className="w-5 h-5 rounded-full border-2 border-black dark:border-white border-t-transparent animate-spin" />
+                      <span className="text-base sm:text-lg font-medium text-[#8E8E93]">Переводим текст...</span>
+                    </div>
+                  ) : (
+                    <div>
+                      <h3 className="text-lg sm:text-2xl md:text-3xl font-bold text-[#1C1C1E] dark:text-white select-text leading-snug tracking-tight break-words whitespace-pre-wrap">
+                        {translatedText || <span className="text-[#8E8E93] dark:text-[#5F6368] font-normal">Перевод</span>}
+                      </h3>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Target Card Footer */}
@@ -2698,6 +3224,37 @@ export default function App() {
             </div>
           </div>
         </div>
+        )}
+
+        {/* Cultural Nuance & Meaning Note for American / English Speakers */}
+        {culturalNuance && activeMode !== 'dialogue' && activeMode !== 'rap' && (
+          <div className="ios-glass border border-amber-500/30 bg-amber-500/[0.04] dark:bg-amber-400/[0.06] rounded-[24px] p-4 sm:p-6 shadow-sm animate-in fade-in space-y-2.5">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-amber-500/20 pb-2.5">
+              <div className="flex items-center gap-2.5">
+                <span className="text-lg">💡</span>
+                <h4 className="text-xs sm:text-sm font-bold text-amber-900 dark:text-amber-200">
+                  {culturalNuance.title}
+                </h4>
+              </div>
+              <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/25">
+                Контекст для носителя языка
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm text-[#1C1C1E] dark:text-white leading-relaxed">
+              {culturalNuance.nativeExplanation}
+            </p>
+            <div className="pt-1 flex flex-wrap items-center gap-2 text-xs">
+              <span className="font-bold text-[#8E8E93] dark:text-[#A1A1AA]">
+                Как поймёт и скажет американец:
+              </span>
+              <span className="font-semibold px-2.5 py-0.5 rounded-lg bg-black/5 dark:bg-white/10 text-black dark:text-white border border-black/10 dark:border-white/15">
+                {culturalNuance.americanEquivalent}
+              </span>
+            </div>
+            <p className="text-[11px] text-[#8E8E93] dark:text-[#A1A1AA] italic pt-0.5">
+              💬 {culturalNuance.tip}
+            </p>
+          </div>
         )}
 
           </section>
