@@ -30,3 +30,10 @@ Thumbs.db
 make_excel.py
 *.xlsx
 *.csv
+surprise-app/
+
+# Scratch & College practice files
+Lab10/
+Program.cs
+doc_builder_sample.py
+/*.txt

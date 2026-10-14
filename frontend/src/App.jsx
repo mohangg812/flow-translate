@@ -114,111 +114,416 @@ function useDebounce(value, delay) {
 }
 
 const TRANSLATION_CONTEXTS = [
-  { id: 'general', label: 'Общий', icon: '🌐', desc: 'Естественный повседневный перевод' },
-  { id: 'idioms', label: 'Идиомы & Игра слов', icon: '💡', desc: 'Культурная адаптация и смысл для носителя' },
-  { id: 'it', label: 'IT & Код', icon: '💻', desc: 'Технический контекст (код, архитектура, баги)' },
-  { id: 'business', label: 'Бизнес & Финансы', icon: '💼', desc: 'Деловой тон, контракты, финансы' },
-  { id: 'culinary', label: 'Кулинария', icon: '🍕', desc: 'Рецепты, ингредиенты, блюда' },
-  { id: 'slang', label: 'Сленг & Улица', icon: '🔥', desc: 'Молодежный сленг и живая речь' },
+  { id: 'general', label: 'Общий', desc: 'Естественный повседневный перевод' },
+  { id: 'idioms', label: 'Идиомы', desc: 'Идиоматические выражения и переносный смысл' },
+  { id: 'slang', label: 'Сленг', desc: 'Разговорная речь и американский сленг' },
+  { id: 'business', label: 'Бизнес', desc: 'Деловая переписка и профессиональный тон' },
+  { id: 'culinary', label: 'Кулинария', desc: 'Еда, ингредиенты и бытовой контекст' },
+  { id: 'it', label: 'IT', desc: 'Технологии, разработка и компьютерная лексика' },
 ];
 
-const CULTURAL_NUANCE_DATABASE = [
+const AMERICAN_CONTEXT_DATABASE = [
   {
-    triggers: ['зеленая зелень', 'зеленая зелени', 'зелёная зелень', 'зеленую зелень', 'зелёную зелень', 'зеленой зелени'],
-    title: '«Зелёная зелень» — Эмфатическая тавтология',
-    nativeExplanation: 'В русском языке это стилистическая тавтология (усиление признака). Означает ультра-свежую сочную растительность либо иронично крайнюю неопытность или юность («молодо-зелено»).',
-    americanEquivalent: 'Lush vibrant greenery / Fresh foliage / Green as grass',
-    tip: 'Буквальный перевод «green greenery» звучит для американца нелепо и неестественно. Носитель языка скажет: «intensely lush foliage» или «vibrant greens».'
+    triggers: ['зеленая зелень', 'зеленая зелени', 'зелёная зелень', 'зеленую зелень', 'зелёную зелень', 'зеленой зелени', 'зелень', 'зеленый', 'зеленое'],
+    variants: [
+      { phrase: 'Lush greenery', meaning: 'в природе: сочная растительность, богатая листва', category: 'general' },
+      { phrase: 'Fresh greens / Herbs', meaning: 'в кулинарии: свежая листовая зелень, петрушка, салат', category: 'culinary' },
+      { phrase: 'Green as grass / Inexperienced', meaning: 'переносный смысл: совсем юный или неопытный («молодо-зелено»)', category: 'idioms' },
+      { phrase: 'Crisp cash / Bucks', meaning: 'американский сленг: пачка наличных купюр («зелень»)', category: 'slang' }
+    ]
   },
   {
-    triggers: ['руки не доходят', 'руки не дошли', 'рука не доходит'],
-    title: '«Руки не доходят» — Русская парадоксальная идиома',
-    nativeExplanation: 'Буквальный перевод «hands don’t walk» поставит иностранца в тупик. Фраза выражает хроническую нехватку времени или откладывание дела.',
-    americanEquivalent: "I haven't gotten around to it yet / Haven't had the time",
-    tip: 'Для носителя языка используйте: «I’ve been meaning to, but haven’t gotten around to it yet».'
+    triggers: ['руки не доходят', 'руки не дошли', 'рука не доходит', 'не доходят руки'],
+    variants: [
+      { phrase: "Haven't gotten around to it yet", meaning: 'разговорное: всё откладываю, не дошли руки', category: 'general' },
+      { phrase: 'Been on the back burner', meaning: 'в работе: задача отложена на второй план', category: 'business' },
+      { phrase: "Haven't found the time yet", meaning: 'буквально: не было свободной минуты', category: 'idioms' }
+    ]
   },
   {
     triggers: ['собаку съел', 'собаку съела', 'собаку съели'],
-    title: '«Собаку съел» — Профессиональное мастерство',
-    nativeExplanation: 'Выражение не имеет отношения к еде. Означает огромный практический опыт и мастерство в каком-либо вопросе.',
-    americanEquivalent: 'To know inside out / An old hand / Veteran at this',
-    tip: 'Американец скажет: «He knows the ropes inside and out» или «She is an old hand at this».'
-  },
-  {
-    triggers: ['горит дедлайн', 'горят дедлайны', 'дедлайн горит', 'дедлайны горят'],
-    title: '«Горит дедлайн» — Аврал и срочность',
-    nativeExplanation: 'Метафора пожара, передающая критический цейтнот и срочность задачи.',
-    americanEquivalent: 'Crunch time / The deadline is breathing down our necks',
-    tip: 'В корпоративной переписке: «We are on a tight deadline» или «It’s crunch time for the team».'
-  },
-  {
-    triggers: ['масло масляное'],
-    title: '«Масло масляное» — Классический плеоназм',
-    nativeExplanation: 'Ироничное указание на избыточное, самоочевидное повторение одного и того же смысла.',
-    americanEquivalent: 'Pleonasm / That’s completely redundant / Stating the obvious',
-    tip: 'Американский аналог: «That’s completely redundant, you are stating the obvious».'
-  },
-  {
-    triggers: ['вешать лапшу', 'вешает лапшу', 'лапшу на уши', 'лапша на ушах'],
-    title: '«Вешать лапшу на уши» — Введение в заблуждение',
-    nativeExplanation: 'Красочная идиома намеренного обмана, преувеличения или дезинформации.',
-    americanEquivalent: 'Pulling someone’s leg / Feeding a line / BS-ing',
-    tip: 'Идиоматический аналог для носителя: «Stop pulling my leg!» или «Don’t feed me that line!».'
+    variants: [
+      { phrase: 'Knows it inside and out', meaning: 'досконально знает все детали вопроса', category: 'general' },
+      { phrase: 'An old hand at this / Veteran', meaning: 'опытный мастер, ветеран своего дела', category: 'business' },
+      { phrase: 'Knows the ropes', meaning: 'отлично ориентируется во всех нюансах процесса', category: 'idioms' }
+    ]
   },
   {
     triggers: ['дело в шляпе'],
-    title: '«Дело в шляпе» — Успешное завершение',
-    nativeExplanation: 'Историческая идиома: вопрос окончательно решён, успех гарантирован.',
-    americanEquivalent: 'It’s in the bag / Done deal / Mission accomplished',
-    tip: 'Американский разговорный эквивалент: «It’s in the bag!».'
+    variants: [
+      { phrase: "It's in the bag", meaning: 'успех гарантирован, вопрос решен', category: 'idioms' },
+      { phrase: 'Done deal', meaning: 'договоренность закрыта, все согласовано', category: 'business' },
+      { phrase: 'Mission accomplished', meaning: 'задача успешно выполнена', category: 'general' }
+    ]
   },
   {
-    triggers: ['втирать дичь', 'втирает дичь'],
-    title: '«Втирать дичь» — Молодежный сленг',
-    nativeExplanation: 'Уверенно рассказывать абсурдные небылицы, нелепицу или откровенную чушь.',
-    americanEquivalent: 'Talking pure nonsense / Spouting complete BS',
-    tip: 'Носитель языка скажет: «He is spouting absolute nonsense».'
+    triggers: ['горит дедлайн', 'горят дедлайны', 'дедлайн горит', 'дедлайны горят', 'горит'],
+    variants: [
+      { phrase: 'Tight deadline / Crunch time', meaning: 'аврал и цейтнот по срокам в проекте', category: 'business' },
+      { phrase: 'The clock is ticking', meaning: 'время на исходе, нужно торопиться', category: 'general' },
+      { phrase: 'Lit / On fire', meaning: 'сленг: атмосфера или проект просто огонь', category: 'slang' },
+      { phrase: 'Burning / In flames', meaning: 'буквальный огонь или пламя костра', category: 'general' }
+    ]
+  },
+  {
+    triggers: ['вешать лапшу', 'вешает лапшу', 'лапшу на уши', 'лапша на ушах'],
+    variants: [
+      { phrase: "Pulling someone's leg", meaning: 'подшучивать, разыгрывать кого-то', category: 'idioms' },
+      { phrase: 'Feeding a line / Spouting BS', meaning: 'намеренно врать, вешать лапшу на уши', category: 'slang' },
+      { phrase: 'Making stuff up', meaning: 'сочинять небылицы на ходу', category: 'general' }
+    ]
   },
   {
     triggers: ['на чиле', 'на расслабоне', 'чилить', 'чилю'],
-    title: '«На чиле, на расслабоне» — Релакс и отдых',
-    nativeExplanation: 'Состояние полного покоя, беззаботности и отсутствия напряжения.',
-    americanEquivalent: 'Chilling out / Kicking back / Just vibing',
-    tip: 'Естественный перевод для американца: «Just kicking back and vibing».'
+    variants: [
+      { phrase: 'Chilling out / Kicking back', meaning: 'отдыхать, приятно проводить время', category: 'slang' },
+      { phrase: 'Just vibing', meaning: 'находиться в спокойном расслабленном настроении', category: 'slang' },
+      { phrase: 'Taking it easy', meaning: 'не напрягаться, жить в спокойном ритме', category: 'general' }
+    ]
+  },
+  {
+    triggers: ['втирать дичь', 'втирает дичь', 'дичь'],
+    variants: [
+      { phrase: 'Talking pure nonsense', meaning: 'говорить откровенную ерунду или выдумки', category: 'slang' },
+      { phrase: 'Wild / Crazy thing', meaning: 'в значении странная, безумная ситуация', category: 'slang' },
+      { phrase: 'Game meat / Poultry', meaning: 'в кулинарии: мясо диких птиц или зверей', category: 'culinary' }
+    ]
+  },
+  {
+    triggers: ['забей', 'забить', 'забивай'],
+    variants: [
+      { phrase: 'Never mind / Forget about it', meaning: 'разговорное: не обращай внимания, забей', category: 'general' },
+      { phrase: 'Let it go', meaning: 'житейский совет: отпусти ситуацию, не держи в голове', category: 'idioms' },
+      { phrase: 'Score a goal', meaning: 'в спорте: забить мяч или шайбу в ворота', category: 'general' },
+      { phrase: 'Hammer in / Drive in', meaning: 'буквально: забить гвоздь или сваю', category: 'general' }
+    ]
+  },
+  {
+    triggers: ['крутой', 'круто', 'крутая', 'крутые'],
+    variants: [
+      { phrase: 'Cool / Badass / Sick', meaning: 'о человеке или вещи: впечатляющий, крутой', category: 'slang' },
+      { phrase: 'Steep', meaning: 'о склоне: крутой подъем или крутая лестница', category: 'general' },
+      { phrase: 'Tough / Hardcore', meaning: 'о характере или мерах: жесткий, суровый', category: 'general' }
+    ]
+  },
+  {
+    triggers: ['огонь'],
+    variants: [
+      { phrase: 'Lit / Awesome / Fire', meaning: 'сленг: трек, вечеринка или дизайн просто огонь', category: 'slang' },
+      { phrase: 'Flame / Blaze', meaning: 'буквальный огонь, пламя', category: 'general' },
+      { phrase: 'Gunfire', meaning: 'военное: открыть огонь, стрельба', category: 'general' }
+    ]
+  },
+  {
+    triggers: ['тема', 'тему', 'темы'],
+    variants: [
+      { phrase: 'Topic / Subject', meaning: 'предмет обсуждения или доклада', category: 'general' },
+      { phrase: 'Dope thing / Great idea', meaning: 'сленг: вот это годная тема, отличная задумка', category: 'slang' },
+      { phrase: 'Theme', meaning: 'музыкальная тема или тема оформления в софте', category: 'it' }
+    ]
+  },
+  {
+    triggers: ['нормально', 'нормальный', 'нормальная'],
+    variants: [
+      { phrase: 'All good / Pretty good', meaning: 'ответ на «как дела?»: нормально, всё в порядке', category: 'general' },
+      { phrase: 'Decent / Solid', meaning: 'о качестве: вполне приличный результат', category: 'general' },
+      { phrase: 'Properly', meaning: 'сделай нормально: как полагается по стандарту', category: 'business' }
+    ]
+  },
+  {
+    triggers: ['деревянный', 'деревянная', 'дерево'],
+    variants: [
+      { phrase: 'Wooden', meaning: 'сделанный из дерева или древесины', category: 'general' },
+      { phrase: 'Stiff / Clumsy', meaning: 'о человеке: скованный, непластичный, неловкий', category: 'idioms' },
+      { phrase: 'Ruble slang', meaning: 'ироничное разговорное про валюту', category: 'slang' }
+    ]
+  },
+  {
+    triggers: ['ключ', 'ключи'],
+    variants: [
+      { phrase: 'Key', meaning: 'от дверного замка или криптографический шифр', category: 'general' },
+      { phrase: 'Fresh spring / Source', meaning: 'родник, природный водный источник', category: 'general' },
+      { phrase: 'Wrench', meaning: 'гаечный ключ (инструмент)', category: 'general' },
+      { phrase: 'API Key / Token', meaning: 'в IT: секретный ключ доступа к сервису', category: 'it' }
+    ]
+  },
+  {
+    triggers: ['мир'],
+    variants: [
+      { phrase: 'World / Globe', meaning: 'планета Земля, все человечество', category: 'general' },
+      { phrase: 'Peace / Harmony', meaning: 'отсутствие войны, покой и согласие', category: 'general' },
+      { phrase: 'Universe', meaning: 'мироздание, вселенная', category: 'general' }
+    ]
+  },
+  {
+    triggers: ['свой', 'свои', 'своя'],
+    variants: [
+      { phrase: 'One of us / Insider', meaning: 'свой человек, близкий круг доверия', category: 'slang' },
+      { phrase: 'Own', meaning: 'свой собственный личный предмет', category: 'general' },
+      { phrase: 'True to oneself', meaning: 'быть в своей стихии / верным себе', category: 'idioms' }
+    ]
+  },
+  {
+    triggers: ['париться', 'не парься', 'парюсь'],
+    variants: [
+      { phrase: "Don't sweat it / No worries", meaning: 'не переживай, не бери в голову', category: 'slang' },
+      { phrase: 'Overthinking', meaning: 'слишком сильно заморачиваться', category: 'general' },
+      { phrase: 'Take a steam bath', meaning: 'буквально: париться в бане с веником', category: 'culinary' }
+    ]
+  },
+  {
+    triggers: ['бабки', 'кэш', 'лавэ'],
+    variants: [
+      { phrase: 'Cash / Bucks / Dough', meaning: 'сленг: деньги, наличные купюры', category: 'slang' },
+      { phrase: 'Grandmas / Elderly women', meaning: 'пожилые женщины, бабушки', category: 'general' }
+    ]
+  },
+  {
+    triggers: ['тянуть', 'тянет'],
+    variants: [
+      { phrase: 'Pull / Drag', meaning: 'буквально тащить или тянуть предмет', category: 'general' },
+      { phrase: 'Stall / Procrastinate', meaning: 'тянуть время, откладывать решение', category: 'business' },
+      { phrase: 'Craving / Drawn to', meaning: 'тянет к человеку или к сладкому', category: 'general' }
+    ]
+  },
+  {
+    triggers: ['гонять', 'гоняет'],
+    variants: [
+      { phrase: 'Speed / Drive fast', meaning: 'быстро ездить на автомобиле', category: 'slang' },
+      { phrase: 'Play on repeat', meaning: 'гонять любимый трек по кругу', category: 'slang' },
+      { phrase: 'Run around', meaning: 'бегать, гонять мяч во дворе', category: 'general' }
+    ]
+  },
+  {
+    triggers: ['дойти', 'дошло'],
+    variants: [
+      { phrase: 'Get it / Finally clicked', meaning: 'дошло! наконец-то понял суть мысли', category: 'slang' },
+      { phrase: 'Reach / Arrive on foot', meaning: 'дойти пешком до нужного места', category: 'general' }
+    ]
+  },
+  {
+    triggers: ['свет'],
+    variants: [
+      { phrase: 'Light / Glow', meaning: 'освещение, солнечный луч', category: 'general' },
+      { phrase: 'Power / Electricity', meaning: 'электричество (в доме отключили свет)', category: 'general' },
+      { phrase: 'High society', meaning: 'высший свет, аристократическое общество', category: 'idioms' }
+    ]
+  },
+  {
+    triggers: ['вода'],
+    variants: [
+      { phrase: 'Water', meaning: 'питьевая или природная вода', category: 'general' },
+      { phrase: 'Fluff / Filler', meaning: 'пустые слова без конкретики в докладе', category: 'business' }
+    ]
+  },
+  {
+    triggers: ['масло масляное'],
+    variants: [
+      { phrase: 'Completely redundant', meaning: 'избыточный смысловой плеоназм', category: 'idioms' },
+      { phrase: 'Stating the obvious', meaning: 'констатация очевидного факта', category: 'general' }
+    ]
+  },
+  {
+    triggers: ['лук'],
+    variants: [
+      { phrase: 'Onion', meaning: 'в кулинарии: репчатый или зеленый лук', category: 'culinary' },
+      { phrase: 'Bow', meaning: 'оружие для стрельбы стрелами', category: 'general' },
+      { phrase: 'Outfit / Look', meaning: 'стильный внешний образ (модный лук)', category: 'slang' }
+    ]
+  },
+  {
+    triggers: ['коса'],
+    variants: [
+      { phrase: 'Braid', meaning: 'заплетенная коса из волос', category: 'general' },
+      { phrase: 'Scythe', meaning: 'сельскохозяйственный инструмент косаря', category: 'general' },
+      { phrase: 'Sand spit', meaning: 'географическая песчаная коса на море', category: 'general' }
+    ]
+  },
+  {
+    triggers: ['банка'],
+    variants: [
+      { phrase: 'Jar / Can', meaning: 'стеклянная банка или жестяные консервы', category: 'culinary' },
+      { phrase: 'Biceps', meaning: 'сленг в спортзале: накачанные банки', category: 'slang' }
+    ]
+  },
+  {
+    triggers: ['стучать'],
+    variants: [
+      { phrase: 'Knock', meaning: 'буквально стучать рукой в дверь', category: 'general' },
+      { phrase: 'Snitch / Rat out', meaning: 'доносить, стучать начальству или органам', category: 'slang' }
+    ]
+  },
+  {
+    triggers: ['базар', 'фильтруй базар'],
+    variants: [
+      { phrase: 'Market / Bazaar', meaning: 'продуктовый или вещевой рынок', category: 'general' },
+      { phrase: 'Watch your mouth', meaning: 'фильтруй базар, следи за выражениями', category: 'slang' }
+    ]
+  },
+  {
+    triggers: ['да нет наверное', 'да нет', 'probably not'],
+    variants: [
+      { phrase: 'Probably not / Most likely no', meaning: 'вежливое сомнение с преобладающим отказом', category: 'general' },
+      { phrase: 'Doubtful', meaning: 'маловероятно, вряд ли', category: 'general' },
+      { phrase: "I wouldn't bet on it", meaning: 'разговорное: я бы на это не рассчитывал', category: 'slang' }
+    ]
+  },
+  {
+    triggers: ['ни пуха ни пера', 'ни пуха', 'break a leg'],
+    variants: [
+      { phrase: 'Break a leg', meaning: 'традиционное пожелание удачи перед выступлением или экзаменом', category: 'idioms' },
+      { phrase: 'Best of luck / Knock em dead', meaning: 'удачи, порви всех!', category: 'slang' },
+      { phrase: 'Good luck', meaning: 'нейтральное пожелание удачи', category: 'general' }
+    ]
+  },
+  {
+    triggers: ['руки чешутся', 'рука чешется', 'itching to'],
+    variants: [
+      { phrase: 'Itching to do something', meaning: 'не терпится поскорее приступить', category: 'idioms' },
+      { phrase: 'Dying to try', meaning: 'очень сильно хочется попробовать', category: 'slang' },
+      { phrase: 'Eager / Can hardly wait', meaning: 'в предвкушении интересного дела', category: 'general' }
+    ]
+  },
+  {
+    triggers: ['не в своей тарелке', 'out of element'],
+    variants: [
+      { phrase: 'Like a fish out of water', meaning: 'чувствовать себя неловко и чужим в незнакомой обстановке', category: 'idioms' },
+      { phrase: 'Out of my element', meaning: 'не в своей стихии, вне зоны комфорта', category: 'general' },
+      { phrase: 'Uncomfortable / Awkward', meaning: 'неуютно, скованно', category: 'general' }
+    ]
+  },
+  {
+    triggers: ['глаз алмаз', 'sharp eye'],
+    variants: [
+      { phrase: 'Eagle eye / Sharp eye', meaning: 'очень внимательный, замечает малейшие детали', category: 'idioms' },
+      { phrase: 'Spot on / Dead on', meaning: 'точно в цель, идеальное попадание', category: 'slang' },
+      { phrase: 'Keen observation', meaning: 'проницательность, зоркость', category: 'business' }
+    ]
+  },
+  {
+    triggers: ['время летит', 'время бежит', 'time flies'],
+    variants: [
+      { phrase: 'Time flies', meaning: 'время пролетает незаметно', category: 'idioms' },
+      { phrase: 'Running out of time', meaning: 'время стремительно тает', category: 'general' },
+      { phrase: 'Before you know it', meaning: 'не успеешь оглянуться, как пройдёт время', category: 'general' }
+    ]
+  },
+  {
+    triggers: ['каша в голове', 'brain fog'],
+    variants: [
+      { phrase: 'All mixed up / Brain fog', meaning: 'путаница в мыслях, сложно сосредоточиться', category: 'slang' },
+      { phrase: 'Muddled thoughts', meaning: 'хаос и неразбериха в рассуждениях', category: 'general' },
+      { phrase: 'Disorganized', meaning: 'отсутствие четкой структуры', category: 'business' }
+    ]
+  },
+  {
+    triggers: ['выносить мозг', 'выносит мозг', 'driving me crazy'],
+    variants: [
+      { phrase: 'Driving me nuts / Crazy', meaning: 'доводить до белого каления, раздражать', category: 'slang' },
+      { phrase: 'Doing my head in', meaning: 'утомлять нескончаемыми разговорами', category: 'idioms' },
+      { phrase: 'Getting on my nerves', meaning: 'действовать на нервы', category: 'general' }
+    ]
+  },
+  {
+    triggers: ['без понятия', 'понятия не имею', 'no clue'],
+    variants: [
+      { phrase: 'No clue / Beats me', meaning: 'разговорное: абсолютно без понятия', category: 'slang' },
+      { phrase: "Haven't the foggiest", meaning: 'идиома: не имею ни малейшего представления', category: 'idioms' },
+      { phrase: "I have no idea", meaning: 'нейтральное: не знаю', category: 'general' }
+    ]
+  },
+  {
+    triggers: ['по рукам', 'договорились', 'deal'],
+    variants: [
+      { phrase: "It's a deal / Shake on it", meaning: 'по рукам, договоренность достигнута', category: 'idioms' },
+      { phrase: 'Done deal', meaning: 'деловой консенсус, вопрос закрыт', category: 'business' },
+      { phrase: 'You got it', meaning: 'разговорное согласие', category: 'slang' }
+    ]
+  },
+  {
+    triggers: ['в шоколаде', 'living large'],
+    variants: [
+      { phrase: 'Sitting pretty / Living large', meaning: 'в полном шоколаде, в достатке и благополучии', category: 'slang' },
+      { phrase: 'Having it made', meaning: 'всё сложилось самым лучшим образом', category: 'idioms' },
+      { phrase: 'Living the good life', meaning: 'комфортная обеспеченная жизнь', category: 'general' }
+    ]
+  },
+  {
+    triggers: ['как снег на голову', 'как гром среди ясного неба', 'out of the blue'],
+    variants: [
+      { phrase: 'Out of the blue', meaning: 'совершенно неожиданно, как снег на голову', category: 'idioms' },
+      { phrase: 'Bolt from the blue', meaning: 'внезапная неожиданная новость', category: 'idioms' },
+      { phrase: 'Unexpectedly / Sudden', meaning: 'врасплох, внезапно', category: 'general' }
+    ]
   }
 ];
 
-function findCulturalNuance(text) {
-  if (!text || typeof text !== 'string') return null;
+function findAmericanContextVariants(text, contextFilter = 'general', apiAlternatives = []) {
+  if (!text || typeof text !== 'string') return [];
   const clean = text.toLowerCase().trim();
-  if (clean.length < 3) return null;
+  if (clean.length < 2) return [];
 
-  for (const item of CULTURAL_NUANCE_DATABASE) {
-    if (item.triggers.some(t => clean.includes(t))) {
-      return item;
+  let matched = [];
+
+  // 1. Поиск по прямым триггерам
+  for (const entry of AMERICAN_CONTEXT_DATABASE) {
+    if (entry.triggers.some(t => clean.includes(t) || t.includes(clean))) {
+      matched = entry.variants;
+      break;
     }
   }
 
-  // Динамический алгоритмический детектор тавтологий (например: белая белизна, темная темнота)
-  const words = clean.split(/\s+/).filter(w => w.length >= 4);
-  for (let i = 0; i < words.length - 1; i++) {
-    const w1 = words[i].replace(/[^а-яa-z]/gi, '');
-    const w2 = words[i+1].replace(/[^а-яa-z]/gi, '');
-    if (w1.length >= 4 && w2.length >= 4) {
-      const stem1 = w1.slice(0, 4);
-      const stem2 = w2.slice(0, 4);
-      if (stem1 === stem2 && w1 !== w2) {
-        return {
-          title: `«${w1} ${w2}» — Тавтологическое усиление`,
-          nativeExplanation: 'В русском языке повторение однокоренных слов используется для экспрессивного подчеркивания признака.',
-          americanEquivalent: `Intensely ${w1} / Emphatic expression`,
-          tip: 'Для естественного английского языка избегайте дословного удвоения, используйте наречие усиления (intensely, deeply, thoroughly).'
-        };
+  // 2. Поиск по отдельным словам
+  if (matched.length === 0) {
+    const words = clean.split(/\s+/).map(w => w.replace(/[^а-яa-z0-9]/gi, '')).filter(w => w.length >= 3);
+    for (const w of words) {
+      for (const entry of AMERICAN_CONTEXT_DATABASE) {
+        if (entry.triggers.some(t => t.includes(w) || w.includes(t))) {
+          matched = entry.variants;
+          break;
+        }
+      }
+      if (matched.length > 0) break;
+    }
+  }
+
+  // 3. Детектор однокоренных тавтологий (например: белая белизна, темная темнота)
+  if (matched.length === 0) {
+    const rawWords = clean.split(/\s+/).filter(w => w.length >= 4);
+    for (let i = 0; i < rawWords.length - 1; i++) {
+      const w1 = rawWords[i].replace(/[^а-яa-z]/gi, '');
+      const w2 = rawWords[i + 1].replace(/[^а-яa-z]/gi, '');
+      if (w1.length >= 4 && w2.length >= 4 && w1.slice(0, 4) === w2.slice(0, 4) && w1 !== w2) {
+        matched = [
+          { phrase: `Intensely ${w1}`, meaning: 'литературное усилительное значение', category: 'general' },
+          { phrase: `Ultra-${w1}`, meaning: 'разговорный американский вариант', category: 'slang' },
+          { phrase: `Pure ${w1}`, meaning: 'в значении абсолютного качества', category: 'idioms' }
+        ];
+        break;
       }
     }
   }
 
-  return null;
+  // 4. Если нет в базе, но есть варианты от API перевода
+  if (matched.length === 0 && apiAlternatives && apiAlternatives.length > 0) {
+    matched = apiAlternatives.slice(0, 3).map((alt, i) => ({
+      phrase: alt,
+      meaning: i === 0 ? 'альтернативный естественный вариант' : (i === 1 ? 'в разговорной речи' : 'в формальном стиле'),
+      category: 'general'
+    }));
+  }
+
+  if (matched.length === 0) return [];
+
+  if (contextFilter && contextFilter !== 'general') {
+    const categoryMatches = matched.filter(v => v.category === contextFilter);
+    if (categoryMatches.length > 0) {
+      const otherMatches = matched.filter(v => v.category !== contextFilter);
+      return [...categoryMatches, ...otherMatches].slice(0, 4);
+    }
+  }
+
+  return matched.slice(0, 4);
 }
 
 function analyzeHipHopLyrics(text) {
@@ -273,13 +578,39 @@ function analyzeHipHopLyrics(text) {
 
   return {
     isHipHop,
-    confidence: isHipHop ? Math.max(confidence, 72) : Math.min(confidence, 34),
-    markers: matchedAll,
-    adlibsCount: adlibsFound,
-    linesCount: lines.length,
-    rhymePairs
+    genreTitle: isHipHop ? 'Стиль: Хип-хоп / Рэп' : 'Стиль: Другой жанр (эстрада / лирика)',
+    genreDescription: isHipHop 
+      ? 'В тексте присутствует характерный рэп-речитатив: уличная лексика, рифмованные строки и флоу под бит.' 
+      : 'Мелодичная песенная лирика без рэп-речитатива и уличного сленга.',
+    markers: matchedAll.slice(0, 8)
   };
 }
+
+const RAP_AUDIO_TRACKS = [
+  {
+    id: 'chipinkos',
+    title: 'Чипинкос — Зачем тебе рэп',
+    badge: 'Оригинальный рэп',
+    src: '/chipinkos.mp3'
+  },
+  {
+    id: 'moan',
+    title: 'Громкие мужские стоны',
+    badge: '18+ / Громко',
+    src: '/moan.mp3'
+  },
+  {
+    id: 'gachi',
+    title: 'Гачимучи / Gym Grunt',
+    badge: 'Billy Herrington',
+    src: '/gachi.mp3'
+  }
+];
+
+const MOAN_PRESET_LYRICS = `Аааах, уууух, давай ещё сильнее!
+Оооох, глубже, жми до отказа!
+Ааааай, горячо, не останавливайся,
+Уууух, чисто на пределе сил!`;
 
 const CHIPINKOS_PRESET_LYRICS = `Йоу, Чипинкос на микрофоне, рэп с улиц!
 Мой флоу качает каждый темный район,
@@ -292,10 +623,110 @@ const POP_BALLAD_PRESET_LYRICS = `Белые розы, белые розы, бе
 Люди украсят вами свой праздник лишь на несколько дней
 И оставляют умирать на белом холодном окне.`;
 
+// Client-side Robust Translation Helper (Static top-level, never recreated on render)
+async function robustTranslateClient(inputText, srcLang, tgtLang, signal) {
+  if (!inputText || !inputText.trim()) return '';
+  const cleanSrc = srcLang === 'auto' ? (detectLanguage(inputText) || 'en') : srcLang;
+  if (cleanSrc === tgtLang) return inputText;
+
+  const splitChunks = (str, maxLen = 450) => {
+    if (str.length <= maxLen) return [str];
+    const paras = str.split('\n');
+    const chunks = [];
+    let cur = '';
+    for (const p of paras) {
+      if (!p.trim()) {
+        if (cur) { chunks.push(cur); cur = ''; }
+        continue;
+      }
+      if (cur.length + p.length + 1 <= maxLen) {
+        cur = cur ? `${cur}\n${p}` : p;
+      } else {
+        if (cur) { chunks.push(cur); cur = ''; }
+        if (p.length <= maxLen) {
+          cur = p;
+        } else {
+          const sentences = p.split(/(?<=[.!?])\s+/);
+          for (const s of sentences) {
+            if (cur.length + s.length + 1 <= maxLen) {
+              cur = cur ? `${cur} ${s}` : s;
+            } else {
+              if (cur) { chunks.push(cur); cur = ''; }
+              if (s.length <= maxLen) {
+                cur = s;
+              } else {
+                for (let i = 0; i < s.length; i += maxLen) {
+                  chunks.push(s.slice(i, i + maxLen));
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    if (cur) chunks.push(cur);
+    return chunks.length ? chunks : [str];
+  };
+
+  const chunks = splitChunks(inputText, 450);
+  const translatedChunks = [];
+
+  for (const c of chunks) {
+    let chunkTrans = '';
+    try {
+      const gUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${cleanSrc}&tl=${tgtLang}&dt=t&q=${encodeURIComponent(c)}`;
+      const gRes = await fetch(gUrl, { signal });
+      if (gRes.ok) {
+        const gData = await gRes.json();
+        if (gData && gData[0]) {
+          const parts = [];
+          for (const item of gData[0]) {
+            if (item && item[0]) {
+              let tPart = item[0];
+              const sPart = item[1] || '';
+              if (sPart.endsWith('\n') && !tPart.endsWith('\n')) {
+                tPart += '\n';
+              } else if (sPart.endsWith(' ') && !tPart.endsWith(' ')) {
+                tPart += ' ';
+              }
+              parts.push(tPart);
+            }
+          }
+          chunkTrans = parts.join('');
+        }
+      }
+    } catch (_) {}
+
+    if (!chunkTrans) {
+      try {
+        const mUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(c.slice(0, 400))}&langpair=${cleanSrc}|${tgtLang}`;
+        const mRes = await fetch(mUrl, { signal });
+        if (mRes.ok) {
+          const mData = await mRes.json();
+          const raw = mData?.responseData?.translatedText;
+          if (raw && !raw.includes('QUERY LENGTH LIMIT EXCEEDED') && !raw.includes('MYMEMORY WARNING')) {
+            const doc = new DOMParser().parseFromString(raw, 'text/html');
+            chunkTrans = doc.body.textContent || raw;
+          }
+        }
+      } catch (_) {}
+    }
+
+    translatedChunks.push(chunkTrans || c);
+  }
+
+  const joiner = inputText.includes('\n') && chunks.length > 1 ? '\n\n' : ' ';
+  return translatedChunks.join(joiner).trim();
+}
+
 export default function App() {
   const [theme, setTheme] = useState(localStorage.getItem('flow_theme') || 'dark');
   const [user, setUser] = useState(null);
   const [showAdmin, setShowAdmin] = useState(false);
+  
+  // Cache key refs to prevent redundant repeat translations & infinite re-render loops
+  const lastTranslatedKeyRef = useRef('Simplicity is the ultimate sophistication|en|ru|neutral');
+  const lastRapLyricsKeyRef = useRef('');
   
   // Auth state
   const [authModal, setAuthModal] = useState(null);
@@ -317,6 +748,8 @@ export default function App() {
   const [detectedLang, setDetectedLang] = useState('en');
   const [sourceText, setSourceText] = useState('Simplicity is the ultimate sophistication');
   const [translatedText, setTranslatedText] = useState('Простота — это высшая форма утонченности');
+  const [alternatives, setAlternatives] = useState([]);
+  const [examples, setExamples] = useState([]);
   const [isTranslating, setIsTranslating] = useState(false);
   const [isInDictionary, setIsInDictionary] = useState(false);
   const [savedEntryId, setSavedEntryId] = useState(null);
@@ -331,18 +764,55 @@ export default function App() {
   // Mode State: 'text' | 'image' | 'doc' | 'url' | 'dialogue' | 'rap'
   const [activeMode, setActiveMode] = useState('text');
 
-  // Rap & Hip-Hop Mode State (Chipinkos audio & lyrics detector)
+  // Rap & Hip-Hop Mode State (Audio tracks & lyrics detector)
   const chipinkosAudioRef = useRef(null);
+  const [selectedAudioTrack, setSelectedAudioTrack] = useState('chipinkos');
   const [isPlayingChipinkos, setIsPlayingChipinkos] = useState(false);
   const [isChipinkosMuted, setIsChipinkosMuted] = useState(false);
   const [rapLyricsText, setRapLyricsText] = useState(CHIPINKOS_PRESET_LYRICS);
   const [rapTranslation, setRapTranslation] = useState('');
   const [isTranslatingRap, setIsTranslatingRap] = useState(false);
 
-  // Cultural Nuances for current translation text
-  const culturalNuance = useMemo(() => {
-    return findCulturalNuance(sourceText);
-  }, [sourceText]);
+  const currentAudioTrack = useMemo(() => {
+    return RAP_AUDIO_TRACKS.find(t => t.id === selectedAudioTrack) || RAP_AUDIO_TRACKS[0];
+  }, [selectedAudioTrack]);
+
+  const handleSelectAudioTrack = (trackId) => {
+    setSelectedAudioTrack(trackId);
+    const target = RAP_AUDIO_TRACKS.find(t => t.id === trackId);
+    if (chipinkosAudioRef.current && target) {
+      chipinkosAudioRef.current.pause();
+      chipinkosAudioRef.current.src = target.src;
+      chipinkosAudioRef.current.currentTime = 0;
+      chipinkosAudioRef.current.play()
+        .then(() => setIsPlayingChipinkos(true))
+        .catch(() => setIsPlayingChipinkos(false));
+    }
+  };
+
+  // American English contextual variants for source text
+  const contextVariants = useMemo(() => {
+    return findAmericanContextVariants(sourceText, selectedContext, alternatives);
+  }, [sourceText, selectedContext, alternatives]);
+  const activeContextObj = TRANSLATION_CONTEXTS.find(c => c.id === selectedContext);
+
+  const handleSelectContext = useCallback((ctxId) => {
+    setSelectedContext(ctxId);
+    const updatedVariants = findAmericanContextVariants(sourceText, ctxId, alternatives);
+    if (updatedVariants && updatedVariants.length > 0) {
+      if (ctxId !== 'general') {
+        const matching = updatedVariants.find(v => v.category === ctxId);
+        if (matching) {
+          setTranslatedText(matching.phrase);
+        }
+      } else {
+        const generalMatch = updatedVariants.find(v => v.category === 'general') || updatedVariants[0];
+        if (generalMatch) {
+          setTranslatedText(generalMatch.phrase);
+        }
+      }
+    }
+  }, [sourceText, alternatives]);
 
   // Hip-Hop analysis for rap mode lyrics
   const hipHopAnalysis = useMemo(() => {
@@ -407,10 +877,8 @@ export default function App() {
   const [isDialogueListeningRight, setIsDialogueListeningRight] = useState(false);
   const [autoSpeakDialogue, setAutoSpeakDialogue] = useState(true);
 
-  // AI & Smart Linguistics State (DeepL & Reverso style)
+  // Smart Linguistics State (DeepL & Reverso style)
   const [tone, setTone] = useState('neutral'); // 'neutral' | 'formal' | 'informal'
-  const [alternatives, setAlternatives] = useState([]);
-  const [examples, setExamples] = useState([]);
 
   // Bottom Tabs: null | 'favorites' | 'history' (opens exclusively on clicking tabs)
   const [activeBottomTab, setActiveBottomTab] = useState(null);
@@ -455,9 +923,6 @@ export default function App() {
   const [adminStats, setAdminStats] = useState(null);
   const [adminUsers, setAdminUsers] = useState([]);
 
-  // Mouse spotlight position
-  const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
-
   const translateAbortRef = useRef(null);
   const imageInputRef = useRef(null);
   const docInputRef = useRef(null);
@@ -482,123 +947,36 @@ export default function App() {
   const videoRef = useRef(null);
   const streamRef = useRef(null);
 
-  // Auto-resize input textarea to dynamically stretch with content
+  // Auto-resize input textarea smoothly without jittery collapsing
   const adjustTextareaHeight = useCallback(() => {
     const el = sourceTextareaRef.current;
     if (!el) return;
-    el.style.height = 'auto';
-    el.style.height = `${Math.max(120, el.scrollHeight)}px`;
+    if (!el.value.trim()) {
+      el.style.height = '160px';
+      return;
+    }
+    const scrollH = el.scrollHeight;
+    if (scrollH > el.clientHeight) {
+      el.style.height = `${scrollH}px`;
+    }
   }, []);
 
   useEffect(() => {
     requestAnimationFrame(adjustTextareaHeight);
   }, [sourceText, activeMode, adjustTextareaHeight]);
 
-  // Client-side Robust Translation Helper (Handles long text > 500 chars via smart chunking)
-  const robustTranslateClient = async (inputText, srcLang, tgtLang, signal) => {
-    if (!inputText || !inputText.trim()) return '';
-    const cleanSrc = srcLang === 'auto' ? (detectLanguage(inputText) || 'en') : srcLang;
-    if (cleanSrc === tgtLang) return inputText;
-
-    const splitChunks = (str, maxLen = 450) => {
-      if (str.length <= maxLen) return [str];
-      const paras = str.split('\n');
-      const chunks = [];
-      let cur = '';
-      for (const p of paras) {
-        if (!p.trim()) {
-          if (cur) { chunks.push(cur); cur = ''; }
-          continue;
-        }
-        if (cur.length + p.length + 1 <= maxLen) {
-          cur = cur ? `${cur}\n${p}` : p;
-        } else {
-          if (cur) { chunks.push(cur); cur = ''; }
-          if (p.length <= maxLen) {
-            cur = p;
-          } else {
-            const sentences = p.split(/(?<=[.!?])\s+/);
-            for (const s of sentences) {
-              if (cur.length + s.length + 1 <= maxLen) {
-                cur = cur ? `${cur} ${s}` : s;
-              } else {
-                if (cur) { chunks.push(cur); cur = ''; }
-                if (s.length <= maxLen) {
-                  cur = s;
-                } else {
-                  for (let i = 0; i < s.length; i += maxLen) {
-                    chunks.push(s.slice(i, i + maxLen));
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-      if (cur) chunks.push(cur);
-      return chunks.length ? chunks : [str];
-    };
-
-    const chunks = splitChunks(inputText, 450);
-    const translatedChunks = [];
-
-    for (const c of chunks) {
-      let chunkTrans = '';
-      try {
-        const gUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${cleanSrc}&tl=${tgtLang}&dt=t&q=${encodeURIComponent(c)}`;
-        const gRes = await fetch(gUrl, { signal });
-        if (gRes.ok) {
-          const gData = await gRes.json();
-          if (gData && gData[0]) {
-            const parts = [];
-            for (const item of gData[0]) {
-              if (item && item[0]) {
-                let tPart = item[0];
-                const sPart = item[1] || '';
-                if (sPart.endsWith('\n') && !tPart.endsWith('\n')) {
-                  tPart += '\n';
-                } else if (sPart.endsWith(' ') && !tPart.endsWith(' ')) {
-                  tPart += ' ';
-                }
-                parts.push(tPart);
-              }
-            }
-            chunkTrans = parts.join('');
-          }
-        }
-      } catch (_) {}
-
-      if (!chunkTrans) {
-        try {
-          const mUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(c.slice(0, 400))}&langpair=${cleanSrc}|${tgtLang}`;
-          const mRes = await fetch(mUrl, { signal });
-          if (mRes.ok) {
-            const mData = await mRes.json();
-            const raw = mData?.responseData?.translatedText;
-            if (raw && !raw.includes('QUERY LENGTH LIMIT EXCEEDED') && !raw.includes('MYMEMORY WARNING')) {
-              const doc = new DOMParser().parseFromString(raw, 'text/html');
-              chunkTrans = doc.body.textContent || raw;
-            }
-          }
-        } catch (_) {}
-      }
-
-      translatedChunks.push(chunkTrans || c);
-    }
-
-    const joiner = inputText.includes('\n') && chunks.length > 1 ? '\n\n' : ' ';
-    return translatedChunks.join(joiner).trim();
-  };
-
-  // Debounced translation for rap lyrics
+  // Debounced translation for rap lyrics (with strict cache check to prevent re-translation loops)
   useEffect(() => {
     if (activeMode !== 'rap') return;
     const clean = rapLyricsText.trim();
     if (!clean) {
       setRapTranslation('');
+      lastRapLyricsKeyRef.current = '';
       return;
     }
+    if (clean === lastRapLyricsKeyRef.current) return;
     const timer = setTimeout(async () => {
+      lastRapLyricsKeyRef.current = clean;
       setIsTranslatingRap(true);
       try {
         const res = await api.post('/translate', {
@@ -622,12 +1000,22 @@ export default function App() {
     return () => clearTimeout(timer);
   }, [rapLyricsText, activeMode]);
 
+  // High performance GPU-accelerated cursor spotlight (0 React re-renders)
   useEffect(() => {
+    let rafId = null;
     const handleMouseMove = (e) => {
-      setMousePos({ x: e.clientX, y: e.clientY });
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        document.documentElement.style.setProperty('--mouse-x', `${e.clientX}px`);
+        document.documentElement.style.setProperty('--mouse-y', `${e.clientY}px`);
+        rafId = null;
+      });
     };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, []);
 
   // Camera handlers for live viewfinder
@@ -790,7 +1178,7 @@ export default function App() {
         langToUse = langMap[sourceLang] || 'rus+eng';
       }
 
-      setOcrStatusText('Инициализация нейросети...');
+      setOcrStatusText('Подготовка сканирования...');
       const worker = await createWorker(langToUse, 1, {
         logger: (m) => {
           if (m.status === 'loading language traineddata') {
@@ -1232,6 +1620,10 @@ export default function App() {
     setTargetLang(item.target_lang);
     setSourceText(item.source_text);
     setTranslatedText(item.translated_text);
+    const effectiveSource = item.source_lang === 'auto'
+      ? (detectLanguage(item.source_text) || 'en')
+      : item.source_lang;
+    lastTranslatedKeyRef.current = `${item.source_text.trim()}|${effectiveSource}|${item.target_lang}|${tone}`;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -1374,6 +1766,7 @@ export default function App() {
       setExamples([]);
       setIsInDictionary(false);
       setSavedEntryId(null);
+      lastTranslatedKeyRef.current = '';
       return;
     }
 
@@ -1381,7 +1774,13 @@ export default function App() {
       ? (detectLanguage(text) || detectedLang || 'en')
       : sourceLang;
 
+    const cacheKey = `${text}|${effectiveSource}|${targetLang}|${tone}|${selectedContext}`;
+    if (forcedText === undefined && cacheKey === lastTranslatedKeyRef.current && translatedText) {
+      return;
+    }
+
     if (effectiveSource === targetLang) {
+      lastTranslatedKeyRef.current = cacheKey;
       setTranslatedText(text);
       setAlternatives([]);
       setExamples([]);
@@ -1425,12 +1824,21 @@ export default function App() {
       }
 
       if (resData) {
-        setTranslatedText(resData.translated_text);
+        lastTranslatedKeyRef.current = cacheKey;
+        let finalTranslation = resData.translated_text;
+        if (selectedContext && selectedContext !== 'general') {
+          const directVariants = findAmericanContextVariants(text, selectedContext, resData.alternatives || []);
+          const contextualMatch = directVariants.find(v => v.category === selectedContext);
+          if (contextualMatch) {
+            finalTranslation = contextualMatch.phrase;
+          }
+        }
+        setTranslatedText(finalTranslation);
         setAlternatives(resData.alternatives || []);
         setExamples(resData.examples || []);
         setIsInDictionary(resData.is_saved_in_dictionary || false);
         setSavedEntryId(resData.saved_entry_id || null);
-        addToHistory(text, resData.translated_text, effectiveSource, targetLang);
+        addToHistory(text, finalTranslation, effectiveSource, targetLang);
       }
     } catch (err) {
       if (err.name !== 'CanceledError' && err.code !== 'ERR_CANCELED') {
@@ -1439,9 +1847,9 @@ export default function App() {
     } finally {
       setIsTranslating(false);
     }
-  }, [sourceText, sourceLang, targetLang, detectedLang, tone, robustTranslateClient]);
+  }, [sourceText, sourceLang, targetLang, detectedLang, tone, selectedContext, translatedText]);
 
-  // Translation Effect (Debounced 600ms to prevent premature mid-word re-fetching)
+  // Translation Effect (Debounced 500ms, strictly skips if already translated)
   useEffect(() => {
     const text = sourceText.trim();
     if (!text) {
@@ -1450,15 +1858,25 @@ export default function App() {
       setExamples([]);
       setIsInDictionary(false);
       setSavedEntryId(null);
+      lastTranslatedKeyRef.current = '';
+      return;
+    }
+
+    const effectiveSource = sourceLang === 'auto'
+      ? (detectLanguage(text) || detectedLang || 'en')
+      : sourceLang;
+    const cacheKey = `${text}|${effectiveSource}|${targetLang}|${tone}|${selectedContext}`;
+
+    if (cacheKey === lastTranslatedKeyRef.current) {
       return;
     }
 
     const timer = setTimeout(() => {
       performTranslation();
-    }, 600);
+    }, 500);
 
     return () => clearTimeout(timer);
-  }, [sourceText, performTranslation]);
+  }, [sourceText, sourceLang, targetLang, detectedLang, tone, selectedContext, performTranslation]);
 
   const swapLanguages = useCallback(() => {
     setIsSwapping(true);
@@ -1467,6 +1885,7 @@ export default function App() {
     setSourceLang(targetLang);
     setTargetLang(effectiveSource);
     const tempText = sourceText;
+    lastTranslatedKeyRef.current = '';
     setSourceText(translatedText);
     setTranslatedText(tempText);
   }, [sourceLang, targetLang, detectedLang, sourceText, translatedText]);
@@ -1872,11 +2291,11 @@ export default function App() {
       {/* ================= MONOCHROME TITANIUM AMBIENT LIGHTING ================= */}
       <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
         
-        {/* Dynamic Cursor Spotlight */}
+        {/* Dynamic Cursor Spotlight (GPU accelerated via CSS variables) */}
         <div 
           className="absolute inset-0 transition-opacity duration-300 opacity-60 dark:opacity-40"
           style={{
-            background: `radial-gradient(650px circle at ${mousePos.x}px ${mousePos.y}px, ${theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)'}, transparent 65%)`
+            background: `radial-gradient(650px circle at var(--mouse-x, -1000px) var(--mouse-y, -1000px), ${theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)'}, transparent 65%)`
           }}
         />
 
@@ -1990,10 +2409,10 @@ export default function App() {
       {/* ================= MAIN CONTAINER ================= */}
       <main className="max-w-[1380px] mx-auto px-3.5 sm:px-6 lg:px-8 mt-3 sm:mt-6 space-y-4 sm:space-y-6">
 
-        {/* Dynamic Activity Capsule (Only visible during active background operations) */}
+        {/* Dynamic Activity Capsule (Floating Dynamic Island - zero layout shift) */}
         {(isOcrProcessing || isTranslating || isSpeakingSource || isSpeakingTarget) && (
-          <div className="flex justify-center animate-in fade-in slide-in-from-top-2 duration-200">
-            <div className="ios-glass px-4 py-1.5 sm:py-2 rounded-full flex items-center gap-2.5 shadow-sm border border-black/[0.06] dark:border-white/[0.08] text-[11px] sm:text-xs font-medium max-w-full truncate">
+          <div className="fixed top-3.5 left-1/2 -translate-x-1/2 z-50 pointer-events-none animate-in fade-in slide-in-from-top-1 duration-200">
+            <div className="ios-glass px-4 py-1.5 rounded-full flex items-center gap-2.5 shadow-lg border border-black/10 dark:border-white/15 text-[11px] sm:text-xs font-medium max-w-full truncate bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-2xl">
               {isOcrProcessing ? (
                 <>
                   <div className="relative flex items-center justify-center flex-shrink-0">
@@ -2103,10 +2522,10 @@ export default function App() {
                   ? 'apple-tab-active scale-[1.02]' 
                   : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
               }`}
-              title="Рэп-студия Чипинкоса & Детектор жанра"
+              title="Рэп-треки"
             >
               <Music size={13} className={activeMode === 'rap' ? 'text-current' : ''} />
-              <span>Рэп / Треки</span>
+              <span>Рэп-треки</span>
             </button>
           </div>
         </div>
@@ -2234,8 +2653,8 @@ export default function App() {
             </div>
           </div>
 
-          {/* Audio element for Chipinkos rap track */}
-          <audio ref={chipinkosAudioRef} src="/chipinkos.mp3" loop preload="auto" />
+          {/* Audio element for Rap / Audio tracks */}
+          <audio ref={chipinkosAudioRef} src={currentAudioTrack.src} loop preload="auto" />
 
           {/* Translation Domain / Context Chips */}
           {activeMode !== 'dialogue' && activeMode !== 'rap' && (
@@ -2246,15 +2665,14 @@ export default function App() {
               {TRANSLATION_CONTEXTS.map(ctx => (
                 <button
                   key={ctx.id}
-                  onClick={() => setSelectedContext(ctx.id)}
-                  className={`px-3 py-1 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 flex-shrink-0 active:scale-95 ${
+                  onClick={() => handleSelectContext(ctx.id)}
+                  className={`px-3 py-1 rounded-full text-xs font-semibold transition-all flex items-center flex-shrink-0 active:scale-95 ${
                     selectedContext === ctx.id
                       ? 'apple-tab-active scale-[1.02]'
                       : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white bg-black/[0.03] dark:bg-white/[0.06]'
                   }`}
                   title={ctx.desc}
                 >
-                  <span className="text-xs">{ctx.icon}</span>
                   <span>{ctx.label}</span>
                 </button>
               ))}
@@ -2426,71 +2844,100 @@ export default function App() {
             </div>
           ) : activeMode === 'rap' ? (
             <div className="space-y-4 animate-in fade-in">
-              {/* Чипинкос Music Bar Player */}
-              <div className="ios-glass ios-card-specular rounded-[24px] sm:rounded-[28px] p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3 border border-black/10 dark:border-white/10 shadow-lg relative overflow-hidden">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-bold text-lg shadow-md flex-shrink-0">
-                    🎤
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs sm:text-sm font-bold text-[#1C1C1E] dark:text-white truncate">
-                        Чипинкос — Зачем тебе рэп (Original Track)
-                      </span>
-                      <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-black/10 dark:bg-white/15 text-black dark:text-white border border-black/10 dark:border-white/20 flex-shrink-0">
-                        Фоновый бит
-                      </span>
+              {/* Music Player Bar with Track Selector */}
+              <div className="ios-glass ios-card-specular rounded-[24px] sm:rounded-[28px] p-4 sm:p-5 flex flex-col gap-3 border border-black/10 dark:border-white/10 shadow-lg relative overflow-hidden">
+                <div className="flex flex-wrap items-center justify-between gap-3 w-full">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-bold text-lg shadow-md flex-shrink-0">
+                      <Music size={20} className={isPlayingChipinkos ? 'animate-pulse' : ''} />
                     </div>
-                    <div className="flex items-center gap-2 pt-1 text-xs text-[#8E8E93]">
-                      <div className="flex items-end gap-0.5 h-3">
-                        <span className={`w-0.5 bg-black dark:bg-white rounded-full transition-all ${isPlayingChipinkos ? 'h-3 animate-pulse' : 'h-1'}`} />
-                        <span className={`w-0.5 bg-black dark:bg-white rounded-full transition-all ${isPlayingChipinkos ? 'h-2 animate-bounce' : 'h-1'}`} />
-                        <span className={`w-0.5 bg-black dark:bg-white rounded-full transition-all ${isPlayingChipinkos ? 'h-3.5 animate-pulse' : 'h-1'}`} />
-                        <span className={`w-0.5 bg-black dark:bg-white rounded-full transition-all ${isPlayingChipinkos ? 'h-1.5 animate-bounce' : 'h-1'}`} />
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs sm:text-sm font-bold text-[#1C1C1E] dark:text-white truncate">
+                          {currentAudioTrack.title}
+                        </span>
+                        <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-black/10 dark:bg-white/15 text-black dark:text-white border border-black/10 dark:border-white/20 flex-shrink-0">
+                          {currentAudioTrack.badge}
+                        </span>
                       </div>
-                      <span>{isPlayingChipinkos ? 'Трек Чипинкоса играет' : 'Воспроизведение приостановлено'}</span>
+                      <div className="flex items-center gap-2 pt-1 text-xs text-[#8E8E93]">
+                        <div className="flex items-end gap-0.5 h-3">
+                          <span className={`w-0.5 bg-black dark:bg-white rounded-full transition-all ${isPlayingChipinkos ? 'h-3 animate-pulse' : 'h-1'}`} />
+                          <span className={`w-0.5 bg-black dark:bg-white rounded-full transition-all ${isPlayingChipinkos ? 'h-2 animate-bounce' : 'h-1'}`} />
+                          <span className={`w-0.5 bg-black dark:bg-white rounded-full transition-all ${isPlayingChipinkos ? 'h-3.5 animate-pulse' : 'h-1'}`} />
+                          <span className={`w-0.5 bg-black dark:bg-white rounded-full transition-all ${isPlayingChipinkos ? 'h-1.5 animate-bounce' : 'h-1'}`} />
+                        </div>
+                        <span>{isPlayingChipinkos ? 'Воспроизведение активно' : 'Нажмите «Слушать» для включения звука'}</span>
+                      </div>
                     </div>
+                  </div>
+
+                  {/* Player Controls */}
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <button
+                      onClick={toggleChipinkosAudio}
+                      className="apple-btn-primary px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2 shadow-md active:scale-95"
+                      title={isPlayingChipinkos ? 'Пауза' : `Включить: ${currentAudioTrack.title}`}
+                    >
+                      {isPlayingChipinkos ? <Pause size={14} /> : <Play size={14} />}
+                      <span>{isPlayingChipinkos ? 'Пауза' : 'Слушать'}</span>
+                    </button>
+                    <button
+                      onClick={toggleChipinkosMute}
+                      className="apple-btn-glass p-2 rounded-full text-[#8E8E93] hover:text-black dark:hover:text-white"
+                      title={isChipinkosMuted ? 'Включить звук' : 'Выключить звук'}
+                    >
+                      {isChipinkosMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
+                    </button>
                   </div>
                 </div>
 
-                {/* Player Controls */}
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <button
-                    onClick={toggleChipinkosAudio}
-                    className="apple-btn-primary px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2 shadow-md active:scale-95"
-                    title={isPlayingChipinkos ? 'Поставить на паузу' : 'Включить трек Чипинкоса'}
-                  >
-                    {isPlayingChipinkos ? <Pause size={14} /> : <Play size={14} />}
-                    <span>{isPlayingChipinkos ? 'Пауза' : 'Слушать'}</span>
-                  </button>
-                  <button
-                    onClick={toggleChipinkosMute}
-                    className="apple-btn-glass p-2 rounded-full text-[#8E8E93] hover:text-black dark:hover:text-white"
-                    title={isChipinkosMuted ? 'Включить звук' : 'Выключить звук'}
-                  >
-                    {isChipinkosMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
-                  </button>
+                {/* Audio Track Selector Pills */}
+                <div className="w-full flex items-center gap-1.5 pt-2.5 border-t border-black/[0.06] dark:border-white/[0.08] overflow-x-auto no-scrollbar">
+                  <span className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-wider mr-1 flex-shrink-0">
+                    Аудио:
+                  </span>
+                  {RAP_AUDIO_TRACKS.map(track => (
+                    <button
+                      key={track.id}
+                      onClick={() => handleSelectAudioTrack(track.id)}
+                      className={`px-3 py-1 rounded-full text-xs font-semibold transition-all flex items-center gap-2 flex-shrink-0 active:scale-95 ${
+                        selectedAudioTrack === track.id
+                          ? 'apple-tab-active scale-[1.02]'
+                          : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white bg-black/[0.03] dark:bg-white/[0.06]'
+                      }`}
+                    >
+                      <span>{track.title}</span>
+                      <span className="text-[9px] uppercase px-1.5 py-0.5 rounded-full bg-black/5 dark:bg-white/10 font-bold opacity-80">
+                        {track.badge}
+                      </span>
+                    </button>
+                  ))}
                 </div>
               </div>
 
               {/* Preset buttons */}
               <div className="flex flex-wrap items-center gap-2 pt-1">
                 <span className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-wider mr-1">
-                  Быстрый тест трека:
+                  Примеры:
                 </span>
                 <button
                   onClick={() => setRapLyricsText(CHIPINKOS_PRESET_LYRICS)}
-                  className="px-3 py-1.5 rounded-full text-xs font-semibold apple-btn-glass text-black dark:text-white flex items-center gap-1.5 hover:scale-[1.02] active:scale-95"
+                  className="px-3 py-1.5 rounded-full text-xs font-semibold apple-btn-glass text-black dark:text-white hover:scale-[1.02] active:scale-95"
                 >
-                  <Flame size={13} className="text-amber-500" />
-                  <span>Трек Чипинкоса (Хип-хоп)</span>
+                  Чипинкос (рэп)
+                </button>
+                <button
+                  onClick={() => setRapLyricsText(MOAN_PRESET_LYRICS)}
+                  className="px-3 py-1.5 rounded-full text-xs font-semibold apple-btn-glass text-black dark:text-white hover:scale-[1.02] active:scale-95"
+                >
+                  Стоны (18+)
                 </button>
                 <button
                   onClick={() => setRapLyricsText(POP_BALLAD_PRESET_LYRICS)}
-                  className="px-3 py-1.5 rounded-full text-xs font-semibold apple-btn-glass text-black dark:text-white flex items-center gap-1.5 hover:scale-[1.02] active:scale-95"
+                  className="px-3 py-1.5 rounded-full text-xs font-semibold apple-btn-glass text-black dark:text-white hover:scale-[1.02] active:scale-95"
                 >
-                  <span>🎸</span>
-                  <span>Поп / Баллада (Не хип-хоп)</span>
+                  Лирический текст
                 </button>
                 <button
                   onClick={() => setRapLyricsText('')}
@@ -2500,75 +2947,35 @@ export default function App() {
                 </button>
               </div>
 
-              {/* Genre Classifier Verdict Card */}
+              {/* Genre Determination Card */}
               {hipHopAnalysis && (
                 <div className={`ios-glass rounded-[24px] sm:rounded-[28px] p-5 sm:p-6 border transition-all shadow-md ${
                   hipHopAnalysis.isHipHop
-                    ? 'border-emerald-500/40 bg-emerald-500/[0.04] dark:bg-emerald-500/[0.07]'
-                    : 'border-neutral-400/30 bg-neutral-500/[0.03] dark:bg-neutral-500/[0.05]'
+                    ? 'border-emerald-500/30 bg-emerald-500/[0.03] dark:bg-emerald-500/[0.05]'
+                    : 'border-neutral-400/20 bg-neutral-500/[0.02] dark:bg-neutral-500/[0.04]'
                 }`}>
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
-                    <div className="flex items-center gap-2.5">
-                      <span className="text-2xl">
-                        {hipHopAnalysis.isHipHop ? '🔥' : '🎸'}
-                      </span>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="text-base sm:text-lg font-bold tracking-tight text-[#1C1C1E] dark:text-white">
-                            {hipHopAnalysis.isHipHop ? 'ЖАНР: ХИП-ХОП / РЭП ТРЕК' : 'ЖАНР: НЕ ХИП-ХОП (Поп / Рок / Лирика)'}
-                          </h3>
-                        </div>
-                        <p className="text-xs text-[#8E8E93] pt-0.5">
-                          {hipHopAnalysis.isHipHop
-                            ? 'Алгоритм подтверждает наличие уличного флоу, рэп-лексики и характерной читки под бит.'
-                            : 'Рэп-маркеров, уличного сленга и хип-хоп ритмики в тексте не обнаружено.'}
-                        </p>
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className={`w-2 h-2 rounded-full ${hipHopAnalysis.isHipHop ? 'bg-emerald-500' : 'bg-neutral-400'}`} />
+                        <h3 className="text-base sm:text-lg font-bold tracking-tight text-[#1C1C1E] dark:text-white">
+                          {hipHopAnalysis.genreTitle}
+                        </h3>
                       </div>
+                      <p className="text-xs text-[#8E8E93] pt-1">
+                        {hipHopAnalysis.genreDescription}
+                      </p>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <div className="text-right">
-                        <span className="text-[10px] uppercase font-bold text-[#8E8E93] block">Совпадение</span>
-                        <span className={`text-xl sm:text-2xl font-extrabold ${hipHopAnalysis.isHipHop ? 'text-emerald-600 dark:text-emerald-400' : 'text-neutral-500'}`}>
-                          {hipHopAnalysis.confidence}%
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Marker Tags and Metrics */}
-                  <div className="pt-3 space-y-3">
                     {hipHopAnalysis.markers.length > 0 && (
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="text-xs font-bold text-[#8E8E93] mr-1">Найденные маркеры жанра:</span>
+                      <div className="flex flex-wrap items-center gap-1.5 pt-1">
                         {hipHopAnalysis.markers.map(m => (
-                          <span key={m} className="text-xs font-semibold px-2 py-0.5 rounded-md bg-black/5 dark:bg-white/10 text-black dark:text-white border border-black/10 dark:border-white/15">
-                            #{m}
+                          <span key={m} className="text-xs font-medium px-2 py-0.5 rounded-md bg-black/5 dark:bg-white/10 text-neutral-800 dark:text-neutral-200 border border-black/10 dark:border-white/10">
+                            {m}
                           </span>
                         ))}
                       </div>
                     )}
-
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-center">
-                      <div className="p-2 rounded-xl bg-black/[0.02] dark:bg-white/[0.04] border border-black/5 dark:border-white/5">
-                        <span className="text-[10px] text-[#8E8E93] block">Строк (Bars)</span>
-                        <span className="text-xs font-bold text-[#1C1C1E] dark:text-white">{hipHopAnalysis.linesCount}</span>
-                      </div>
-                      <div className="p-2 rounded-xl bg-black/[0.02] dark:bg-white/[0.04] border border-black/5 dark:border-white/5">
-                        <span className="text-[10px] text-[#8E8E93] block">Рифмованных пар</span>
-                        <span className="text-xs font-bold text-[#1C1C1E] dark:text-white">{hipHopAnalysis.rhymePairs}</span>
-                      </div>
-                      <div className="p-2 rounded-xl bg-black/[0.02] dark:bg-white/[0.04] border border-black/5 dark:border-white/5">
-                        <span className="text-[10px] text-[#8E8E93] block">Адлибов</span>
-                        <span className="text-xs font-bold text-[#1C1C1E] dark:text-white">{hipHopAnalysis.adlibsCount}</span>
-                      </div>
-                      <div className="p-2 rounded-xl bg-black/[0.02] dark:bg-white/[0.04] border border-black/5 dark:border-white/5">
-                        <span className="text-[10px] text-[#8E8E93] block">Статус флоу</span>
-                        <span className="text-xs font-bold text-[#1C1C1E] dark:text-white">
-                          {hipHopAnalysis.isHipHop ? 'Street Ready' : 'Melodic'}
-                        </span>
-                      </div>
-                    </div>
                   </div>
                 </div>
               )}
@@ -2579,8 +2986,8 @@ export default function App() {
                 <div className="ios-glass ios-card-specular rounded-[24px] sm:rounded-[28px] p-5 sm:p-6 flex flex-col justify-between shadow-lg min-h-[280px]">
                   <div>
                     <div className="flex items-center justify-between pb-2.5 mb-2 border-b border-black/[0.04] dark:border-white/[0.06]">
-                      <span className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider flex items-center gap-1.5">
-                        🎤 Текст трека (Куплет / Припев)
+                      <span className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider">
+                        Текст трека
                       </span>
                       <span className="text-[10px] text-[#8E8E93]">
                         {rapLyricsText.length} симв.
@@ -2590,7 +2997,7 @@ export default function App() {
                     <textarea
                       value={rapLyricsText}
                       onChange={(e) => setRapLyricsText(e.target.value)}
-                      placeholder="Вставьте или напишите текст рэп-трека..."
+                      placeholder="Вставьте или напишите текст трека..."
                       rows={8}
                       className="w-full bg-transparent resize-none focus:outline-none text-base sm:text-lg font-medium leading-relaxed text-[#1C1C1E] dark:text-white placeholder-[#8E8E93]"
                     />
@@ -2601,8 +3008,8 @@ export default function App() {
                 <div className="bg-[#F1F3F4] dark:bg-[#1E1F20] border border-black/[0.06] dark:border-white/[0.06] rounded-[24px] sm:rounded-[28px] p-5 sm:p-6 flex flex-col justify-between shadow-sm min-h-[280px]">
                   <div>
                     <div className="flex items-center justify-between pb-2.5 mb-2 border-b border-black/[0.04] dark:border-white/[0.06]">
-                      <span className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider flex items-center gap-1.5">
-                        🇬🇧 Перевод с адаптацией флоу
+                      <span className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider">
+                        Перевод на английский язык
                       </span>
                       <div className="flex items-center gap-2">
                         {rapTranslation && (
@@ -2616,9 +3023,6 @@ export default function App() {
                             <Copy size={13} />
                           </button>
                         )}
-                        <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 uppercase">
-                          English Rap Flow
-                        </span>
                       </div>
                     </div>
 
@@ -2629,7 +3033,7 @@ export default function App() {
                           <span>Переводим трек...</span>
                         </div>
                       ) : (
-                        <p className="text-base sm:text-lg font-bold leading-relaxed text-[#1C1C1E] dark:text-white whitespace-pre-wrap select-text">
+                        <p className="text-base sm:text-lg font-medium leading-relaxed text-[#1C1C1E] dark:text-white whitespace-pre-wrap select-text">
                           {rapTranslation || <span className="text-[#8E8E93] font-normal">Перевод трека появится здесь...</span>}
                         </p>
                       )}
@@ -2861,7 +3265,7 @@ export default function App() {
                             <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex flex-col items-center justify-center gap-2 text-white p-2 text-center z-30">
                               <div className="flex items-center gap-2 bg-black/75 px-3.5 py-1.5 rounded-full border border-white/20 shadow-lg">
                                 <Loader2 size={16} className="animate-spin text-white" />
-                                <span className="text-xs font-semibold truncate">{ocrStatusText || 'Нейросеть сканирует...'}</span>
+                                <span className="text-xs font-semibold truncate">{ocrStatusText || 'Сканирование текста...'}</span>
                               </div>
                             </div>
                           )}
@@ -2870,7 +3274,7 @@ export default function App() {
                         {/* Hint Footer */}
                         <div className="w-full flex items-center justify-center pt-2 mt-1 text-[11px] text-[#8E8E93] text-center">
                           <span>
-                            💡 Выделите курсором мыши любые слова прямо на фото или в поле ниже — они сразу переведутся
+                            Выделите курсором мыши любые слова прямо на фото или в поле ниже — они сразу переведутся
                           </span>
                         </div>
                       </div>
@@ -2939,7 +3343,7 @@ export default function App() {
                           }
                         }
                       }}
-                      onChange={(e) => { setSourceText(e.target.value); adjustTextareaHeight(); }}
+                      onChange={(e) => setSourceText(e.target.value)}
                       placeholder="Распознанный текст появится здесь..."
                       maxLength={2000}
                       style={{ minHeight: '130px' }}
@@ -2993,7 +3397,7 @@ export default function App() {
                     <textarea
                       ref={sourceTextareaRef}
                       value={sourceText}
-                      onChange={(e) => { setSourceText(e.target.value); adjustTextareaHeight(); }}
+                      onChange={(e) => setSourceText(e.target.value)}
                       placeholder="Текст документа для перевода..."
                       maxLength={2000}
                       style={{ minHeight: '130px' }}
@@ -3051,7 +3455,7 @@ export default function App() {
                     <textarea
                       ref={sourceTextareaRef}
                       value={sourceText}
-                      onChange={(e) => { setSourceText(e.target.value); adjustTextareaHeight(); }}
+                      onChange={(e) => setSourceText(e.target.value)}
                       placeholder="Текст статьи для перевода..."
                       maxLength={2000}
                       style={{ minHeight: '130px' }}
@@ -3065,7 +3469,7 @@ export default function App() {
                   <textarea
                     ref={sourceTextareaRef}
                     value={sourceText}
-                    onChange={(e) => { setSourceText(e.target.value); adjustTextareaHeight(); }}
+                    onChange={(e) => setSourceText(e.target.value)}
                     placeholder="Введите текст или перетащите фото / документ сюда..."
                     maxLength={2000}
                     style={{ minHeight: '160px' }}
@@ -3173,6 +3577,86 @@ export default function App() {
                       <h3 className="text-lg sm:text-2xl md:text-3xl font-bold text-[#1C1C1E] dark:text-white select-text leading-snug tracking-tight break-words whitespace-pre-wrap">
                         {translatedText || <span className="text-[#8E8E93] dark:text-[#5F6368] font-normal">Перевод</span>}
                       </h3>
+
+                      {/* Contextual translation variants for American English speakers */}
+                      {contextVariants && contextVariants.length > 0 && activeMode !== 'dialogue' && activeMode !== 'rap' && (
+                        <div className="mt-5 pt-4 border-t border-black/[0.06] dark:border-white/[0.08] space-y-2.5 animate-in fade-in">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-wider">
+                              Варианты перевода в контексте
+                            </span>
+                            {selectedContext !== 'general' && activeContextObj && (
+                              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-[#1C1C1E] dark:text-white border border-black/10 dark:border-white/10">
+                                {activeContextObj.label}
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="space-y-1.5">
+                            {contextVariants.map((item, idx) => {
+                              const catLabel = item.category === 'idioms' ? 'Идиома'
+                                : item.category === 'slang' ? 'Сленг'
+                                : item.category === 'business' ? 'Бизнес'
+                                : item.category === 'culinary' ? 'Кулинария'
+                                : item.category === 'it' ? 'IT'
+                                : 'Разговорный';
+
+                              const isCurrent = translatedText?.toLowerCase().trim() === item.phrase.toLowerCase().trim();
+
+                              return (
+                                <div
+                                  key={idx}
+                                  onClick={() => setTranslatedText(item.phrase)}
+                                  className={`p-2.5 sm:p-3 rounded-xl border transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-2 ${
+                                    isCurrent
+                                      ? 'bg-black/10 dark:bg-white/15 border-black/20 dark:border-white/30 shadow-sm'
+                                      : 'bg-black/[0.02] dark:bg-white/[0.03] hover:bg-black/[0.05] dark:hover:bg-white/[0.08] border-black/[0.06] dark:border-white/[0.08]'
+                                  }`}
+                                >
+                                  <div className="min-w-0">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-sm sm:text-base font-semibold text-[#1C1C1E] dark:text-white">
+                                        {item.phrase}
+                                      </span>
+                                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-black/5 dark:bg-white/10 text-[#8E8E93] dark:text-[#A1A1AA]">
+                                        {catLabel}
+                                      </span>
+                                    </div>
+                                    <p className="text-xs text-[#8E8E93] dark:text-[#A1A1AA] pt-0.5 leading-snug">
+                                      {item.meaning}
+                                    </p>
+                                  </div>
+
+                                  <div className="flex items-center gap-1.5 opacity-80 hover:opacity-100 flex-shrink-0 self-end sm:self-center">
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        navigator.clipboard.writeText(item.phrase);
+                                      }}
+                                      className="p-1 rounded-md text-[#8E8E93] hover:text-black dark:hover:text-white transition-colors"
+                                      title="Скопировать этот вариант"
+                                    >
+                                      <Copy size={13} />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setTranslatedText(item.phrase);
+                                      }}
+                                      className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-[#1C1C1E] dark:text-white transition-colors"
+                                      title="Выбрать этот перевод"
+                                    >
+                                      Выбрать
+                                    </button>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -3226,38 +3710,7 @@ export default function App() {
         </div>
         )}
 
-        {/* Cultural Nuance & Meaning Note for American / English Speakers */}
-        {culturalNuance && activeMode !== 'dialogue' && activeMode !== 'rap' && (
-          <div className="ios-glass border border-amber-500/30 bg-amber-500/[0.04] dark:bg-amber-400/[0.06] rounded-[24px] p-4 sm:p-6 shadow-sm animate-in fade-in space-y-2.5">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-amber-500/20 pb-2.5">
-              <div className="flex items-center gap-2.5">
-                <span className="text-lg">💡</span>
-                <h4 className="text-xs sm:text-sm font-bold text-amber-900 dark:text-amber-200">
-                  {culturalNuance.title}
-                </h4>
-              </div>
-              <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/25">
-                Контекст для носителя языка
-              </span>
-            </div>
-            <p className="text-xs sm:text-sm text-[#1C1C1E] dark:text-white leading-relaxed">
-              {culturalNuance.nativeExplanation}
-            </p>
-            <div className="pt-1 flex flex-wrap items-center gap-2 text-xs">
-              <span className="font-bold text-[#8E8E93] dark:text-[#A1A1AA]">
-                Как поймёт и скажет американец:
-              </span>
-              <span className="font-semibold px-2.5 py-0.5 rounded-lg bg-black/5 dark:bg-white/10 text-black dark:text-white border border-black/10 dark:border-white/15">
-                {culturalNuance.americanEquivalent}
-              </span>
-            </div>
-            <p className="text-[11px] text-[#8E8E93] dark:text-[#A1A1AA] italic pt-0.5">
-              💬 {culturalNuance.tip}
-            </p>
-          </div>
-        )}
-
-          </section>
+      </section>
 
         {/* ================= СЕКЦИЯ 2: ИСТОРИЯ И СОХРАНЕННЫЕ (КРУГЛЫЕ КНОПКИ ПО ЦЕНТРУ КАК В РЕФЕРЕНСЕ) ================= */}
         <section className="space-y-6 pt-3 sm:pt-6 pb-12">

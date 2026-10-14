@@ -1,3 +1,8 @@
+html {
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+
 :root {
   --accent: #FFFFFF;
   --accent-glow: rgba(255, 255, 255, 0.28);
