@@ -586,24 +586,27 @@ function analyzeHipHopLyrics(text) {
   };
 }
 
+const BASE_URL = import.meta.env.BASE_URL || '/';
+const getAssetUrl = (file) => `${BASE_URL.replace(/\/$/, '')}/${file.replace(/^\//, '')}`;
+
 const RAP_AUDIO_TRACKS = [
   {
     id: 'chipinkos',
     title: 'Чипинкос — Зачем тебе рэп',
     badge: 'Оригинальный рэп',
-    src: '/chipinkos.mp3'
+    src: getAssetUrl('chipinkos.mp3')
   },
   {
     id: 'moan',
     title: 'Громкие мужские стоны',
     badge: '18+ / Громко',
-    src: '/moan.mp3'
+    src: getAssetUrl('moan.mp3')
   },
   {
     id: 'gachi',
     title: 'Гачимучи / Gym Grunt',
     badge: 'Billy Herrington',
-    src: '/gachi.mp3'
+    src: getAssetUrl('gachi.mp3')
   }
 ];
 
@@ -780,13 +783,20 @@ export default function App() {
   const handleSelectAudioTrack = (trackId) => {
     setSelectedAudioTrack(trackId);
     const target = RAP_AUDIO_TRACKS.find(t => t.id === trackId);
-    if (chipinkosAudioRef.current && target) {
-      chipinkosAudioRef.current.pause();
-      chipinkosAudioRef.current.src = target.src;
-      chipinkosAudioRef.current.currentTime = 0;
-      chipinkosAudioRef.current.play()
-        .then(() => setIsPlayingChipinkos(true))
-        .catch(() => setIsPlayingChipinkos(false));
+    const audio = chipinkosAudioRef.current;
+    if (audio && target) {
+      audio.pause();
+      audio.src = target.src;
+      audio.currentTime = 0;
+      audio.load();
+      const p = audio.play();
+      if (p !== undefined) {
+        p.then(() => setIsPlayingChipinkos(true))
+         .catch((err) => {
+           console.log('Play blocked or error:', err);
+           setIsPlayingChipinkos(false);
+         });
+      }
     }
   };
 
@@ -843,12 +853,25 @@ export default function App() {
   }, [activeMode]);
 
   const toggleChipinkosAudio = () => {
-    if (!chipinkosAudioRef.current) return;
+    const audio = chipinkosAudioRef.current;
+    if (!audio) return;
     if (isPlayingChipinkos) {
-      chipinkosAudioRef.current.pause();
+      audio.pause();
       setIsPlayingChipinkos(false);
     } else {
-      chipinkosAudioRef.current.play().then(() => setIsPlayingChipinkos(true)).catch(() => {});
+      if (!audio.src || !audio.src.includes(currentAudioTrack.src)) {
+        audio.src = currentAudioTrack.src;
+        audio.load();
+      }
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => setIsPlayingChipinkos(true))
+          .catch((err) => {
+            console.error('Audio play error:', err);
+            setIsPlayingChipinkos(false);
+          });
+      }
     }
   };
 
@@ -2654,7 +2677,19 @@ export default function App() {
           </div>
 
           {/* Audio element for Rap / Audio tracks */}
-          <audio ref={chipinkosAudioRef} src={currentAudioTrack.src} loop preload="auto" />
+          <audio
+            ref={chipinkosAudioRef}
+            src={currentAudioTrack.src}
+            loop
+            preload="auto"
+            onPlay={() => setIsPlayingChipinkos(true)}
+            onPause={() => setIsPlayingChipinkos(false)}
+            onEnded={() => setIsPlayingChipinkos(false)}
+            onError={(e) => {
+              console.error('Audio load error:', e);
+              setIsPlayingChipinkos(false);
+            }}
+          />
 
           {/* Translation Domain / Context Chips */}
           {activeMode !== 'dialogue' && activeMode !== 'rap' && (
