@@ -40,3 +40,5 @@ doc_builder_sample.py
 make_day*.py
 frontend/capture_*.mjs
 /*.txt
+backend/app/temp_audio/
+*.wav

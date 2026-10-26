@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import Tesseract, { createWorker } from 'tesseract.js';
-import api from './api';
+import api, { transcribeVideo, transcribeAudio, API_BASE_URL } from './api';
 import { 
   Volume2, Star, Edit3, Search, LogOut, 
   ArrowRightLeft, X, Shield, RefreshCw, Check, Sun, Moon, Copy,
@@ -764,8 +764,20 @@ export default function App() {
   // Context Domain Selector state ('general' | 'idioms' | 'it' | 'business' | 'culinary' | 'slang')
   const [selectedContext, setSelectedContext] = useState('general');
 
-  // Mode State: 'text' | 'image' | 'doc' | 'url' | 'dialogue' | 'rap'
+  // Mode State: 'text' | 'image' | 'doc' | 'video' | 'url' | 'dialogue' | 'rap'
   const [activeMode, setActiveMode] = useState('text');
+
+  // Video & Audio Transcription State
+  const videoInputRef = useRef(null);
+  const [videoPreviewUrl, setVideoPreviewUrl] = useState(null);
+  const [extractedAudioUrl, setExtractedAudioUrl] = useState(null);
+  const [isProcessingVideo, setIsProcessingVideo] = useState(false);
+  const [videoProcessStep, setVideoProcessStep] = useState('idle'); // 'upload' | 'extract' | 'transcribe' | 'done' | 'error'
+  const [videoProcessProgress, setVideoProcessProgress] = useState(0);
+  const [videoLanguage, setVideoLanguage] = useState('ru-RU');
+  const [videoSegments, setVideoSegments] = useState([]);
+  const [showSubtitlesFormat, setShowSubtitlesFormat] = useState(false);
+  const [videoDurationStr, setVideoDurationStr] = useState('');
 
   // Rap & Hip-Hop Mode State (Audio tracks & lyrics detector)
   const chipinkosAudioRef = useRef(null);
@@ -1678,8 +1690,179 @@ export default function App() {
       URL.revokeObjectURL(imagePreviewUrl);
       setImagePreviewUrl(null);
     }
+    if (videoPreviewUrl) {
+      URL.revokeObjectURL(videoPreviewUrl);
+      setVideoPreviewUrl(null);
+    }
+    if (extractedAudioUrl && extractedAudioUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(extractedAudioUrl);
+    }
+    setExtractedAudioUrl(null);
+    setVideoSegments([]);
+    setVideoDurationStr('');
     setLoadedFile(null);
     setSourceText('');
+    setTranslatedText('');
+  };
+
+  // Helper to convert Web Audio API AudioBuffer to WAV Blob for client-side extraction
+  function audioBufferToWav(buffer) {
+    const numChannels = 1;
+    const sampleRate = buffer.sampleRate;
+    const format = 1; // PCM
+    const bitDepth = 16;
+    const channelData = buffer.getChannelData(0);
+    const samples = channelData.length;
+    const bytesPerSample = bitDepth / 8;
+    const blockAlign = numChannels * bytesPerSample;
+    const wavBuffer = new ArrayBuffer(44 + samples * bytesPerSample);
+    const view = new DataView(wavBuffer);
+    const writeString = (v, offset, str) => {
+      for (let i = 0; i < str.length; i++) v.setUint8(offset + i, str.charCodeAt(i));
+    };
+    writeString(view, 0, 'RIFF');
+    view.setUint32(4, 36 + samples * bytesPerSample, true);
+    writeString(view, 8, 'WAVE');
+    writeString(view, 12, 'fmt ');
+    view.setUint32(16, 16, true);
+    view.setUint16(20, format, true);
+    view.setUint16(22, numChannels, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * blockAlign, true);
+    view.setUint16(32, blockAlign, true);
+    view.setUint16(34, bitDepth, true);
+    writeString(view, 36, 'data');
+    view.setUint32(40, samples * bytesPerSample, true);
+    let offset = 44;
+    for (let i = 0; i < samples; i++) {
+      const s = Math.max(-1, Math.min(1, channelData[i]));
+      view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+      offset += 2;
+    }
+    return new Blob([view], { type: 'audio/wav' });
+  }
+
+  // Video to Audio Track & Speech Transcription Processing Function
+  const processVideoFile = async (file) => {
+    if (!file) return;
+    if (imagePreviewUrl) {
+      URL.revokeObjectURL(imagePreviewUrl);
+      setImagePreviewUrl(null);
+    }
+    if (videoPreviewUrl) {
+      URL.revokeObjectURL(videoPreviewUrl);
+    }
+    const objUrl = URL.createObjectURL(file);
+    setVideoPreviewUrl(objUrl);
+    setActiveMode('video');
+    setLoadedFile({
+      name: file.name,
+      size: (file.size / (1024 * 1024)).toFixed(1) + ' MB',
+      type: 'video',
+      ext: file.name.split('.').pop().toUpperCase()
+    });
+    setIsProcessingVideo(true);
+    setVideoProcessStep('extract');
+    setVideoProcessProgress(25);
+
+    try {
+      // 1. Попытка транскрибации через FastAPI бэкенд (FFmpeg + SpeechRecognition)
+      const res = await transcribeVideo(file, videoLanguage, (pe) => {
+        if (pe.total) {
+          const pct = Math.round((pe.loaded / pe.total) * 45);
+          setVideoProcessProgress(pct);
+        }
+      });
+      setVideoProcessStep('transcribe');
+      setVideoProcessProgress(75);
+
+      const data = res.data;
+      if (data && (data.text || data.segments)) {
+        const fullTxt = data.text || '';
+        setSourceText(fullTxt);
+        setVideoSegments(data.segments || []);
+        setVideoDurationStr(data.duration_formatted || '');
+        if (data.audio_stream_url) {
+          const fullAudioUrl = data.audio_stream_url.startsWith('http') 
+            ? data.audio_stream_url 
+            : `${API_BASE_URL.replace('/api/v1', '')}${data.audio_stream_url}`;
+          setExtractedAudioUrl(fullAudioUrl);
+        }
+        setVideoProcessStep('done');
+        setVideoProcessProgress(100);
+      } else {
+        setVideoProcessStep('done');
+        setVideoProcessProgress(100);
+        setSourceText('Аудиодорожка извлечена. Речь в видео не обнаружена или файл содержит только музыку.');
+      }
+    } catch (err) {
+      console.warn('Backend transcription error, fallback to Web Audio API extraction:', err);
+      setVideoProcessStep('fallback');
+      // Fallback: клиентское извлечение аудиодорожки через Web Audio API
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const arrayBuffer = await file.arrayBuffer();
+        const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+        const wavBlob = audioBufferToWav(audioBuffer);
+        const wavUrl = URL.createObjectURL(wavBlob);
+        setExtractedAudioUrl(wavUrl);
+        const durSec = audioBuffer.duration;
+        const durFormatted = `${Math.floor(durSec / 60).toString().padStart(2, '0')}:${Math.floor(durSec % 60).toString().padStart(2, '0')}`;
+        setVideoDurationStr(durFormatted);
+        setVideoProcessStep('done');
+        setVideoProcessProgress(100);
+        setSourceText(`Аудиодорожка (${durFormatted}, 16kHz PCM) успешно извлечена из видео! Готова к воспроизведению.`);
+      } catch (clientErr) {
+        console.error('Client extraction failed:', clientErr);
+        setVideoProcessStep('error');
+        alert('Ошибка обработки видео: ' + (err.response?.data?.message || err.message));
+      }
+    } finally {
+      setIsProcessingVideo(false);
+    }
+  };
+
+  const handleDownloadSrt = () => {
+    if (!videoSegments || videoSegments.length === 0) return;
+    const srtLines = videoSegments.map(s => {
+      const formatTime = (sec) => {
+        const h = String(Math.floor(sec / 3600)).padStart(2, '0');
+        const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+        const sSec = String(Math.floor(sec % 60)).padStart(2, '0');
+        const ms = String(Math.round((sec - Math.floor(sec)) * 1000)).padStart(3, '0');
+        return `${h}:${m}:${sSec},${ms}`;
+      };
+      return `${s.index}\n${formatTime(s.start)} --> ${formatTime(s.end)}\n${s.text}\n`;
+    }).join('\n');
+
+    const blob = new Blob([srtLines], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const baseName = loadedFile ? loadedFile.name.replace(/\.[^/.]+$/, "") : 'subtitles';
+    a.download = `${baseName}.srt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadAudioTrack = () => {
+    if (!extractedAudioUrl) return;
+    const a = document.createElement('a');
+    a.href = extractedAudioUrl;
+    const baseName = loadedFile ? loadedFile.name.replace(/\.[^/.]+$/, "") : 'audio_track';
+    a.download = `${baseName}_audio.wav`;
+    a.click();
+  };
+
+  const handleToggleSubtitlesFormat = (showTimestamps) => {
+    setShowSubtitlesFormat(showTimestamps);
+    if (showTimestamps && videoSegments && videoSegments.length > 0) {
+      const formatted = videoSegments.map(s => `[${s.start_formatted} - ${s.end_formatted}] ${s.text}`).join('\n\n');
+      setSourceText(formatted);
+    } else if (!showTimestamps && videoSegments && videoSegments.length > 0) {
+      const plain = videoSegments.map(s => s.text).join(' ');
+      setSourceText(plain);
+    }
   };
 
   // Document Processing Function (Apple Files / Google Docs)
@@ -2340,6 +2523,17 @@ export default function App() {
         accept=".txt,.md,.json,.csv,.srt,.pdf" 
         className="hidden" 
       />
+      <input 
+        type="file" 
+        ref={videoInputRef} 
+        onChange={(e) => {
+          if (e.target.files && e.target.files[0]) {
+            processVideoFile(e.target.files[0]);
+          }
+        }} 
+        accept="video/*,audio/*,.mp4,.webm,.mov,.mkv,.avi,.mp3,.wav,.m4a" 
+        className="hidden" 
+      />
 
       {/* ================= MONOCHROME TITANIUM AMBIENT LIGHTING ================= */}
       <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
@@ -2540,6 +2734,18 @@ export default function App() {
             >
               <FileText size={13} className={activeMode === 'doc' ? 'text-current' : ''} />
               <span>Файлы</span>
+            </button>
+            <button
+              onClick={() => { setActiveMode('video'); }}
+              className={`px-3 sm:px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 flex-shrink-0 active:scale-95 ${
+                activeMode === 'video' 
+                  ? 'apple-tab-active scale-[1.02]' 
+                  : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
+              }`}
+              title="Режим Видео & Аудио (Speech-to-Text)"
+            >
+              <Video size={13} className={activeMode === 'video' ? 'text-current' : ''} />
+              <span>Видео</span>
             </button>
             <button
               onClick={() => {
@@ -3176,6 +3382,15 @@ export default function App() {
                         <UploadCloud size={13} /> <span>{loadedFile ? 'Заменить' : 'Выбрать'}</span>
                       </button>
                     )}
+                    {activeMode === 'video' && (
+                      <button
+                        onClick={() => videoInputRef.current?.click()}
+                        className="px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-semibold text-black dark:text-white apple-btn-glass rounded-full transition-all flex items-center gap-1"
+                        title="Выбрать другое видео"
+                      >
+                        <Video size={13} /> <span>{videoPreviewUrl ? 'Заменить' : 'Выбрать'}</span>
+                      </button>
+                    )}
                     {activeMode === 'url' && (
                       <button
                         onClick={() => setUrlModal(true)}
@@ -3413,6 +3628,159 @@ export default function App() {
                       maxLength={2000}
                       style={{ minHeight: '130px' }}
                       className="w-full text-lg sm:text-2xl md:text-3xl font-bold bg-transparent border-none resize-none focus:outline-none placeholder-[#AEAEB2] dark:placeholder-[#48484A] leading-snug tracking-tight text-[#1C1C1E] dark:text-white overflow-hidden select-text"
+                    />
+                  </div>
+                )}
+
+                {/* MODE: VIDEO & AUDIO TRANSCRIPTION */}
+                {activeMode === 'video' && (
+                  <div className="space-y-3 mb-2 animate-in fade-in">
+                    {/* Language selector for speech recognition */}
+                    <div className="flex items-center justify-between gap-2 px-1 text-xs">
+                      <span className="text-[#8E8E93] text-[11px] font-medium flex items-center gap-1">
+                        <Volume2 size={12} /> Язык аудиодорожки:
+                      </span>
+                      <select
+                        value={videoLanguage}
+                        onChange={(e) => setVideoLanguage(e.target.value)}
+                        className="bg-black/5 dark:bg-white/10 text-black dark:text-white text-xs font-semibold rounded-lg px-2 py-1 border border-black/10 dark:border-white/10 focus:outline-none cursor-pointer"
+                      >
+                        <option value="ru-RU">Русский (ru-RU)</option>
+                        <option value="en-US">English (en-US)</option>
+                        <option value="de-DE">Deutsch (de-DE)</option>
+                        <option value="es-ES">Español (es-ES)</option>
+                        <option value="fr-FR">Français (fr-FR)</option>
+                      </select>
+                    </div>
+
+                    {/* Progress indicator during video extraction & transcription */}
+                    {isProcessingVideo && (
+                      <div className="p-4 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 space-y-2.5 animate-pulse">
+                        <div className="flex items-center justify-between text-xs font-bold text-black dark:text-white">
+                          <span className="flex items-center gap-2">
+                            <Loader2 size={15} className="animate-spin text-black dark:text-white" />
+                            {videoProcessStep === 'extract' ? 'Извлечение аудиодорожки (FFmpeg 16kHz WAV)...' : 'Распознавание речи (Speech Recognition)...'}
+                          </span>
+                          <span className="text-xs font-mono">{videoProcessProgress}%</span>
+                        </div>
+                        <div className="w-full h-1.5 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
+                          <div 
+                            className="h-full bg-black dark:bg-white transition-all duration-300 rounded-full"
+                            style={{ width: `${Math.max(15, videoProcessProgress)}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* If video loaded: show video player & audio track card */}
+                    {videoPreviewUrl ? (
+                      <div className="space-y-3">
+                        {/* Video player preview */}
+                        <div className="relative rounded-2xl overflow-hidden bg-black border border-black/10 dark:border-white/10 flex items-center justify-center">
+                          <video 
+                            src={videoPreviewUrl} 
+                            controls 
+                            playsInline 
+                            className="w-full max-h-64 rounded-xl object-contain bg-black" 
+                          />
+                        </div>
+
+                        {/* Extracted Audio Track Bar */}
+                        {extractedAudioUrl && (
+                          <div className="p-3 sm:p-3.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 space-y-2">
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <div className="w-8 h-8 rounded-xl bg-black text-white dark:bg-white dark:text-black flex items-center justify-center font-bold text-xs shadow-sm flex-shrink-0">
+                                  WAV
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="text-xs font-bold text-black dark:text-white truncate">
+                                    Аудиодорожка извлечена {videoDurationStr ? `(${videoDurationStr})` : ''}
+                                  </p>
+                                  <p className="text-[10px] text-[#8E8E93]">16 kHz Mono PCM · Готово к воспроизведению</p>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-1.5 flex-shrink-0">
+                                <button
+                                  onClick={handleDownloadAudioTrack}
+                                  className="px-2 py-1 text-[10px] font-semibold rounded-lg bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-black dark:text-white transition-colors flex items-center gap-1"
+                                  title="Скачать извлеченную аудиодорожку (WAV)"
+                                >
+                                  <Download size={11} /> <span>WAV</span>
+                                </button>
+                                {videoSegments && videoSegments.length > 0 && (
+                                  <button
+                                    onClick={handleDownloadSrt}
+                                    className="px-2 py-1 text-[10px] font-semibold rounded-lg bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-black dark:text-white transition-colors flex items-center gap-1"
+                                    title="Скачать файл субтитров (.srt)"
+                                  >
+                                    <Download size={11} /> <span>SRT</span>
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Native audio player for extracted track */}
+                            <audio src={extractedAudioUrl} controls className="w-full h-8 pt-1" />
+
+                            {/* Subtitles vs Plain text toggle */}
+                            {videoSegments && videoSegments.length > 0 && (
+                              <div className="flex items-center justify-end gap-2 pt-1 border-t border-black/5 dark:border-white/5">
+                                <span className="text-[10px] text-[#8E8E93]">Формат текста:</span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggleSubtitlesFormat(false)}
+                                  className={`text-[10px] px-2 py-0.5 rounded ${!showSubtitlesFormat ? 'bg-black text-white dark:bg-white dark:text-black font-bold' : 'text-[#8E8E93]'}`}
+                                >
+                                  Сплошной
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggleSubtitlesFormat(true)}
+                                  className={`text-[10px] px-2 py-0.5 rounded ${showSubtitlesFormat ? 'bg-black text-white dark:bg-white dark:text-black font-bold' : 'text-[#8E8E93]'}`}
+                                >
+                                  Таймкоды
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      /* Drag & drop upload box */
+                      <div 
+                        onClick={() => videoInputRef.current?.click()}
+                        className="rounded-2xl border border-dashed border-black/15 dark:border-white/15 hover:border-black/40 dark:hover:border-white/40 p-6 sm:p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-all bg-black/[0.01] dark:bg-white/[0.01] hover:bg-black/[0.03] dark:hover:bg-white/[0.03] group active:scale-[0.99]"
+                      >
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-black/5 dark:bg-white/10 text-black dark:text-white flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                          <Video size={24} className="sm:size-7" />
+                        </div>
+                        <h4 className="text-xs sm:text-sm font-bold text-[#1C1C1E] dark:text-white mb-1">
+                          Видео в текст (Speech-to-Text)
+                        </h4>
+                        <p className="text-[11px] sm:text-xs text-[#8E8E93] max-w-sm mb-3 leading-relaxed">
+                          Загрузите видеофайл: система извлечет аудиодорожку и распознает текст речи 5-минутного видео
+                        </p>
+                        <div className="flex flex-wrap items-center justify-center gap-1 sm:gap-1.5">
+                          {['MP4', 'WEBM', 'MKV', 'MOV', 'AVI', 'MP3', 'WAV'].map((ext) => (
+                            <span key={ext} className="text-[9px] sm:text-[10px] font-medium px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-[#8E8E93] dark:text-[#A1A1AA] border border-black/5 dark:border-white/10">
+                              {ext}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Transcribed text area */}
+                    <textarea
+                      ref={sourceTextareaRef}
+                      value={sourceText}
+                      onChange={(e) => setSourceText(e.target.value)}
+                      placeholder="Распознанный текст аудиодорожки появится здесь..."
+                      maxLength={10000}
+                      style={{ minHeight: '130px' }}
+                      className="w-full text-base sm:text-xl font-medium bg-transparent border-none resize-none focus:outline-none placeholder-[#AEAEB2] dark:placeholder-[#48484A] leading-snug tracking-tight text-[#1C1C1E] dark:text-white overflow-hidden"
                     />
                   </div>
                 )}

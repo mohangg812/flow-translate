@@ -32,4 +32,33 @@ api.interceptors.response.use(
   }
 );
 
+export const transcribeVideo = async (file, language = 'ru-RU', onUploadProgress) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('language', language);
+  const token = localStorage.getItem('flow_token');
+  return axios.post(`${API_BASE_URL}/transcribe/video`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    },
+    timeout: 180000,
+    onUploadProgress
+  });
+};
+
+export const transcribeAudio = async (file, language = 'ru-RU') => {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('language', language);
+  const token = localStorage.getItem('flow_token');
+  return axios.post(`${API_BASE_URL}/transcribe/audio`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    },
+    timeout: 180000
+  });
+};
+
 export default api;

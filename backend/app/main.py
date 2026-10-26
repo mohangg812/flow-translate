@@ -15,6 +15,7 @@ from app.api.translate import router as translate_router
 from app.api.auth import router as auth_router
 from app.api.dictionary import router as dictionary_router
 from app.api.admin import router as admin_router
+from app.api.transcribe import router as transcribe_router
 
 logging.basicConfig(
     level=logging.INFO,
@@ -147,6 +148,7 @@ app.include_router(translate_router, prefix="/api/v1")
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(dictionary_router, prefix="/api/v1")
 app.include_router(admin_router, prefix="/api/v1")
+app.include_router(transcribe_router, prefix="/api/v1")
 
 
 @app.get("/api/v1/health", tags=["Системные"])
