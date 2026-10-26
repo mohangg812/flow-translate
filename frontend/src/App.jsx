@@ -761,6 +761,23 @@ export default function App() {
   const [isSpeakingTarget, setIsSpeakingTarget] = useState(false);
   const [isSwapping, setIsSwapping] = useState(false);
 
+  // Keep videoChunks synchronized with translated text
+  useEffect(() => {
+    if (activeMode === 'video' && videoChunks.length > 0 && translatedText) {
+      setVideoChunks(prev => {
+        if (!prev || !prev[activeChunkIndex]) return prev;
+        if (prev[activeChunkIndex].translatedText === translatedText) return prev;
+        const updated = [...prev];
+        updated[activeChunkIndex] = {
+          ...updated[activeChunkIndex],
+          translatedText: translatedText,
+          isTranslated: true
+        };
+        return updated;
+      });
+    }
+  }, [translatedText, activeMode, activeChunkIndex, videoChunks.length]);
+
   // Context Domain Selector state ('general' | 'idioms' | 'it' | 'business' | 'culinary' | 'slang')
   const [selectedContext, setSelectedContext] = useState('general');
 
@@ -778,6 +795,12 @@ export default function App() {
   const [videoSegments, setVideoSegments] = useState([]);
   const [showSubtitlesFormat, setShowSubtitlesFormat] = useState(false);
   const [videoDurationStr, setVideoDurationStr] = useState('');
+
+  // Video text chunking state (>2000 chars)
+  const [videoChunks, setVideoChunks] = useState([]);
+  const [activeChunkIndex, setActiveChunkIndex] = useState(0);
+  const [isTranslatingAllChunks, setIsTranslatingAllChunks] = useState(false);
+  const [chunkProgress, setChunkProgress] = useState({ current: 0, total: 0 });
 
   // Rap & Hip-Hop Mode State (Audio tracks & lyrics detector)
   const chipinkosAudioRef = useRef(null);
@@ -1700,10 +1723,44 @@ export default function App() {
     setExtractedAudioUrl(null);
     setVideoSegments([]);
     setVideoDurationStr('');
+    setVideoChunks([]);
+    setActiveChunkIndex(0);
     setLoadedFile(null);
     setSourceText('');
     setTranslatedText('');
   };
+
+  // Helper to split long text into natural chunks of <= 1850 characters (sentence-aware)
+  function splitTextIntoChunks(text, maxChunkLen = 1850) {
+    if (!text || text.length <= maxChunkLen) return [text];
+    const sentences = text.match(/[^.!?\n]+[.!?\n]+|[^.!?\n]+$/g) || [text];
+    const chunks = [];
+    let currentChunk = '';
+    for (let s of sentences) {
+      if ((currentChunk + s).length <= maxChunkLen) {
+        currentChunk += s;
+      } else {
+        if (currentChunk.trim()) chunks.push(currentChunk.trim());
+        if (s.length > maxChunkLen) {
+          const words = s.split(/\s+/);
+          let subChunk = '';
+          for (let w of words) {
+            if ((subChunk + ' ' + w).length <= maxChunkLen) {
+              subChunk += (subChunk ? ' ' : '') + w;
+            } else {
+              if (subChunk.trim()) chunks.push(subChunk.trim());
+              subChunk = w;
+            }
+          }
+          currentChunk = subChunk;
+        } else {
+          currentChunk = s;
+        }
+      }
+    }
+    if (currentChunk.trim()) chunks.push(currentChunk.trim());
+    return chunks.length > 0 ? chunks : [text];
+  }
 
   // Helper to convert Web Audio API AudioBuffer to WAV Blob for client-side extraction
   function audioBufferToWav(buffer) {
@@ -1779,9 +1836,28 @@ export default function App() {
       const data = res.data;
       if (data && (data.text || data.segments)) {
         const fullTxt = data.text || '';
-        setSourceText(fullTxt);
         setVideoSegments(data.segments || []);
         setVideoDurationStr(data.duration_formatted || '');
+
+        // Check if transcribed text exceeds 2000 characters limit
+        if (fullTxt.length > 2000) {
+          const rawChunks = splitTextIntoChunks(fullTxt, 1850);
+          const chunkObjs = rawChunks.map((cText, idx) => ({
+            id: idx + 1,
+            partNumber: idx + 1,
+            totalParts: rawChunks.length,
+            text: cText,
+            translatedText: '',
+            isTranslated: false
+          }));
+          setVideoChunks(chunkObjs);
+          setActiveChunkIndex(0);
+          setSourceText(chunkObjs[0].text);
+        } else {
+          setVideoChunks([]);
+          setActiveChunkIndex(0);
+          setSourceText(fullTxt);
+        }
         if (data.audio_stream_url) {
           const fullAudioUrl = data.audio_stream_url.startsWith('http') 
             ? data.audio_stream_url 
@@ -1856,13 +1932,135 @@ export default function App() {
 
   const handleToggleSubtitlesFormat = (showTimestamps) => {
     setShowSubtitlesFormat(showTimestamps);
+    let targetText = '';
     if (showTimestamps && videoSegments && videoSegments.length > 0) {
-      const formatted = videoSegments.map(s => `[${s.start_formatted} - ${s.end_formatted}] ${s.text}`).join('\n\n');
-      setSourceText(formatted);
+      targetText = videoSegments.map(s => `[${s.start_formatted} - ${s.end_formatted}] ${s.text}`).join('\n\n');
     } else if (!showTimestamps && videoSegments && videoSegments.length > 0) {
-      const plain = videoSegments.map(s => s.text).join(' ');
-      setSourceText(plain);
+      targetText = videoSegments.map(s => s.text).join(' ');
     }
+
+    if (targetText) {
+      if (targetText.length > 2000) {
+        const rawChunks = splitTextIntoChunks(targetText, 1850);
+        const chunkObjs = rawChunks.map((cText, idx) => ({
+          id: idx + 1,
+          partNumber: idx + 1,
+          totalParts: rawChunks.length,
+          text: cText,
+          translatedText: '',
+          isTranslated: false
+        }));
+        setVideoChunks(chunkObjs);
+        setActiveChunkIndex(0);
+        setSourceText(chunkObjs[0].text);
+      } else {
+        setVideoChunks([]);
+        setActiveChunkIndex(0);
+        setSourceText(targetText);
+      }
+    }
+  };
+
+  // Switch between video chunks
+  const handleSelectVideoChunk = (targetIdx) => {
+    if (targetIdx < 0 || targetIdx >= videoChunks.length) return;
+    // Save current translation into active chunk
+    setVideoChunks(prev => {
+      const updated = [...prev];
+      if (updated[activeChunkIndex]) {
+        updated[activeChunkIndex] = {
+          ...updated[activeChunkIndex],
+          text: sourceText,
+          translatedText: translatedText,
+          isTranslated: Boolean(translatedText)
+        };
+      }
+      return updated;
+    });
+
+    const targetChunk = videoChunks[targetIdx];
+    setActiveChunkIndex(targetIdx);
+    setSourceText(targetChunk.text);
+    setTranslatedText(targetChunk.translatedText || '');
+  };
+
+  // Translate all chunks in sequence
+  const handleTranslateAllChunks = async () => {
+    if (!videoChunks || videoChunks.length === 0 || isTranslatingAllChunks) return;
+    setIsTranslatingAllChunks(true);
+
+    const isGH = typeof window !== 'undefined' && window.location.hostname.includes('github.io');
+    const updatedChunks = [...videoChunks];
+
+    for (let i = 0; i < updatedChunks.length; i++) {
+      setChunkProgress({ current: i + 1, total: updatedChunks.length });
+      const chunk = updatedChunks[i];
+      const effectiveSource = sourceLang === 'auto'
+        ? (detectLanguage(chunk.text) || detectedLang || 'ru')
+        : sourceLang;
+
+      try {
+        let trText = '';
+        if (isGH) {
+          trText = await robustTranslateClient(chunk.text, effectiveSource, targetLang);
+        } else {
+          try {
+            const res = await api.post('/translate', {
+              text: chunk.text,
+              source_lang: effectiveSource,
+              target_lang: targetLang,
+              tone: tone
+            });
+            trText = res.data.translated_text;
+          } catch (err) {
+            trText = await robustTranslateClient(chunk.text, effectiveSource, targetLang);
+          }
+        }
+        updatedChunks[i] = {
+          ...chunk,
+          translatedText: trText || '',
+          isTranslated: Boolean(trText)
+        };
+        setVideoChunks([...updatedChunks]);
+      } catch (e) {
+        console.error(`Failed to translate chunk ${i + 1}:`, e);
+      }
+    }
+
+    // Set translated text of currently active chunk
+    setTranslatedText(updatedChunks[activeChunkIndex]?.translatedText || '');
+    setIsTranslatingAllChunks(false);
+  };
+
+  // Download full combined translation of all chunks
+  const handleDownloadFullMergedTranslation = () => {
+    const fullText = videoChunks.map((c, i) => `=== ЧАСТЬ ${i + 1} / ${videoChunks.length} ===\n${c.translatedText || ''}`).filter(Boolean).join('\n\n');
+    if (!fullText) return;
+    const blob = new Blob([fullText], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const baseName = loadedFile ? loadedFile.name.replace(/\.[^/.]+$/, "") : 'video_translation';
+    a.download = `${baseName}_full_translated.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // Manual split trigger if user pastes long text into video mode
+  const handleSplitCurrentTextIntoChunks = () => {
+    if (sourceText.length <= 2000) return;
+    const rawChunks = splitTextIntoChunks(sourceText, 1850);
+    const chunkObjs = rawChunks.map((cText, idx) => ({
+      id: idx + 1,
+      partNumber: idx + 1,
+      totalParts: rawChunks.length,
+      text: cText,
+      translatedText: '',
+      isTranslated: false
+    }));
+    setVideoChunks(chunkObjs);
+    setActiveChunkIndex(0);
+    setSourceText(chunkObjs[0].text);
   };
 
   // Document Processing Function (Apple Files / Google Docs)
@@ -3772,13 +3970,118 @@ export default function App() {
                       </div>
                     )}
 
+                    {/* CHUNKS NAVIGATION BAR IF TEXT > 2000 CHARS */}
+                    {videoChunks && videoChunks.length > 1 && (
+                      <div className="p-3 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 space-y-2.5 animate-in fade-in">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                            <span className="text-xs font-bold text-black dark:text-white">
+                              Разбито на {videoChunks.length} частей (лимит 2000 симв.)
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <button
+                              type="button"
+                              onClick={handleTranslateAllChunks}
+                              disabled={isTranslatingAllChunks}
+                              className="apple-btn-primary px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-sm active:scale-95 disabled:opacity-50"
+                            >
+                              {isTranslatingAllChunks ? (
+                                <>
+                                  <Loader2 size={12} className="animate-spin" />
+                                  <span>Перевод: {chunkProgress.current}/{chunkProgress.total}...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Sparkles size={12} />
+                                  <span>Перевести все {videoChunks.length} части</span>
+                                </>
+                              )}
+                            </button>
+
+                            {videoChunks.some(c => c.isTranslated) && (
+                              <button
+                                type="button"
+                                onClick={handleDownloadFullMergedTranslation}
+                                className="apple-btn-glass px-2.5 py-1 rounded-full text-xs font-semibold text-black dark:text-white flex items-center gap-1"
+                                title="Скачать весь объединённый перевод"
+                              >
+                                <Download size={12} />
+                                <span>Скачать всё (.txt)</span>
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Chunk Switcher Tabs */}
+                        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                          {videoChunks.map((chunk, idx) => {
+                            const isActive = activeChunkIndex === idx;
+                            const isDone = chunk.isTranslated;
+                            return (
+                              <button
+                                key={chunk.id}
+                                type="button"
+                                onClick={() => handleSelectVideoChunk(idx)}
+                                className={`px-2.5 py-1 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 flex-shrink-0 active:scale-95 border ${
+                                  isActive
+                                    ? 'bg-black text-white dark:bg-white dark:text-black border-transparent shadow-sm'
+                                    : 'bg-black/5 dark:bg-white/5 text-[#8E8E93] hover:text-black dark:hover:text-white border-black/5 dark:border-white/10'
+                                }`}
+                              >
+                                <span>Часть {chunk.partNumber}</span>
+                                <span className={`text-[10px] ${isActive ? 'opacity-80' : 'text-[#8E8E93]'}`}>
+                                  ({chunk.text.length} с.)
+                                </span>
+                                {isDone && (
+                                  <Check size={11} className={isActive ? 'text-emerald-400 dark:text-emerald-600' : 'text-emerald-500'} />
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Manual Split Banner if user pasted > 2000 chars */}
+                    {sourceText.length > 2000 && (!videoChunks || videoChunks.length <= 1) && (
+                      <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs flex items-center justify-between gap-2">
+                        <span className="text-amber-900 dark:text-amber-200">
+                          Текст видео ({sourceText.length} симв.) превышает лимит перевода 2000 симв.
+                        </span>
+                        <button
+                          type="button"
+                          onClick={handleSplitCurrentTextIntoChunks}
+                          className="px-3 py-1 rounded-full bg-amber-500 text-white font-bold text-xs hover:bg-amber-600 transition-colors flex items-center gap-1 flex-shrink-0 shadow-sm"
+                        >
+                          <Sparkles size={11} />
+                          <span>Разбить на {Math.ceil(sourceText.length / 1850)} части</span>
+                        </button>
+                      </div>
+                    )}
+
                     {/* Transcribed text area */}
                     <textarea
                       ref={sourceTextareaRef}
                       value={sourceText}
-                      onChange={(e) => setSourceText(e.target.value)}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setSourceText(val);
+                        if (videoChunks && videoChunks.length > 0 && videoChunks[activeChunkIndex]) {
+                          setVideoChunks(prev => {
+                            const updated = [...prev];
+                            updated[activeChunkIndex] = {
+                              ...updated[activeChunkIndex],
+                              text: val
+                            };
+                            return updated;
+                          });
+                        }
+                      }}
                       placeholder="Распознанный текст аудиодорожки появится здесь..."
-                      maxLength={10000}
+                      maxLength={videoChunks && videoChunks.length > 1 ? 2000 : 10000}
                       style={{ minHeight: '130px' }}
                       className="w-full text-base sm:text-xl font-medium bg-transparent border-none resize-none focus:outline-none placeholder-[#AEAEB2] dark:placeholder-[#48484A] leading-snug tracking-tight text-[#1C1C1E] dark:text-white overflow-hidden"
                     />
