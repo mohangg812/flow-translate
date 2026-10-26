@@ -18,6 +18,7 @@ const SOURCE_LANGUAGES = [
   { code: 'ru', label: 'Русский', flag: '🇷🇺' },
   { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
   { code: 'es', label: 'Español', flag: '🇪🇸' },
+  { code: 'la', label: 'Latina', flag: '🏛️' },
 ];
 
 const TARGET_LANGUAGES = [
@@ -25,6 +26,7 @@ const TARGET_LANGUAGES = [
   { code: 'ru', label: 'Русский', flag: '🇷🇺' },
   { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
   { code: 'es', label: 'Español', flag: '🇪🇸' },
+  { code: 'la', label: 'Latina', flag: '🏛️' },
 ];
 
 const LANGUAGES = TARGET_LANGUAGES;
@@ -82,16 +84,27 @@ function detectLanguage(text) {
     'these', 'give', 'day', 'most', 'us', 'hello', 'please', 'thanks', 'where', 'why'
   ]);
 
+  const laWords = new Set([
+    'et', 'est', 'non', 'in', 'ad', 'ut', 'cum', 'per', 'qui', 'quae', 'quod', 'sed', 'si',
+    'de', 'ex', 'te', 'me', 'nos', 'vos', 'sum', 'esse', 'fuit', 'ave', 'salve', 'vale',
+    'deus', 'rex', 'pax', 'lux', 'amor', 'vita', 'mors', 'veritas', 'tempus', 'terra',
+    'caelum', 'mundus', 'aqua', 'ignis', 'veni', 'vidi', 'vici', 'homo', 'cogito', 'ergo',
+    'omnibus', 'bellum', 'populus', 'magnus', 'natura', 'mens', 'corpus', 'ars', 'scientia'
+  ]);
+
   let scoreDe = 0;
   let scoreEs = 0;
   let scoreEn = 0;
+  let scoreLa = 0;
 
   for (const w of words) {
     if (deWords.has(w)) scoreDe += 2;
     if (esWords.has(w)) scoreEs += 2;
     if (enWords.has(w)) scoreEn += 2;
+    if (laWords.has(w)) scoreLa += 3;
   }
 
+  if (scoreLa > scoreEn && scoreLa > scoreDe && scoreLa > scoreEs) return 'la';
   if (scoreDe > scoreEn && scoreDe > scoreEs) return 'de';
   if (scoreEs > scoreEn && scoreEs > scoreDe) return 'es';
   return 'en';
@@ -1505,7 +1518,7 @@ export default function App() {
     if (!('speechSynthesis' in window) || !text) return;
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
-    const map = { ru: 'ru-RU', en: 'en-US', de: 'de-DE', es: 'es-ES' };
+    const map = { ru: 'ru-RU', en: 'en-US', de: 'de-DE', es: 'es-ES', la: 'it-IT' };
     utterance.lang = map[langCode] || 'en-US';
     
     if (isTarget) setIsSpeakingTarget(true);
@@ -3848,6 +3861,7 @@ export default function App() {
                         <option value="de-DE">Deutsch (de-DE)</option>
                         <option value="es-ES">Español (es-ES)</option>
                         <option value="fr-FR">Français (fr-FR)</option>
+                        <option value="la">Latina (la)</option>
                       </select>
                     </div>
 

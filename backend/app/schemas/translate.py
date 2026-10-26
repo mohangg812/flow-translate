@@ -2,13 +2,13 @@ import uuid
 from typing import Optional
 from pydantic import BaseModel, Field, field_validator
 
-ALLOWED_SOURCE_LANGUAGES = {"ru", "en", "de", "es", "auto"}
-ALLOWED_TARGET_LANGUAGES = {"ru", "en", "de", "es"}
+ALLOWED_SOURCE_LANGUAGES = {"ru", "en", "de", "es", "la", "auto"}
+ALLOWED_TARGET_LANGUAGES = {"ru", "en", "de", "es", "la"}
 
 class TranslateRequest(BaseModel):
     text: str = Field(..., min_length=1, max_length=2000, description="Исходный текст")
-    source_lang: str = Field(..., description="Исходный язык (ru, en, de, es, auto)")
-    target_lang: str = Field(..., description="Целевой язык (ru, en, de, es)")
+    source_lang: str = Field(..., description="Исходный язык (ru, en, de, es, la, la, la, auto)")
+    target_lang: str = Field(..., description="Целевой язык (ru, en, de, es, la, la)")
     tone: Optional[str] = Field("neutral", description="Тональность перевода: neutral, formal, informal")
 
     @field_validator("text")
