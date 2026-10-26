@@ -1836,18 +1836,8 @@ export default function App() {
     setIsTranslating(true);
     try {
       let resData = null;
-      try {
-        const res = await api.post('/translate', {
-          text: text,
-          source_lang: effectiveSource,
-          target_lang: targetLang,
-          tone: tone
-        }, { signal: controller.signal });
-        resData = res.data;
-      } catch (apiErr) {
-        if (apiErr.name === 'CanceledError' || apiErr.code === 'ERR_CANCELED') {
-          throw apiErr;
-        }
+      const isGH = typeof window !== 'undefined' && window.location.hostname.includes('github.io');
+      if (isGH) {
         const mainTrans = await robustTranslateClient(text, effectiveSource, targetLang, controller.signal);
         if (mainTrans) {
           resData = {
@@ -1857,8 +1847,32 @@ export default function App() {
             is_saved_in_dictionary: false,
             saved_entry_id: null,
           };
-        } else {
-          throw apiErr;
+        }
+      } else {
+        try {
+          const res = await api.post('/translate', {
+            text: text,
+            source_lang: effectiveSource,
+            target_lang: targetLang,
+            tone: tone
+          }, { signal: controller.signal });
+          resData = res.data;
+        } catch (apiErr) {
+          if (apiErr.name === 'CanceledError' || apiErr.code === 'ERR_CANCELED') {
+            throw apiErr;
+          }
+          const mainTrans = await robustTranslateClient(text, effectiveSource, targetLang, controller.signal);
+          if (mainTrans) {
+            resData = {
+              translated_text: mainTrans,
+              alternatives: [],
+              examples: [],
+              is_saved_in_dictionary: false,
+              saved_entry_id: null,
+            };
+          } else {
+            throw apiErr;
+          }
         }
       }
 
