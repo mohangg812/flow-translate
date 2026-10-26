@@ -3559,16 +3559,17 @@ export default function App() {
                   </span>
                 </div>
 
-                <span className="text-[11px] font-semibold text-[#8E8E93] flex items-center gap-1.5">
-                  {isTranslating ? (
-                    <span className="flex items-center gap-1.5 text-black dark:text-white">
-                      <RefreshCw size={12} className="animate-spin" />
-                      Перевод...
-                    </span>
-                  ) : (
-                    <span className="text-[#8E8E93]/70">Авто</span>
-                  )}
-                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => performTranslation()}
+                    disabled={!sourceText.trim() || isTranslating}
+                    className="apple-btn-primary px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-sm active:scale-95 disabled:opacity-40 transition-all cursor-pointer"
+                    title="Выполнить перевод"
+                  >
+                    {isTranslating ? <RefreshCw size={12} className="animate-spin" /> : <Languages size={12} />}
+                    <span>Перевести</span>
+                  </button>
+                </div>
               </div>
             </div>
 

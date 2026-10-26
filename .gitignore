@@ -34,7 +34,9 @@ surprise-app/
 
 # Scratch & College practice files
 Lab10/
+Lab9/
 Program.cs
 doc_builder_sample.py
-make_day6_report.py
+make_day*.py
+frontend/capture_*.mjs
 /*.txt
