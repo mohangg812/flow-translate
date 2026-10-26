@@ -761,23 +761,6 @@ export default function App() {
   const [isSpeakingTarget, setIsSpeakingTarget] = useState(false);
   const [isSwapping, setIsSwapping] = useState(false);
 
-  // Keep videoChunks synchronized with translated text
-  useEffect(() => {
-    if (activeMode === 'video' && videoChunks.length > 0 && translatedText) {
-      setVideoChunks(prev => {
-        if (!prev || !prev[activeChunkIndex]) return prev;
-        if (prev[activeChunkIndex].translatedText === translatedText) return prev;
-        const updated = [...prev];
-        updated[activeChunkIndex] = {
-          ...updated[activeChunkIndex],
-          translatedText: translatedText,
-          isTranslated: true
-        };
-        return updated;
-      });
-    }
-  }, [translatedText, activeMode, activeChunkIndex, videoChunks.length]);
-
   // Context Domain Selector state ('general' | 'idioms' | 'it' | 'business' | 'culinary' | 'slang')
   const [selectedContext, setSelectedContext] = useState('general');
 
@@ -801,6 +784,23 @@ export default function App() {
   const [activeChunkIndex, setActiveChunkIndex] = useState(0);
   const [isTranslatingAllChunks, setIsTranslatingAllChunks] = useState(false);
   const [chunkProgress, setChunkProgress] = useState({ current: 0, total: 0 });
+
+  // Keep videoChunks synchronized with translated text
+  useEffect(() => {
+    if (activeMode === 'video' && videoChunks.length > 0 && translatedText) {
+      setVideoChunks(prev => {
+        if (!prev || !prev[activeChunkIndex]) return prev;
+        if (prev[activeChunkIndex].translatedText === translatedText) return prev;
+        const updated = [...prev];
+        updated[activeChunkIndex] = {
+          ...updated[activeChunkIndex],
+          translatedText: translatedText,
+          isTranslated: true
+        };
+        return updated;
+      });
+    }
+  }, [translatedText, activeMode, activeChunkIndex, videoChunks.length]);
 
   // Rap & Hip-Hop Mode State (Audio tracks & lyrics detector)
   const chipinkosAudioRef = useRef(null);
