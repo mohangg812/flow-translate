@@ -1055,6 +1055,22 @@ export default function App() {
         alert('Камера не поддерживается вашим браузером');
       }
     } catch (err) {
+      if ((err.code === 'ERR_NETWORK' || !err.response || err.code === 'ECONNABORTED') && (typeof window !== 'undefined' && window.location.hostname.includes('github.io'))) {
+        const demoUser = {
+          id: 'demo-user-1',
+          email: email || 'student@flow.com',
+          role: email.includes('admin') ? 'admin' : 'student',
+          is_verified: true,
+          theme_preference: 'dark'
+        };
+        const demoToken = 'demo-jwt-token-' + Date.now();
+        localStorage.setItem('flow_token', demoToken);
+        setUser(demoUser);
+        setAuthModal(null);
+        setAuthPassword('');
+        setAuthPasswordConfirm('');
+        return;
+      }
       alert('Ошибка доступа к камере: ' + (err.message || 'Разрешите доступ к веб-камере в браузере'));
     } finally {
       setIsCameraLoading(false);

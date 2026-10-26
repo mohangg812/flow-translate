@@ -6,6 +6,7 @@ export const API_BASE_URL = import.meta.env.VITE_API_URL || (isGitHubPages ? 'ht
 
 const api = axios.create({
   baseURL: API_BASE_URL,
+  timeout: 3000, // 3 секунды таймаут, чтобы интерфейс никогда не зависал при недоступном удаленном сервере
   headers: {
     'Content-Type': 'application/json',
   },
