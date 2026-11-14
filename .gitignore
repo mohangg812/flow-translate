@@ -42,3 +42,14 @@ frontend/capture_*.mjs
 /*.txt
 backend/app/temp_audio/
 *.wav
+
+# Temp & storage
+backend/storage/
+backend/*.db
+scratch/
+Lab13/
+Lab14/
+assets/
+*.mjs
+process_assets.py
+generate_*_pack.py

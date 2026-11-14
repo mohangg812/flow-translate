@@ -15,7 +15,25 @@
       "height": 3056,
       "image_filename": "page_001.jpg",
       "trans_image_filename": "page_001_trans.jpg",
-      "bubbles": [],
+      "bubbles": [
+        {
+          "id": "b_1_1",
+          "type": "caption",
+          "text_en": "WILSON • GENOLET • REBER",
+          "text_ru": "УИЛСОН • ХЕНОЛЕТ • РЕБЕР",
+          "bbox": {
+            "x": 150,
+            "y": 2870,
+            "width": 1680,
+            "height": 130
+          },
+          "rel_x": 7.55,
+          "rel_y": 93.91,
+          "rel_w": 84.51,
+          "rel_h": 4.25,
+          "confidence": 99
+        }
+      ],
       "is_processed": true
     },
     {
@@ -26,84 +44,89 @@
       "trans_image_filename": "page_002_trans.jpg",
       "bubbles": [
         {
-          "id": "b_1",
+          "id": "b_2_1",
+          "type": "bubble",
           "text_en": "FELICIA HARDY is the BLACK CAT, the most skilled superthief in New York! Armed with her luck powers, the longer the odds, the better!",
           "text_ru": "ФЕЛИЦИЯ ХАРДИ — ЧЕРНАЯ КОШКА, самая искусная воровка Нью-Йорка! Вооружившись удачей, чем меньше шансов — тем лучше!",
           "bbox": {
-            "x": 288,
-            "y": 175,
-            "width": 302,
-            "height": 100
+            "x": 380,
+            "y": 215,
+            "width": 780,
+            "height": 260
           },
-          "rel_x": 14.49,
-          "rel_y": 5.73,
-          "rel_w": 15.19,
-          "rel_h": 3.27,
-          "confidence": 98
+          "rel_x": 19.11,
+          "rel_y": 7.04,
+          "rel_w": 39.24,
+          "rel_h": 8.51,
+          "confidence": 99
         },
         {
-          "id": "b_2",
+          "id": "b_2_2",
+          "type": "caption",
           "text_en": "XVI. X-PENSE ACCOUNTS",
           "text_ru": "XVI. РАСХОДНЫЕ СЧЕТА",
           "bbox": {
-            "x": 774,
-            "y": 180,
-            "width": 186,
-            "height": 56
+            "x": 440,
+            "y": 400,
+            "width": 460,
+            "height": 80
           },
-          "rel_x": 38.93,
-          "rel_y": 5.89,
-          "rel_w": 9.36,
-          "rel_h": 1.83,
-          "confidence": 98
+          "rel_x": 22.13,
+          "rel_y": 13.09,
+          "rel_w": 23.14,
+          "rel_h": 2.62,
+          "confidence": 99
         },
         {
-          "id": "b_3",
+          "id": "b_2_3",
+          "type": "bubble",
           "text_en": "The BLACK CAT recently incurred the wrath of pretty much everyone in New York City, the Punisher, and the battle against the Queen in Black...",
           "text_ru": "Недавно ЧЕРНАЯ КОШКА навлекла на себя гнев почти всего Нью-Йорка, Карателя, а также пережила битву с Королевой в Черном...",
           "bbox": {
-            "x": 1245,
-            "y": 176,
-            "width": 277,
-            "height": 106
+            "x": 380,
+            "y": 470,
+            "width": 780,
+            "height": 220
           },
-          "rel_x": 62.63,
-          "rel_y": 5.76,
-          "rel_w": 13.93,
-          "rel_h": 3.47,
-          "confidence": 98
+          "rel_x": 19.11,
+          "rel_y": 15.38,
+          "rel_w": 39.24,
+          "rel_h": 7.2,
+          "confidence": 99
         },
         {
-          "id": "b_4",
+          "id": "b_2_4",
+          "type": "bubble",
           "text_en": "Following an adventure with Mary Jane Watson, a violent misunderstanding with Felicia... Good news: she's learned her lesson. Felicia is back to her old tricks!",
           "text_ru": "После совместного приключения с Мэри Джейн Уотсон и бурного недопонимания... Хорошие новости: она усвоила урок. Фелиция снова берется за старое!",
           "bbox": {
-            "x": 1540,
-            "y": 181,
-            "width": 79,
-            "height": 56
+            "x": 370,
+            "y": 680,
+            "width": 800,
+            "height": 280
           },
-          "rel_x": 77.46,
-          "rel_y": 5.92,
-          "rel_w": 3.97,
-          "rel_h": 1.83,
-          "confidence": 98
+          "rel_x": 18.61,
+          "rel_y": 22.25,
+          "rel_w": 40.24,
+          "rel_h": 9.16,
+          "confidence": 99
         },
         {
-          "id": "b_5",
+          "id": "b_2_5",
+          "type": "caption",
           "text_en": "G. WILLOW WILSON - WRITER\nANDRES GENOLET - ARTIST\nBRIAN REBER - COLOR ARTIST\nVC's FERRAN DELGADO - LETTERER\nNICK LOWE - EXECUTIVE EDITOR",
           "text_ru": "Г. УИЛЛОУ УИЛСОН — СЦЕНАРИСТ\nАНДРЕС ХЕНОЛЕТ — ХУДОЖНИК\nБРАЙАН РЕБЕР — КОЛОРИСТ\nФЕРРАН ДЕЛЬГАДО — ШРИФТОВИК\nНИК ЛОУ — ГЛАВНЫЙ РЕДАКТОР",
           "bbox": {
-            "x": 941,
-            "y": 214,
-            "width": 309,
-            "height": 65
+            "x": 370,
+            "y": 950,
+            "width": 520,
+            "height": 260
           },
-          "rel_x": 47.33,
-          "rel_y": 7.0,
-          "rel_w": 15.54,
-          "rel_h": 2.13,
-          "confidence": 98
+          "rel_x": 18.61,
+          "rel_y": 31.09,
+          "rel_w": 26.16,
+          "rel_h": 8.51,
+          "confidence": 99
         }
       ],
       "is_processed": true
@@ -116,51 +139,122 @@
       "trans_image_filename": "page_003_trans.jpg",
       "bubbles": [
         {
-          "id": "b_1",
+          "id": "b_3_1",
+          "type": "caption",
+          "text_en": "THE UPPER WEST SIDE.",
+          "text_ru": "ВЕСТ-САЙД.",
+          "bbox": {
+            "x": 50,
+            "y": 40,
+            "width": 520,
+            "height": 105
+          },
+          "rel_x": 2.52,
+          "rel_y": 1.31,
+          "rel_w": 26.16,
+          "rel_h": 3.44,
+          "confidence": 99
+        },
+        {
+          "id": "b_3_2",
+          "type": "caption",
           "text_en": "I LOVE THE FEELING YOU GET THE MORNING OF A HEIST.",
-          "text_ru": "Обожаю это чувство утром накануне ограбления.",
+          "text_ru": "ОБОЖАЮ ЭТО ЧУВСТВО\nУТРОМ НАКАНУНЕ\nОГРАБЛЕНИЯ.",
           "bbox": {
-            "x": 634,
-            "y": 198,
-            "width": 566,
-            "height": 146
+            "x": 630,
+            "y": 120,
+            "width": 340,
+            "height": 240
           },
-          "rel_x": 31.9,
-          "rel_y": 6.5,
-          "rel_w": 28.5,
-          "rel_h": 4.8,
+          "rel_x": 31.69,
+          "rel_y": 3.93,
+          "rel_w": 17.1,
+          "rel_h": 7.85,
           "confidence": 99
         },
         {
-          "id": "b_2",
-          "text_en": "THE BEAUTIFUL SHINY THING THAT WILL SOON BE MINE.",
-          "text_ru": "Прекрасная блестящая вещь, которая скоро станет моей.",
+          "id": "b_3_3",
+          "type": "caption",
+          "text_en": "THE ANTICIPATION. THE RUSH OF EXCITEMENT.",
+          "text_ru": "ПРЕДВКУШЕНИЕ.\nПРИЛИВ АДРЕНАЛИНА.",
           "bbox": {
-            "x": 739,
-            "y": 1369,
-            "width": 606,
-            "height": 137
+            "x": 85,
+            "y": 1315,
+            "width": 360,
+            "height": 175
           },
-          "rel_x": 37.2,
-          "rel_y": 44.8,
-          "rel_w": 30.5,
-          "rel_h": 4.5,
+          "rel_x": 4.28,
+          "rel_y": 43.03,
+          "rel_w": 18.11,
+          "rel_h": 5.73,
           "confidence": 99
         },
         {
-          "id": "b_3",
+          "id": "b_3_4",
+          "type": "caption",
+          "text_en": "THE BEAUTIFUL SHINY THING THAT WILL SOON BE YOURS.",
+          "text_ru": "ПРЕКРАСНАЯ\nСВЕРКАЮЩАЯ ВЕЩЬ,\nКОТОРАЯ СКОРО\nСТАНЕТ ТВОЕЙ.",
+          "bbox": {
+            "x": 730,
+            "y": 1315,
+            "width": 310,
+            "height": 185
+          },
+          "rel_x": 36.72,
+          "rel_y": 43.03,
+          "rel_w": 15.59,
+          "rel_h": 6.05,
+          "confidence": 99
+        },
+        {
+          "id": "b_3_5",
+          "type": "plaque",
+          "text_en": "AT AUCTION: RARE SAPPHIRE",
+          "text_ru": "НА АУКЦИОНЕ:\nРЕДКИЙ САПФИР",
+          "bbox": {
+            "x": 145,
+            "y": 2375,
+            "width": 510,
+            "height": 420
+          },
+          "rel_x": 7.29,
+          "rel_y": 77.72,
+          "rel_w": 25.65,
+          "rel_h": 13.74,
+          "confidence": 99
+        },
+        {
+          "id": "b_3_6",
+          "type": "caption",
           "text_en": "PULLING OFF A SUCCESSFUL HEIST IS LIKE CONDUCTING A SYMPHONY.",
-          "text_ru": "Провернуть успешное ограбление — это как дирижировать симфонией.",
+          "text_ru": "ПРОВЕРНУТЬ УСПЕШНОЕ\nОГРАБЛЕНИЕ — ЭТО КАК\nДИРИЖИРОВАТЬ СИМФОНИЕЙ.",
           "bbox": {
-            "x": 1264,
-            "y": 1919,
-            "width": 646,
-            "height": 158
+            "x": 1250,
+            "y": 1850,
+            "width": 385,
+            "height": 240
           },
-          "rel_x": 63.6,
-          "rel_y": 62.8,
-          "rel_w": 32.5,
-          "rel_h": 5.2,
+          "rel_x": 62.88,
+          "rel_y": 60.54,
+          "rel_w": 19.37,
+          "rel_h": 7.85,
+          "confidence": 99
+        },
+        {
+          "id": "b_3_7",
+          "type": "caption",
+          "text_en": "TIMING IS EVERYTHING.",
+          "text_ru": "ГЛАВНОЕ —\nРАСЧЕТ ВРЕМЕНИ.",
+          "bbox": {
+            "x": 1575,
+            "y": 2400,
+            "width": 260,
+            "height": 200
+          },
+          "rel_x": 79.23,
+          "rel_y": 78.53,
+          "rel_w": 13.08,
+          "rel_h": 6.54,
           "confidence": 99
         }
       ],
@@ -174,83 +268,156 @@
       "trans_image_filename": "page_004_trans.jpg",
       "bubbles": [
         {
-          "id": "b_1",
+          "id": "b_4_1",
+          "type": "bubble",
+          "text_en": "TAXI!",
+          "text_ru": "ТАКСИ!",
+          "bbox": {
+            "x": 1050,
+            "y": 85,
+            "width": 215,
+            "height": 105
+          },
+          "rel_x": 52.82,
+          "rel_y": 2.78,
+          "rel_w": 10.81,
+          "rel_h": 3.44,
+          "confidence": 99
+        },
+        {
+          "id": "b_4_2",
+          "type": "caption",
           "text_en": "I MADE SURE EVERYBODY SAW ME LEAVING THE BUILDING.",
-          "text_ru": "Я позаботилась о том, чтобы все видели, как я выхожу из здания.",
+          "text_ru": "Я ПОЗАБОТИЛАСЬ О ТОМ, ЧТОБЫ ВСЕ ВИДЕЛИ, КАК Я ВЫХОЖУ ИЗ ЗДАНИЯ.",
           "bbox": {
-            "x": 1381,
-            "y": 128,
-            "width": 526,
-            "height": 137
+            "x": 1410,
+            "y": 105,
+            "width": 385,
+            "height": 125
           },
-          "rel_x": 69.5,
-          "rel_y": 4.2,
-          "rel_w": 26.5,
-          "rel_h": 4.5,
+          "rel_x": 70.93,
+          "rel_y": 3.44,
+          "rel_w": 19.37,
+          "rel_h": 4.09,
           "confidence": 99
         },
         {
-          "id": "b_2",
-          "text_en": "THE DOORMAN. THE SECURITY. THE PEOPLE ON THE STREET.",
-          "text_ru": "Швейцар. Охрана. Прохожие на улице.",
+          "id": "b_4_3",
+          "type": "caption",
+          "text_en": "THE DOORMAN. THE SECURITY CAMERAS. THE PEOPLE ON THE STREET.",
+          "text_ru": "ШВЕЙЦАР. ОХРАНА. ПРОХОЖИЕ НА УЛИЦЕ.",
           "bbox": {
-            "x": 1560,
-            "y": 259,
-            "width": 367,
-            "height": 146
+            "x": 1630,
+            "y": 255,
+            "width": 300,
+            "height": 175
           },
-          "rel_x": 78.5,
-          "rel_y": 8.5,
-          "rel_w": 18.5,
-          "rel_h": 4.8,
+          "rel_x": 81.99,
+          "rel_y": 8.34,
+          "rel_w": 15.09,
+          "rel_h": 5.73,
           "confidence": 99
         },
         {
-          "id": "b_3",
-          "text_en": "FOR EVERYTHING TO WORK, IT HAD TO GO EXACTLY AS PLANNED.",
-          "text_ru": "Чтобы все сработало, всё должно было идти в точности по плану.",
+          "id": "b_4_4",
+          "type": "caption",
+          "text_en": "FOR THIS TO WORK, EVERYTHING HAD TO GO EXACTLY RIGHT.",
+          "text_ru": "ЧТОБЫ ВСЁ СРАБОТАЛО, ВСЁ ДОЛЖНО БЫЛО ПРОЙТИ В ТОЧНОСТИ ПО ПЛАНУ.",
           "bbox": {
-            "x": 103,
-            "y": 910,
-            "width": 506,
-            "height": 137
+            "x": 105,
+            "y": 915,
+            "width": 360,
+            "height": 160
           },
-          "rel_x": 5.2,
-          "rel_y": 29.8,
-          "rel_w": 25.5,
-          "rel_h": 4.5,
+          "rel_x": 5.28,
+          "rel_y": 29.94,
+          "rel_w": 18.11,
+          "rel_h": 5.24,
           "confidence": 99
         },
         {
-          "id": "b_4",
+          "id": "b_4_5",
+          "type": "bubble",
+          "text_en": "GOOD AFTERNOON, MADAM.",
+          "text_ru": "ДОБРЫЙ ДЕНЬ, МАДАМ.",
+          "bbox": {
+            "x": 895,
+            "y": 1590,
+            "width": 350,
+            "height": 105
+          },
+          "rel_x": 45.02,
+          "rel_y": 52.03,
+          "rel_w": 17.61,
+          "rel_h": 3.44,
+          "confidence": 99
+        },
+        {
+          "id": "b_4_6",
+          "type": "bubble",
           "text_en": "WHERE ARE WE HEADED?",
-          "text_ru": "Куда мы направляемся?",
+          "text_ru": "КУДА НАПРАВЛЯЕМСЯ?",
           "bbox": {
-            "x": 964,
-            "y": 1696,
-            "width": 357,
-            "height": 106
+            "x": 1015,
+            "y": 1675,
+            "width": 240,
+            "height": 100
           },
-          "rel_x": 48.5,
-          "rel_y": 55.5,
-          "rel_w": 18.0,
-          "rel_h": 3.5,
+          "rel_x": 51.06,
+          "rel_y": 54.81,
+          "rel_w": 12.07,
+          "rel_h": 3.27,
           "confidence": 99
         },
         {
-          "id": "b_5",
-          "text_en": "VERY FUNNY, STICK TO THE PLAN.",
-          "text_ru": "Очень смешно. Придерживайся плана.",
+          "id": "b_4_7",
+          "type": "bubble",
+          "text_en": "VERY FUNNY, BRUNO.",
+          "text_ru": "ОЧЕНЬ СМЕШНО, БРУНО.",
           "bbox": {
-            "x": 924,
-            "y": 1787,
-            "width": 407,
-            "height": 116
+            "x": 910,
+            "y": 1775,
+            "width": 260,
+            "height": 90
           },
-          "rel_x": 46.5,
-          "rel_y": 58.5,
-          "rel_w": 20.5,
-          "rel_h": 3.8,
+          "rel_x": 45.77,
+          "rel_y": 58.08,
+          "rel_w": 13.08,
+          "rel_h": 2.95,
+          "confidence": 99
+        },
+        {
+          "id": "b_4_8",
+          "type": "bubble",
+          "text_en": "JUST STICK TO THE PLAN.",
+          "text_ru": "ПРИДЕРЖИВАЙСЯ ПЛАНА.",
+          "bbox": {
+            "x": 980,
+            "y": 1840,
+            "width": 270,
+            "height": 105
+          },
+          "rel_x": 49.3,
+          "rel_y": 60.21,
+          "rel_w": 13.58,
+          "rel_h": 3.44,
+          "confidence": 99
+        },
+        {
+          "id": "b_4_9",
+          "type": "bubble",
+          "text_en": "HOW ARE WE LOOKING, BORIS?",
+          "text_ru": "КАК У НАС ОБСТАНОВКА, БОРИС?",
+          "bbox": {
+            "x": 1665,
+            "y": 2095,
+            "width": 255,
+            "height": 140
+          },
+          "rel_x": 83.75,
+          "rel_y": 68.55,
+          "rel_w": 12.83,
+          "rel_h": 4.58,
           "confidence": 99
         }
       ],
@@ -264,99 +431,122 @@
       "trans_image_filename": "page_005_trans.jpg",
       "bubbles": [
         {
-          "id": "b_1",
+          "id": "b_5_1",
+          "type": "bubble",
           "text_en": "ALL CLEAR, BOSS.",
-          "text_ru": "Все чисто, босс.",
+          "text_ru": "ВСЁ ЧИСТО, БОСС.",
           "bbox": {
-            "x": 512,
-            "y": 110,
-            "width": 308,
-            "height": 97
+            "x": 505,
+            "y": 105,
+            "width": 205,
+            "height": 135
           },
-          "rel_x": 25.8,
-          "rel_y": 3.6,
-          "rel_w": 15.5,
-          "rel_h": 3.2,
+          "rel_x": 25.4,
+          "rel_y": 3.44,
+          "rel_w": 10.31,
+          "rel_h": 4.42,
           "confidence": 99
         },
         {
-          "id": "b_2",
+          "id": "b_5_2",
+          "type": "bubble",
           "text_en": "JUST KEEP CHECKING THE SIGHT LINES ON THOSE SECURITY CAMERAS.",
-          "text_ru": "Просто продолжай следить за углами обзора камер безопасности.",
+          "text_ru": "ПРОСТО ПРОДОЛЖАЙ СЛЕДИТЬ ЗА УГЛАМИ ОБЗОРА КАМЕР НАБЛЮДЕНИЯ.",
           "bbox": {
-            "x": 616,
-            "y": 165,
-            "width": 526,
-            "height": 158
+            "x": 620,
+            "y": 155,
+            "width": 320,
+            "height": 180
           },
-          "rel_x": 31.0,
-          "rel_y": 5.4,
-          "rel_w": 26.5,
-          "rel_h": 5.2,
+          "rel_x": 31.19,
+          "rel_y": 5.07,
+          "rel_w": 16.1,
+          "rel_h": 5.89,
           "confidence": 99
         },
         {
-          "id": "b_3",
+          "id": "b_5_3",
+          "type": "bubble",
           "text_en": "I ALWAYS WATCH MY SIGHT LINES. IT'S NOT MY FIRST DAY ON THE JOB.",
-          "text_ru": "Я всегда слежу за углами обзора. Это не первый мой день на работе.",
+          "text_ru": "Я ВСЕГДА СЛЕЖУ ЗА УГЛАМИ ОБЗОРА. Я НЕ ПЕРВЫЙ ДЕНЬ В ЭТОМ ДЕЛЕ.",
           "bbox": {
-            "x": 180,
-            "y": 1112,
-            "width": 546,
-            "height": 168
+            "x": 185,
+            "y": 1095,
+            "width": 380,
+            "height": 160
           },
-          "rel_x": 9.1,
-          "rel_y": 36.4,
-          "rel_w": 27.5,
-          "rel_h": 5.5,
+          "rel_x": 9.31,
+          "rel_y": 35.83,
+          "rel_w": 19.11,
+          "rel_h": 5.24,
           "confidence": 99
         },
         {
-          "id": "b_4",
+          "id": "b_5_4",
+          "type": "bubble",
           "text_en": "I'M JUST HERE TO BE THOROUGH, BIG C.",
-          "text_ru": "Я просто стараюсь быть дотошным, Большая К.",
+          "text_ru": "Я ПРОСТО СТАРАЮСЬ БЫТЬ ДОТОШНЫМ, БОЛЬШАЯ К.",
           "bbox": {
-            "x": 71,
-            "y": 1243,
-            "width": 437,
-            "height": 122
+            "x": 65,
+            "y": 1215,
+            "width": 270,
+            "height": 140
           },
-          "rel_x": 3.6,
-          "rel_y": 40.7,
-          "rel_w": 22.0,
-          "rel_h": 4.0,
+          "rel_x": 3.27,
+          "rel_y": 39.76,
+          "rel_w": 13.58,
+          "rel_h": 4.58,
           "confidence": 99
         },
         {
-          "id": "b_5",
+          "id": "b_5_5",
+          "type": "bubble",
           "text_en": "THERE'S GONNA BE A SHIFT CHANGE AT THE GALLERY IN NINETY SECONDS. YOU NEED TO HUSTLE.",
-          "text_ru": "Через девяносто секунд в галерее будет пересменка. Тебе нужно поторопиться.",
+          "text_ru": "ЧЕРЕЗ ДЕВЯНОСТО СЕКУНД В ГАЛЕРЕЕ БУДЕТ ПЕРЕСМЕНКА. ТЕБЕ НУЖНО ПОТОРОПИТЬСЯ.",
           "bbox": {
-            "x": 228,
-            "y": 2172,
-            "width": 566,
-            "height": 189
+            "x": 245,
+            "y": 2135,
+            "width": 420,
+            "height": 185
           },
-          "rel_x": 11.5,
-          "rel_y": 71.1,
-          "rel_w": 28.5,
-          "rel_h": 6.2,
+          "rel_x": 12.32,
+          "rel_y": 69.86,
+          "rel_w": 21.13,
+          "rel_h": 6.05,
           "confidence": 99
         },
         {
-          "id": "b_6",
-          "text_en": "SHEESH. YOU'D THINK I DIDN'T KNOW HOW TO STEAL ONE STUPID SAPPHIRE.",
-          "text_ru": "Ой, да ладно. Можно подумать, я не знаю, как украсть один дурацкий сапфир.",
+          "id": "b_5_6",
+          "type": "bubble",
+          "text_en": "YES, DAD.",
+          "text_ru": "ДА, ПАПОЧКА.",
           "bbox": {
-            "x": 1282,
-            "y": 2145,
-            "width": 506,
-            "height": 177
+            "x": 535,
+            "y": 2365,
+            "width": 145,
+            "height": 100
           },
-          "rel_x": 64.5,
-          "rel_y": 70.2,
-          "rel_w": 25.5,
-          "rel_h": 5.8,
+          "rel_x": 26.91,
+          "rel_y": 77.39,
+          "rel_w": 7.29,
+          "rel_h": 3.27,
+          "confidence": 99
+        },
+        {
+          "id": "b_5_7",
+          "type": "bubble",
+          "text_en": "SHEESH. YOU'D THINK I DIDN'T KNOW HOW TO STEAL ONE STUPID SAPPHIRE.",
+          "text_ru": "ОЙ, ДА ЛАДНО. МОЖНО ПОДУМАТЬ, Я НЕ ЗНАЮ, КАК УКРАСТЬ ОДИН ДУРАЦКИЙ САПФИР.",
+          "bbox": {
+            "x": 1285,
+            "y": 2110,
+            "width": 290,
+            "height": 225
+          },
+          "rel_x": 64.64,
+          "rel_y": 69.04,
+          "rel_w": 14.59,
+          "rel_h": 7.36,
           "confidence": 99
         }
       ],
@@ -370,51 +560,71 @@
       "trans_image_filename": "page_006_trans.jpg",
       "bubbles": [
         {
-          "id": "b_1",
+          "id": "b_6_1",
+          "type": "caption",
           "text_en": "BORIS LIKES TO FUSS.",
-          "text_ru": "Борис любит суетиться.",
+          "text_ru": "БОРИС ЛЮБИТ ПОСУЕТИТЬСЯ.",
           "bbox": {
-            "x": 536,
-            "y": 1922,
-            "width": 367,
-            "height": 106
+            "x": 575,
+            "y": 1890,
+            "width": 140,
+            "height": 120
           },
-          "rel_x": 27.0,
-          "rel_y": 62.9,
-          "rel_w": 18.5,
-          "rel_h": 3.5,
+          "rel_x": 28.92,
+          "rel_y": 61.85,
+          "rel_w": 7.04,
+          "rel_h": 3.93,
           "confidence": 99
         },
         {
-          "id": "b_2",
+          "id": "b_6_2",
+          "type": "caption",
+          "text_en": "IT USED TO ANNOY ME, BUT HONESTLY, I'M GLAD I HAVE SOMEONE LIKE HIM WATCHING MY BACK.",
+          "text_ru": "ЭТО РАЗДРАЖАЕТ, НО, ЧЕСТНО ГОВОРЯ, Я РАДА, ЧТО У МЕНЯ ЕСТЬ КТО-ТО, КТО ПРИКРЫВАЕТ СПИНУ.",
+          "bbox": {
+            "x": 860,
+            "y": 1435,
+            "width": 295,
+            "height": 225
+          },
+          "rel_x": 43.26,
+          "rel_y": 46.96,
+          "rel_w": 14.84,
+          "rel_h": 7.36,
+          "confidence": 99
+        },
+        {
+          "id": "b_6_3",
+          "type": "caption",
           "text_en": "BECAUSE YOU NEVER KNOW WHEN THINGS MIGHT GO SIDEWAYS.",
-          "text_ru": "Потому что никогда не знаешь, когда все пойдет наперекосяк.",
+          "text_ru": "ПОТОМУ ЧТО НИКОГДА НЕ ЗНАЕШЬ, КОГДА ВСЁ ПОЙДЕТ НАПЕРЕКОСЯК.",
           "bbox": {
-            "x": 1260,
-            "y": 1155,
-            "width": 546,
-            "height": 146
+            "x": 1275,
+            "y": 1130,
+            "width": 255,
+            "height": 165
           },
-          "rel_x": 63.4,
-          "rel_y": 37.8,
-          "rel_w": 27.5,
-          "rel_h": 4.8,
+          "rel_x": 64.13,
+          "rel_y": 36.98,
+          "rel_w": 12.83,
+          "rel_h": 5.4,
           "confidence": 99
         },
         {
-          "id": "b_3",
-          "text_en": "IT ANNOYS ME, BUT HONESTLY I'M GLAD I HAVE SOMEONE LIKE HIM WATCHING MY BACK.",
-          "text_ru": "Это раздражает, но, честно говоря, я рада, что у меня есть кто-то вроде него, прикрывающий мою спину.",
+          "id": "b_6_4",
+          "type": "bubble",
+          "text_en": "I'M IN.",
+          "text_ru": "Я ВНУТРИ.",
           "bbox": {
-            "x": 844,
-            "y": 1460,
-            "width": 646,
-            "height": 177
+            "x": 1765,
+            "y": 475,
+            "width": 115,
+            "height": 100
           },
-          "rel_x": 42.5,
-          "rel_y": 47.8,
-          "rel_w": 32.5,
-          "rel_h": 5.8,
+          "rel_x": 88.78,
+          "rel_y": 15.54,
+          "rel_w": 5.78,
+          "rel_h": 3.27,
           "confidence": 99
         }
       ],
@@ -428,132 +638,140 @@
       "trans_image_filename": "page_007_trans.jpg",
       "bubbles": [
         {
-          "id": "b_1",
-          "text_en": "NOW NO ONE IN THIS SELECT LITTLE AUDIENCE WAS THERE BY ACCIDENT.",
-          "text_ru": "ТЕПЕРЬ НИКТО ИЗ ЭТОЙ НЕБОЛЬШОЙ ИЗБРАННОЙ АУДИТОРИИ НЕ БЫЛ СЛУЧАЙНО.",
+          "id": "b_7_1",
+          "type": "caption",
+          "text_en": "NOW, NO ONE IN THIS SELECT LITTLE AUDIENCE WAS THERE BY ACCIDENT.",
+          "text_ru": "И НИКТО В ЭТОЙ ИЗБРАННОЙ ПУБЛИКЕ НЕ ОКАЗАЛСЯ ЗДЕСЬ СЛУЧАЙНО.",
           "bbox": {
-            "x": 48,
-            "y": 62,
-            "width": 281,
-            "height": 177
+            "x": 55,
+            "y": 70,
+            "width": 275,
+            "height": 165
           },
-          "rel_x": 2.41,
-          "rel_y": 2.03,
-          "rel_w": 14.13,
-          "rel_h": 5.79,
-          "confidence": 96
+          "rel_x": 2.77,
+          "rel_y": 2.29,
+          "rel_w": 13.83,
+          "rel_h": 5.4,
+          "confidence": 99
         },
         {
-          "id": "b_2",
-          "text_en": "THESE ARE SOME OF THE DEEPEST POCKETS ON THE EASTERN SEABOARD.",
-          "text_ru": "ЭТО ИЗ САМЫХ ГЛУБОКИХ КАРМАНОВ НА ВОСТОЧНОМ ПОБЕРЕЖЬЕ.",
-          "bbox": {
-            "x": 633,
-            "y": 105,
-            "width": 354,
-            "height": 145
-          },
-          "rel_x": 31.84,
-          "rel_y": 3.44,
-          "rel_w": 17.81,
-          "rel_h": 4.74,
-          "confidence": 97
-        },
-        {
-          "id": "b_3",
-          "text_en": "AND NOW LADIES AND GENTLEFOLK THE MOMENT YOU'VE ALL WAITING FOR.",
+          "id": "b_7_2",
+          "type": "bubble",
+          "text_en": "AND NOW, LADIES AND GENTLEFOLK, THE MOMENT YOU'VE ALL BEEN WAITING FOR.",
           "text_ru": "А ТЕПЕРЬ, ДАМЫ И ГОСПОДА, МОМЕНТ, КОТОРОГО ВЫ ВСЕ ЖДАЛИ.",
           "bbox": {
-            "x": 338,
-            "y": 134,
-            "width": 250,
-            "height": 264
+            "x": 360,
+            "y": 135,
+            "width": 240,
+            "height": 265
           },
-          "rel_x": 17.0,
-          "rel_y": 4.38,
-          "rel_w": 12.58,
-          "rel_h": 8.64,
-          "confidence": 95
+          "rel_x": 18.11,
+          "rel_y": 4.42,
+          "rel_w": 12.07,
+          "rel_h": 8.67,
+          "confidence": 99
         },
         {
-          "id": "b_4",
-          "text_en": "THE STAR O THE SHOW THE QUEEN OF GEMSTONES THE LARGEST MINE-CUT SAPPHIRE CURRENTLY IN PRIVATE HANDS.",
-          "text_ru": "ЗВЕЗДА ВЫСТАВКИ «КОРОЛЕВА ДРАГОЦЕННЫХ КАМНЕЙ» САМЫЙ БОЛЬШОЙ САПФИР, ВЫРАБАННЫЙ В ШАХТЕ, В НАСТОЯЩЕЕ ВРЕМЯ НАХОДИТСЯ В ЧАСТНЫХ РУКАХ.",
+          "id": "b_7_3",
+          "type": "caption",
+          "text_en": "THESE ARE SOME OF THE DEEPEST POCKETS ON THE EASTERN SEABOARD.",
+          "text_ru": "ЗДЕСЬ СОБРАЛИСЬ САМЫЕ ТОЛСТЫЕ КОШЕЛЬКИ ВОСТОЧНОГО ПОБЕРЕЖЬЯ.",
           "bbox": {
-            "x": 980,
-            "y": 564,
-            "width": 427,
-            "height": 206
+            "x": 650,
+            "y": 105,
+            "width": 350,
+            "height": 145
           },
-          "rel_x": 49.3,
-          "rel_y": 18.46,
-          "rel_w": 21.48,
-          "rel_h": 6.74,
-          "confidence": 95
+          "rel_x": 32.7,
+          "rel_y": 3.44,
+          "rel_w": 17.61,
+          "rel_h": 4.74,
+          "confidence": 99
         },
         {
-          "id": "b_5",
-          "text_en": "PIECES LIKE THIS COME ALONG ONCE IN A LIFETIME FRIENDS",
-          "text_ru": "ТАКИЕ ШТАТЫ БЫВАЮТ РАЗ В ЖИЗНИ, ДРУЗЬЯ",
+          "id": "b_7_4",
+          "type": "bubble",
+          "text_en": "THE STAR OF THE SHOW, THE QUEEN OF GEMSTONES, THE LARGEST MINE-CUT SAPPHIRE CURRENTLY IN PRIVATE HANDS.",
+          "text_ru": "ГЛАВНАЯ ЗВЕЗДА НАШЕГО ШОУ, КОРОЛЕВА ДРАГОЦЕННЫХ КАМНЕЙ — САМЫЙ КРУПНЫЙ САПФИР В ЧАСТНЫХ РУКАХ.",
           "bbox": {
-            "x": 286,
-            "y": 1334,
-            "width": 282,
-            "height": 174
+            "x": 985,
+            "y": 555,
+            "width": 435,
+            "height": 225
           },
-          "rel_x": 14.39,
-          "rel_y": 43.65,
-          "rel_w": 14.19,
-          "rel_h": 5.69,
-          "confidence": 93
+          "rel_x": 49.55,
+          "rel_y": 18.16,
+          "rel_w": 21.88,
+          "rel_h": 7.36,
+          "confidence": 99
         },
         {
-          "id": "b_6",
-          "text_en": "SHALL WE OPEN THE BIDDING AT NINE HUNDRED THOUSAND DOLLARS?",
-          "text_ru": "Откроем торги по цене девятьсот тысяч долларов?",
+          "id": "b_7_5",
+          "type": "bubble",
+          "text_en": "PIECES LIKE THIS COME ALONG ONCE IN A LIFETIME, FRIENDS--",
+          "text_ru": "ТАКИЕ ВЕЩИ ВСТРЕЧАЮТСЯ РАЗ В ЖИЗНИ, ДРУЗЬЯ--",
           "bbox": {
-            "x": 1249,
-            "y": 1661,
-            "width": 340,
-            "height": 175
+            "x": 280,
+            "y": 1290,
+            "width": 305,
+            "height": 195
           },
-          "rel_x": 62.83,
-          "rel_y": 54.35,
-          "rel_w": 17.1,
-          "rel_h": 5.73,
-          "confidence": 96
+          "rel_x": 14.08,
+          "rel_y": 42.21,
+          "rel_w": 15.34,
+          "rel_h": 6.38,
+          "confidence": 99
         },
         {
-          "id": "b_7",
-          "text_en": "ON THE LEFT Was A NEWLY MINTED BILLIONAIRE WHO JUST SOLD HIS START-UP FOR A FIGURE THAT S EMBARRASSING.",
-          "text_ru": "СЛЕВА — НОВООТЧИТАННЫЙ МИЛЛИАРДЕР, КОТОРЫЙ ТОЛЬКО ПРОДАЛ СВОЙ СТАРТАП ЗА СТЫДНУЮ ЦИФРУ.",
+          "id": "b_7_6",
+          "type": "bubble",
+          "text_en": "--SO SHALL WE OPEN THE BIDDING AT NINE HUNDRED THOUSAND DOLLARS?",
+          "text_ru": "--ОТКРОЕМ ЛИ МЫ ТОРГИ С ДЕВЯТИСОТ ТЫСЯЧ ДОЛЛАРОВ?",
           "bbox": {
-            "x": 378,
-            "y": 2749,
-            "width": 581,
-            "height": 203
+            "x": 1260,
+            "y": 1605,
+            "width": 345,
+            "height": 200
           },
-          "rel_x": 19.01,
-          "rel_y": 89.95,
-          "rel_w": 29.23,
-          "rel_h": 6.64,
-          "confidence": 94
+          "rel_x": 63.38,
+          "rel_y": 52.52,
+          "rel_w": 17.35,
+          "rel_h": 6.54,
+          "confidence": 99
         },
         {
-          "id": "b_8",
-          "text_en": "oN THE RIGHT WAS ONE OF THE MOST PRESTIGIOUS PURVEYORS OF FINE JEWELRY IN THE WORLD.",
-          "text_ru": "СПРАВА БЫЛ ОДНИМ ИЗ САМЫХ ПРЕСТИЖНЫХ ПОСТАВЩИКОВ ИЗЫСКАННЫХ ЮВЕЛИРНЫХ ИЗДЕЛИЙ В МИРЕ.",
+          "id": "b_7_7",
+          "type": "caption",
+          "text_en": "ON THE LEFT WAS A NEWLY MINTED BILLIONAIRE WHO JUST SOLD HIS START-UP FOR A FIGURE THAT IS ALMOST EMBARRASSING.",
+          "text_ru": "СЛЕВА СИДЕЛ НОВОИСПЕЧЕННЫЙ МИЛЛИАРДЕР, ПРОДАВШИЙ СТАРТАП ЗА НЕПРИЛИЧНУЮ СУММУ.",
           "bbox": {
-            "x": 1143,
-            "y": 2792,
-            "width": 460,
-            "height": 178
+            "x": 390,
+            "y": 2730,
+            "width": 565,
+            "height": 160
           },
-          "rel_x": 57.49,
-          "rel_y": 91.36,
-          "rel_w": 23.14,
-          "rel_h": 5.82,
-          "confidence": 95
+          "rel_x": 19.62,
+          "rel_y": 89.33,
+          "rel_w": 28.42,
+          "rel_h": 5.24,
+          "confidence": 99
+        },
+        {
+          "id": "b_7_8",
+          "type": "caption",
+          "text_en": "ON THE RIGHT WAS ONE OF THE MOST PRESTIGIOUS PURVEYORS OF FINE JEWELRY IN THE WORLD.",
+          "text_ru": "СПРАВА — ОДИН ИЗ САМЫХ ПРЕСТИЖНЫХ ПОСТАВЩИКОВ ЭЛИТНЫХ ЮВЕЛИРНЫХ ИЗДЕЛИЙ В МИРЕ.",
+          "bbox": {
+            "x": 1160,
+            "y": 2775,
+            "width": 450,
+            "height": 160
+          },
+          "rel_x": 58.35,
+          "rel_y": 90.8,
+          "rel_w": 22.64,
+          "rel_h": 5.24,
+          "confidence": 99
         }
       ],
       "is_processed": true
@@ -566,132 +784,157 @@
       "trans_image_filename": "page_008_trans.jpg",
       "bubbles": [
         {
-          "id": "b_1",
-          "text_en": "ONE POINT TWO MILLION? ONE POINT TWO MILLION TO OUR FRIEND IN THE QUARTER-ZIP DO I HEAR ONE POINT THREE MILLION?",
-          "text_ru": "ОДНА ТОЧКА ДВА МИЛЛИОНА? ОДИН ПУНКТ ДВА МИЛЛИОНА НАШЕМУ ДРУГУ В ЧЕТВЕРТИ-ЗИПЕ Я СЛЫШУ ОДИН ПУНКТ ТРИ МИЛЛИОНА?",
+          "id": "b_8_1",
+          "type": "caption",
+          "text_en": "AND THOUGH THEY DIDN'T KNOW IT, THEY WERE GOING TO PROVIDE ME WITH A DISTRACTION.",
+          "text_ru": "И ХОТЯ ОНИ ОБ ЭТОМ ЕЩЕ НЕ ЗНАЛИ, ОНИ ДОЛЖНЫ БЫЛИ СТАТЬ МОИМ ОТВЛЕКАЮЩИМ МАНЕВРОМ.",
           "bbox": {
-            "x": 393,
-            "y": 71,
+            "x": 95,
+            "y": 100,
+            "width": 280,
+            "height": 195
+          },
+          "rel_x": 4.78,
+          "rel_y": 3.27,
+          "rel_w": 14.08,
+          "rel_h": 6.38,
+          "confidence": 99
+        },
+        {
+          "id": "b_8_2",
+          "type": "bubble",
+          "text_en": "ONE POINT TWO MILLION? ONE POINT TWO MILLION TO OUR FRIEND IN THE QUARTER-ZIP, DO I HEAR ONE POINT THREE MILLION?",
+          "text_ru": "ОДИН И ДВА ДЕСЯТЫХ МИЛЛИОНА НАШЕМУ ДРУГУ В ДЖЕМПЕРЕ! КТО ДАСТ ОДИН И ТРИ ДЕСЯТЫХ?",
+          "bbox": {
+            "x": 400,
+            "y": 80,
             "width": 290,
-            "height": 340
+            "height": 325
           },
-          "rel_x": 19.77,
-          "rel_y": 2.32,
+          "rel_x": 20.12,
+          "rel_y": 2.62,
           "rel_w": 14.59,
-          "rel_h": 11.13,
-          "confidence": 92
+          "rel_h": 10.63,
+          "confidence": 99
         },
         {
-          "id": "b_2",
-          "text_en": "AND THOUGH THEY DIDN'T KNOW IT THEY WERE GOING TO PROVIDE ME WITH A DISTRACTION",
-          "text_ru": "И ХОТЯ ОНИ НЕ ЗНАЛИ ЭТОГО, ОНИ СОБИРАЛИСЬ ОТВЛЕЧАТЬ МЕНЯ",
+          "id": "b_8_3",
+          "type": "bubble",
+          "text_en": "ONE POINT THREE MILLION, THANK YOU, SIR.",
+          "text_ru": "ОДИН И ТРИ ДЕСЯТЫХ МИЛЛИОНА, СПАСИБО, СЭР.",
           "bbox": {
-            "x": 77,
-            "y": 90,
-            "width": 299,
-            "height": 204
+            "x": 835,
+            "y": 115,
+            "width": 205,
+            "height": 180
           },
-          "rel_x": 3.87,
-          "rel_y": 2.95,
-          "rel_w": 15.04,
-          "rel_h": 6.68,
-          "confidence": 95
+          "rel_x": 42.0,
+          "rel_y": 3.76,
+          "rel_w": 10.31,
+          "rel_h": 5.89,
+          "confidence": 99
         },
         {
-          "id": "b_3",
-          "text_en": "NE POINT THREE MILLION THANK SIR.",
-          "text_ru": "НЕТ ТРИ МИЛЛИОНА СПАСИБО, СЭР.",
+          "id": "b_8_4",
+          "type": "bubble",
+          "text_en": "DO I HEAR ONE POINT FOUR? ONE POINT FOUR--",
+          "text_ru": "КТО ДАСТ ОДИН И ЧЕТЫРЕ? ОДИН И ЧЕТЫРЕ--",
           "bbox": {
-            "x": 829,
-            "y": 113,
-            "width": 264,
-            "height": 146
+            "x": 1050,
+            "y": 200,
+            "width": 225,
+            "height": 205
           },
-          "rel_x": 41.7,
-          "rel_y": 3.7,
-          "rel_w": 13.28,
-          "rel_h": 4.78,
-          "confidence": 96
+          "rel_x": 52.82,
+          "rel_y": 6.54,
+          "rel_w": 11.32,
+          "rel_h": 6.71,
+          "confidence": 99
         },
         {
-          "id": "b_4",
-          "text_en": "FIVE MILLION DOLLARS! GOING ONCE GOING TWICE",
-          "text_ru": "ПЯТЬ МИЛЛИОНОВ ДОЛЛАРОВ! ИДЕМ ОДИН РАЗ, ИДЕМ ДВАЖДЫ",
+          "id": "b_8_5",
+          "type": "bubble",
+          "text_en": "FIVE MILLION DOLLARS! GOING ONCE, GOING TWICE--",
+          "text_ru": "ПЯТЬ МИЛЛИОНОВ ДОЛЛАРОВ! РАЗ, ДВА--",
           "bbox": {
             "x": 1565,
-            "y": 161,
-            "width": 302,
-            "height": 222
+            "y": 160,
+            "width": 315,
+            "height": 240
           },
           "rel_x": 78.72,
-          "rel_y": 5.27,
-          "rel_w": 15.19,
-          "rel_h": 7.26,
-          "confidence": 95
+          "rel_y": 5.24,
+          "rel_w": 15.85,
+          "rel_h": 7.85,
+          "confidence": 99
         },
         {
-          "id": "b_5",
-          "text_en": "DOI HEAR ONE POINT FOUR? ONE POINT FOUR",
-          "text_ru": "СЛЫШУ ОДИН ПУНКТ ЧЕТВЕРТЫЙ? ОДИН ПУНКТ ЧЕТВЕРТЫЙ",
+          "id": "b_8_6",
+          "type": "caption",
+          "text_en": "BEING A THIEF ISN'T ALL THAT COMPLICATED. ALL YOU REALLY HAVE TO DO IS BE IN THE RIGHT PLACE AT THE RIGHT TIME.",
+          "text_ru": "БЫТЬ ВОРОВКОЙ НЕ ТАК УЖ СЛОЖНО. ВСЁ, ЧТО НУЖНО — ОКАЗАТЬСЯ В НУЖНОМ МЕСТЕ В НУЖНОЕ ВРЕМЯ.",
           "bbox": {
-            "x": 1018,
-            "y": 197,
-            "width": 246,
-            "height": 175
+            "x": 95,
+            "y": 1515,
+            "width": 510,
+            "height": 150
           },
-          "rel_x": 51.21,
-          "rel_y": 6.45,
-          "rel_w": 12.37,
-          "rel_h": 5.73,
-          "confidence": 89
+          "rel_x": 4.78,
+          "rel_y": 49.57,
+          "rel_w": 25.65,
+          "rel_h": 4.91,
+          "confidence": 99
         },
         {
-          "id": "b_6",
-          "text_en": "BEING A THIEF ISN'T ALL THAT COMPLICATED. ALL YOU REALLY HAVE TO DO S BE IN THE RIGHT PLACE AT THE RIGHT TIME.",
-          "text_ru": "БЫТЬ ВОРОМ – ЭТО НЕ ТАК СЛОЖНО. ВСЕ, ЧТО ВАМ ДЕЙСТВИТЕЛЬНО НУЖНО СДЕЛАТЬ, ЭТО ОКАЗАТЬСЯ В НУЖНОМ МЕСТЕ В НУЖНОЕ ВРЕМЯ.",
+          "id": "b_8_7",
+          "type": "caption",
+          "text_en": "MONEY LOVES CONGRATULATING ITSELF.",
+          "text_ru": "БОЛЬШИЕ ДЕНЬГИ ОБОЖАЮТ АПЛОДИРОВАТЬ САМИ СЕБЕ.",
           "bbox": {
-            "x": 82,
-            "y": 1551,
-            "width": 519,
-            "height": 146
+            "x": 980,
+            "y": 1500,
+            "width": 360,
+            "height": 125
           },
-          "rel_x": 4.12,
-          "rel_y": 50.75,
-          "rel_w": 26.11,
-          "rel_h": 4.78,
-          "confidence": 95
+          "rel_x": 49.3,
+          "rel_y": 49.08,
+          "rel_w": 18.11,
+          "rel_h": 4.09,
+          "confidence": 99
         },
         {
-          "id": "b_7",
+          "id": "b_8_8",
+          "type": "caption",
           "text_en": "IT CREATES ITS OWN DRAMA. ITS OWN SPECTACLE.",
-          "text_ru": "ОНО СОЗДАЕТ СВОЮ ДРАМУ. СВОЕ Зрелище.",
+          "text_ru": "ОНИ СОЗДАЮТ СОБСТВЕННУЮ ДРАМУ. СВОЁ ШОУ.",
           "bbox": {
-            "x": 1426,
-            "y": 1599,
-            "width": 312,
-            "height": 114
+            "x": 1440,
+            "y": 1560,
+            "width": 300,
+            "height": 125
           },
-          "rel_x": 71.73,
-          "rel_y": 52.32,
-          "rel_w": 15.69,
-          "rel_h": 3.73,
-          "confidence": 93
+          "rel_x": 72.43,
+          "rel_y": 51.05,
+          "rel_w": 15.09,
+          "rel_h": 4.09,
+          "confidence": 99
         },
         {
-          "id": "b_8",
+          "id": "b_8_9",
+          "type": "caption",
           "text_en": "ALLOWING THE REST OF US TO SLIP THROUGH UNSEEN.",
-          "text_ru": "ПОЗВОЛЯЕМ ОСТАЛЬНЫМ ИЗ НАС ПРОСКОЛЬЗАТЬ НЕВИДИМЫМИ.",
+          "text_ru": "ПОЗВОЛЯЯ ОСТАЛЬНЫМ ИЗ НАС ПРОСКОЛЬЗНУТЬ НЕЗАМЕЧЕННЫМИ.",
           "bbox": {
-            "x": 1639,
-            "y": 2810,
-            "width": 266,
-            "height": 146
+            "x": 1650,
+            "y": 2755,
+            "width": 265,
+            "height": 130
           },
-          "rel_x": 82.44,
-          "rel_y": 91.95,
-          "rel_w": 13.38,
-          "rel_h": 4.78,
-          "confidence": 96
+          "rel_x": 83.0,
+          "rel_y": 90.15,
+          "rel_w": 13.33,
+          "rel_h": 4.25,
+          "confidence": 99
         }
       ],
       "is_processed": true
@@ -704,148 +947,157 @@
       "trans_image_filename": "page_009_trans.jpg",
       "bubbles": [
         {
-          "id": "b_1",
-          "text_en": "AND IF YOU THINK ABOUT IT IS THIS REALLY STEALING?",
-          "text_ru": "А ЕСЛИ ЗАДУМАТЬСЯ, ДЕЙСТВИТЕЛЬНО ЭТО ВОРАЖЕНИЕ?",
+          "id": "b_9_1",
+          "type": "caption",
+          "text_en": "AND IF YOU THINK ABOUT IT, IS THIS REALLY STEALING?",
+          "text_ru": "И ЕСЛИ ПОДУМАТЬ, РАЗВЕ ЭТО ВООБЩЕ КРАЖА?",
           "bbox": {
-            "x": 110,
-            "y": 99,
-            "width": 337,
-            "height": 115
+            "x": 115,
+            "y": 100,
+            "width": 345,
+            "height": 130
           },
-          "rel_x": 5.53,
-          "rel_y": 3.24,
-          "rel_w": 16.95,
-          "rel_h": 3.76,
-          "confidence": 95
+          "rel_x": 5.78,
+          "rel_y": 3.27,
+          "rel_w": 17.35,
+          "rel_h": 4.25,
+          "confidence": 99
         },
         {
-          "id": "b_2",
-          "text_en": "WHA HOW",
-          "text_ru": "ЧТО КАК",
+          "id": "b_9_2",
+          "type": "bubble",
+          "text_en": "WHAT-- HOW-- WHERE--?",
+          "text_ru": "ЧТО-- КАК-- КУДА--?!",
           "bbox": {
-            "x": 1258,
-            "y": 743,
-            "width": 163,
-            "height": 126
+            "x": 1270,
+            "y": 690,
+            "width": 195,
+            "height": 130
           },
-          "rel_x": 63.28,
-          "rel_y": 24.31,
-          "rel_w": 8.2,
-          "rel_h": 4.12,
-          "confidence": 92
+          "rel_x": 63.88,
+          "rel_y": 22.58,
+          "rel_w": 9.81,
+          "rel_h": 4.25,
+          "confidence": 99
         },
         {
-          "id": "b_3",
-          "text_en": "Is IT EVEN POSSIBLE TO STEAL FROM PEOPLE WHO ARE SO WEALTHY THEY COULD LIVE A HUNDRED LIFETIMES AND STILL HAVE MONEY LEFT OVER?",
-          "text_ru": "МОЖНО ЛИ ВОРАТИТЬ У ЛЮДЕЙ, КОТОРЫЕ ТАК БОГАТЫ, ЧТО МОГУТ ПРОЖИТЬ СТО ЖИЗНЕЙ И ВСЕ ЕЩЕ ОСТАЮТСЯ ДЕНЬГИ?",
+          "id": "b_9_3",
+          "type": "caption",
+          "text_en": "IS IT EVEN POSSIBLE TO STEAL FROM PEOPLE WHO ARE SO WEALTHY THEY COULD LIVE A HUNDRED LIFETIMES AND STILL HAVE MONEY LEFT OVER?",
+          "text_ru": "РАЗВЕ ВООБЩЕ ВОЗМОЖНО УКРАСТЬ У ЛЮДЕЙ, КОТОРЫЕ НАСТОЛЬКО БОГАТЫ, ЧТО МОГЛИ БЫ ПРОЖИТЬ СОТНЮ ЖИЗНЕЙ И ВСЁ РАВНО НЕ ПОТРАТИТЬ ВСЕ ДЕНЬГИ?",
           "bbox": {
-            "x": 1235,
-            "y": 928,
-            "width": 638,
-            "height": 172
+            "x": 1260,
+            "y": 930,
+            "width": 620,
+            "height": 165
           },
-          "rel_x": 62.12,
-          "rel_y": 30.37,
-          "rel_w": 32.09,
-          "rel_h": 5.63,
-          "confidence": 94
+          "rel_x": 63.38,
+          "rel_y": 30.43,
+          "rel_w": 31.19,
+          "rel_h": 5.4,
+          "confidence": 99
         },
         {
-          "id": "b_4",
-          "text_en": "THIS IS I'VE BEEN FRAUD!",
-          "text_ru": "ЭТО МЕНЯ ОБМАНУЛИ!",
+          "id": "b_9_4",
+          "type": "bubble",
+          "text_en": "THIS IS FRAUD!",
+          "text_ru": "ЭТО МОШЕННИЧЕСТВО!",
           "bbox": {
-            "x": 99,
-            "y": 1165,
-            "width": 348,
-            "height": 86
+            "x": 95,
+            "y": 1145,
+            "width": 175,
+            "height": 95
           },
-          "rel_x": 4.98,
-          "rel_y": 38.12,
-          "rel_w": 17.51,
-          "rel_h": 2.81,
-          "confidence": 94
+          "rel_x": 4.78,
+          "rel_y": 37.47,
+          "rel_w": 8.8,
+          "rel_h": 3.11,
+          "confidence": 99
         },
         {
-          "id": "b_5",
-          "text_en": "SET UP!",
-          "text_ru": "НАСТРАИВАТЬ!",
+          "id": "b_9_5",
+          "type": "bubble",
+          "text_en": "I'VE BEEN SET UP!",
+          "text_ru": "МЕНЯ ПОДСТАВИЛИ!",
           "bbox": {
-            "x": 272,
-            "y": 1197,
-            "width": 156,
-            "height": 51
+            "x": 270,
+            "y": 1145,
+            "width": 170,
+            "height": 95
           },
-          "rel_x": 13.68,
-          "rel_y": 39.17,
-          "rel_w": 7.85,
-          "rel_h": 1.67,
-          "confidence": 96
+          "rel_x": 13.58,
+          "rel_y": 37.47,
+          "rel_w": 8.55,
+          "rel_h": 3.11,
+          "confidence": 99
         },
         {
-          "id": "b_6",
+          "id": "b_9_6",
+          "type": "bubble",
+          "text_en": "THIEF! THIEEEEEF!",
+          "text_ru": "ВОРЫ! ДЕРЖИТЕ ВОРА-А-А!",
+          "bbox": {
+            "x": 1445,
+            "y": 1375,
+            "width": 205,
+            "height": 125
+          },
+          "rel_x": 72.69,
+          "rel_y": 44.99,
+          "rel_w": 10.31,
+          "rel_h": 4.09,
+          "confidence": 99
+        },
+        {
+          "id": "b_9_7",
+          "type": "bubble",
           "text_en": "WE'RE UNDER ATTACK!",
-          "text_ru": "НА НАС НАПАДАЮТ!",
+          "text_ru": "НА НАС НАПАЛИ!",
           "bbox": {
-            "x": 1703,
-            "y": 1435,
-            "width": 178,
-            "height": 114
+            "x": 1745,
+            "y": 1400,
+            "width": 170,
+            "height": 125
           },
-          "rel_x": 85.66,
-          "rel_y": 46.96,
-          "rel_w": 8.95,
-          "rel_h": 3.73,
-          "confidence": 96
+          "rel_x": 87.78,
+          "rel_y": 45.81,
+          "rel_w": 8.55,
+          "rel_h": 4.09,
+          "confidence": 99
         },
         {
-          "id": "b_7",
-          "text_en": "PLEASE--FRIENDS--WE HAVE STATE-OF-THE-ART SECURITY--THERE'S BEEN SOME MISTAKE",
-          "text_ru": "ПОЖАЛУЙСТА, ДРУЗЬЯ, У НАС СОВРЕМЕННАЯ БЕЗОПАСНОСТЬ, ПРОИЗОШЛА НЕКОТОРАЯ ОШИБКА.",
+          "id": "b_9_8",
+          "type": "bubble",
+          "text_en": "PLEASE--FRIENDS--WE HAVE STATE-OF-THE-ART SECURITY--THERE'S BEEN SOME MISTAKE--",
+          "text_ru": "ПОЖАЛУЙСТА, ДРУЗЬЯ, У НАС СОВРЕМЕННЕЙШАЯ СИСТЕМА БЕЗОПАСНОСТИ, ЭТО КАКАЯ-ТО ОШИБКА--",
           "bbox": {
-            "x": 422,
-            "y": 1941,
-            "width": 393,
-            "height": 175
+            "x": 435,
+            "y": 1900,
+            "width": 380,
+            "height": 190
           },
-          "rel_x": 21.23,
-          "rel_y": 63.51,
-          "rel_w": 19.77,
-          "rel_h": 5.73,
-          "confidence": 90
+          "rel_x": 21.88,
+          "rel_y": 62.17,
+          "rel_w": 19.11,
+          "rel_h": 6.22,
+          "confidence": 99
         },
         {
-          "id": "b_8",
-          "text_en": "LOOK AT THEM.",
-          "text_ru": "ПОСМОТРИТЕ НА НИХ.",
+          "id": "b_9_9",
+          "type": "bubble",
+          "text_en": "LOOK AT THEM. ALL WONDERING HOW I DID IT.",
+          "text_ru": "ПОСМОТРИТЕ НА НИХ. ВСЕ ЛОМАЮТ ГОЛОВУ, КАК Я ЭТО СДЕЛАЛА.",
           "bbox": {
-            "x": 1094,
-            "y": 2054,
-            "width": 173,
-            "height": 85
+            "x": 1130,
+            "y": 2020,
+            "width": 315,
+            "height": 220
           },
-          "rel_x": 55.03,
-          "rel_y": 67.21,
-          "rel_w": 8.7,
-          "rel_h": 2.78,
-          "confidence": 97
-        },
-        {
-          "id": "b_9",
-          "text_en": "ALL WONDERING HOW DID",
-          "text_ru": "ВСЕМ ИНТЕРЕСНО, КАК СДЕЛАНО",
-          "bbox": {
-            "x": 1190,
-            "y": 2108,
-            "width": 224,
-            "height": 114
-          },
-          "rel_x": 59.86,
-          "rel_y": 68.98,
-          "rel_w": 11.27,
-          "rel_h": 3.73,
-          "confidence": 96
+          "rel_x": 56.84,
+          "rel_y": 66.1,
+          "rel_w": 15.85,
+          "rel_h": 7.2,
+          "confidence": 99
         }
       ],
       "is_processed": true
@@ -858,116 +1110,157 @@
       "trans_image_filename": "page_010_trans.jpg",
       "bubbles": [
         {
-          "id": "b_1",
-          "text_en": "I BET YOU'RE",
-          "text_ru": "Бьюсь об заклад, что ты",
+          "id": "b_10_1",
+          "type": "bubble",
+          "text_en": "I BET YOU'RE WONDERING TOO.",
+          "text_ru": "ДЕРЖУ ПАРИ, ВЫ ТОЖЕ ГАДАЕТЕ.",
           "bbox": {
-            "x": 612,
-            "y": 107,
-            "width": 169,
-            "height": 86
+            "x": 600,
+            "y": 105,
+            "width": 230,
+            "height": 155
           },
-          "rel_x": 30.78,
-          "rel_y": 3.5,
-          "rel_w": 8.5,
-          "rel_h": 2.81,
-          "confidence": 93
+          "rel_x": 30.18,
+          "rel_y": 3.44,
+          "rel_w": 11.57,
+          "rel_h": 5.07,
+          "confidence": 99
         },
         {
-          "id": "b_2",
-          "text_en": "WHY STEAL THE FAKE TOO? BECAUSE WHEN THEY INVESTIGATE THEY'LL IGNORE THE FOOTAGE FROM THIS MORNING WHEN THE ACTUAL THEFT TOOK PLACE. THEY'LL FOCUS ON THE DRAMATIC ON-STAGE DISAPPEARANCE INSTEAD",
-          "text_ru": "ЗАЧЕМ ТОЖЕ ВОРОВАТЬ ПОДДЕЛКУ? ПОТОМУ ЧТО, КОГДА ОНИ ПРОВОДЯТ РАССЛЕДОВАНИЕ, ОНИ ИГНОРИРУЮТ ВИДЕО С ЭТОГО УТРА, КОГДА ПРОИЗОШЛА КРАЖА. ВМЕСТО ОНИ Сконцентрируются на драматическом исчезновении на сцене.",
+          "id": "b_10_2",
+          "type": "bubble",
+          "text_en": "WELL, I'LL TELL YOU.",
+          "text_ru": "ЧТО Ж, Я ВАМ РАССКАЖУ.",
           "bbox": {
-            "x": 1374,
-            "y": 1011,
-            "width": 568,
-            "height": 397
+            "x": 130,
+            "y": 1010,
+            "width": 285,
+            "height": 105
           },
-          "rel_x": 69.11,
-          "rel_y": 33.08,
-          "rel_w": 28.57,
-          "rel_h": 12.99,
-          "confidence": 94
+          "rel_x": 6.54,
+          "rel_y": 33.05,
+          "rel_w": 14.34,
+          "rel_h": 3.44,
+          "confidence": 99
         },
         {
-          "id": "b_3",
-          "text_en": "I REPLACED THE SAPPHIRE WITH A COUNTERFEIT GEM MADE OF GLASS.",
-          "text_ru": "Я ЗАМЕНИЛ САПФИР ПОДДЕЛОЧНЫМ ДРАГОЦЕННЫМ КАМЕНЕМ ИЗ СТЕКЛА.",
-          "bbox": {
-            "x": 959,
-            "y": 1034,
-            "width": 301,
-            "height": 175
-          },
-          "rel_x": 48.24,
-          "rel_y": 33.84,
-          "rel_w": 15.14,
-          "rel_h": 5.73,
-          "confidence": 96
-        },
-        {
-          "id": "b_4",
-          "text_en": "TEL",
-          "text_ru": "ТЕЛ.",
-          "bbox": {
-            "x": 288,
-            "y": 1037,
-            "width": 102,
-            "height": 56
-          },
-          "rel_x": 14.49,
-          "rel_y": 33.93,
-          "rel_w": 5.13,
-          "rel_h": 1.83,
-          "confidence": 96
-        },
-        {
-          "id": "b_5",
-          "text_en": "IN THAT HUGE CROWD OF PEOPLE GAWKING AT THE DISPLAY IT WAS PRETTY ASY.",
-          "text_ru": "В ЭТОЙ ОГРОМНОЙ ТОЛПЕ ЛЮДЕЙ, СМОТРЯЩИХ НА ДИСПЛЕЕ, ЭТО БЫЛО ПРОСТО.",
-          "bbox": {
-            "x": 682,
-            "y": 1035,
-            "width": 305,
-            "height": 204
-          },
-          "rel_x": 34.31,
-          "rel_y": 33.87,
-          "rel_w": 15.34,
-          "rel_h": 6.68,
-          "confidence": 93
-        },
-        {
-          "id": "b_6",
+          "id": "b_10_3",
+          "type": "bubble",
           "text_en": "I ACTUALLY STOLE THE SAPPHIRE THIS MORNING AT THE VIEWING.",
-          "text_ru": "Я ДЕЙСТВИТЕЛЬНО украл САПФИР ЭТИМ УТРОМ НА ПРОСМОТРЕ.",
+          "text_ru": "НА САМОМ ДЕЛЕ Я УКРАЛА САПФИР ЕЩЁ УТРОМ НА ПРЕДВАРИТЕЛЬНОМ ПОКАЗЕ.",
           "bbox": {
-            "x": 298,
-            "y": 1079,
-            "width": 329,
-            "height": 146
+            "x": 330,
+            "y": 1050,
+            "width": 320,
+            "height": 165
           },
-          "rel_x": 14.99,
-          "rel_y": 35.31,
-          "rel_w": 16.55,
-          "rel_h": 4.78,
-          "confidence": 96
+          "rel_x": 16.6,
+          "rel_y": 34.36,
+          "rel_w": 16.1,
+          "rel_h": 5.4,
+          "confidence": 99
         },
         {
-          "id": "b_7",
-          "text_en": "WHICH I TOOK FROM THE DISPLAY CASE DURING THE AUCTION WHILE THE GUARDS WERE DOING THEIR SHIFT",
-          "text_ru": "КОТОРУЮ Я ВЗЯЛА ИЗ ВИТРИНЫ ВО ВРЕМЯ АУКЦИОНА, ПОКА ОХРАННИКИ ДЕЛАЛИ СВОЮ СМЕНУ.",
+          "id": "b_10_4",
+          "type": "bubble",
+          "text_en": "IN THAT HUGE CROWD OF PEOPLE GAWKING AT THE DISPLAY, IT WAS PRETTY EASY.",
+          "text_ru": "В ТОЙ ОГРОМНОЙ ТОЛПЕ ЗЕВАК ВОКРУГ ВИТРИНЫ ЭТО БЫЛО ПРОЩЕ ПРОСТОГО.",
           "bbox": {
-            "x": 1065,
-            "y": 1180,
-            "width": 380,
-            "height": 204
+            "x": 680,
+            "y": 1015,
+            "width": 310,
+            "height": 170
           },
-          "rel_x": 53.57,
-          "rel_y": 38.61,
-          "rel_w": 19.11,
-          "rel_h": 6.68,
-          "confidence": 96
+          "rel_x": 34.21,
+          "rel_y": 33.21,
+          "rel_w": 15.59,
+          "rel_h": 5.56,
+          "confidence": 99
+        },
+        {
+          "id": "b_10_5",
+          "type": "bubble",
+          "text_en": "I REPLACED THE SAPPHIRE WITH A COUNTERFEIT GEM MADE OF GLASS.",
+          "text_ru": "Я ЗАМЕНИЛА САПФИР СТЕКЛЯННОЙ ПОДДЕЛКОЙ.",
+          "bbox": {
+            "x": 975,
+            "y": 1015,
+            "width": 290,
+            "height": 160
+          },
+          "rel_x": 49.04,
+          "rel_y": 33.21,
+          "rel_w": 14.59,
+          "rel_h": 5.24,
+          "confidence": 99
+        },
+        {
+          "id": "b_10_6",
+          "type": "bubble",
+          "text_en": "WHICH I TOOK FROM THE DISPLAY CASE DURING THE AUCTION WHILE THE GUARDS WERE DOING THEIR SHIFT CHANGE.",
+          "text_ru": "КОТОРУЮ Я ЗАБРАЛА ИЗ ВИТРИНЫ ВО ВРЕМЯ АУКЦИОНА, ПОКА ОХРАНА БЫЛА НА ПЕРЕСМЕНКЕ.",
+          "bbox": {
+            "x": 1130,
+            "y": 1140,
+            "width": 350,
+            "height": 220
+          },
+          "rel_x": 56.84,
+          "rel_y": 37.3,
+          "rel_w": 17.61,
+          "rel_h": 7.2,
+          "confidence": 99
+        },
+        {
+          "id": "b_10_7",
+          "type": "bubble",
+          "text_en": "WHY STEAL THE FAKE TOO? BECAUSE WHEN THEY INVESTIGATE, THEY'LL IGNORE THE FOOTAGE FROM THIS MORNING WHEN THE ACTUAL THEFT TOOK PLACE.",
+          "text_ru": "ЗАЧЕМ ВОРОВАТЬ ФАЛЬШИВКУ? ПОТОМУ ЧТО ПРИ РАССЛЕДОВАНИИ ОНИ ПРОИГНОРИРУЮТ УТРЕННИЕ ЗАПИСИ, КОГДА БЫЛА СОВЕРШЕНА НАСТОЯЩАЯ КРАЖА.",
+          "bbox": {
+            "x": 1370,
+            "y": 1010,
+            "width": 580,
+            "height": 160
+          },
+          "rel_x": 68.91,
+          "rel_y": 33.05,
+          "rel_w": 29.18,
+          "rel_h": 5.24,
+          "confidence": 99
+        },
+        {
+          "id": "b_10_8",
+          "type": "bubble",
+          "text_en": "THEY'LL FOCUS ON THE DRAMATIC, ON-STAGE DISAPPEARANCE INSTEAD OF--",
+          "text_ru": "ОНИ СФОКУСИРУЮТСЯ НА ЭФФЕКТНОМ ИСЧЕЗНОВЕНИИ СО СЦЕНЫ ВМЕСТО ТОГО, ЧТОБЫ--",
+          "bbox": {
+            "x": 1680,
+            "y": 1175,
+            "width": 270,
+            "height": 220
+          },
+          "rel_x": 84.51,
+          "rel_y": 38.45,
+          "rel_w": 13.58,
+          "rel_h": 7.2,
+          "confidence": 99
+        },
+        {
+          "id": "b_10_9",
+          "type": "bubble",
+          "text_en": "--WHAT?",
+          "text_ru": "--ЧТО?!",
+          "bbox": {
+            "x": 435,
+            "y": 2200,
+            "width": 195,
+            "height": 100
+          },
+          "rel_x": 21.88,
+          "rel_y": 71.99,
+          "rel_w": 9.81,
+          "rel_h": 3.27,
+          "confidence": 99
         }
       ],
       "is_processed": true
@@ -980,36 +1273,55 @@
       "trans_image_filename": "page_011_trans.jpg",
       "bubbles": [
         {
-          "id": "b_1",
-          "text_en": "YOU CERTAINLY ENJOY THE SOUND OF YOUR OWN VOICE",
-          "text_ru": "ВАМ НАСТОЯТЕЛЬНО НРАВИТСЯ ЗВУК СОБСТВЕННОГО ГОЛОСА",
+          "id": "b_11_1",
+          "type": "bubble",
+          "text_en": "YOU CERTAINLY ENJOY THE SOUND OF YOUR OWN VOICE.",
+          "text_ru": "ТЕБЕ ОПРЕДЕЛЕННО НРАВИТСЯ ЗВУК СОБСТВЕННОГО ГОЛОСА.",
           "bbox": {
-            "x": 107,
-            "y": 75,
-            "width": 331,
-            "height": 175
+            "x": 115,
+            "y": 70,
+            "width": 330,
+            "height": 150
           },
-          "rel_x": 5.38,
-          "rel_y": 2.45,
-          "rel_w": 16.65,
-          "rel_h": 5.73,
-          "confidence": 86
+          "rel_x": 5.78,
+          "rel_y": 2.29,
+          "rel_w": 16.6,
+          "rel_h": 4.91,
+          "confidence": 99
         },
         {
-          "id": "b_2",
-          "text_en": "BUT I GUESS THAT'S TO BE EXPECTED. A THIEF WORKS IN THE SHADOWS. SHE HAS NOBODY TO PRAISE HER ACHIEVEMENTS SHE HAS TO DO IT HERSELF.",
-          "text_ru": "НО Я ДУМАЮ, ЭТОГО СЛЕДУЕТ ОЖИДАТЬ. ВОР РАБОТАЕТ В ТЕНИ. ЕЕ НЕКОМУ ПОХВАЛИТЬ ЕЕ ДОСТИЖЕНИЯ, ОНА ДОЛЖНА ЭТО ДЕЛАТЬ САМА.",
+          "id": "b_11_2",
+          "type": "bubble",
+          "text_en": "BUT I GUESS THAT'S TO BE EXPECTED.",
+          "text_ru": "НО, ПОЛАГАЮ, ЭТОГО СЛЕДОВАЛО ОЖИДАТЬ.",
           "bbox": {
-            "x": 1325,
-            "y": 116,
-            "width": 453,
-            "height": 314
+            "x": 1320,
+            "y": 115,
+            "width": 290,
+            "height": 125
           },
-          "rel_x": 66.65,
-          "rel_y": 3.8,
-          "rel_w": 22.79,
-          "rel_h": 10.27,
-          "confidence": 96
+          "rel_x": 66.4,
+          "rel_y": 3.76,
+          "rel_w": 14.59,
+          "rel_h": 4.09,
+          "confidence": 99
+        },
+        {
+          "id": "b_11_3",
+          "type": "bubble",
+          "text_en": "A THIEF WORKS IN THE SHADOWS. SHE HAS NOBODY TO PRAISE HER ACHIEVEMENTS, SO SHE HAS TO DO IT HERSELF.",
+          "text_ru": "ВОРОВКА РАБОТАЕТ В ТЕНИ. НЕКОМУ ПОХВАЛИТЬ ЕЁ ДОСТИЖЕНИЯ, ТАК ЧТО ПРИХОДИТСЯ ХВАЛИТЬ СЕБЯ САМОЙ.",
+          "bbox": {
+            "x": 1350,
+            "y": 220,
+            "width": 450,
+            "height": 190
+          },
+          "rel_x": 67.91,
+          "rel_y": 7.2,
+          "rel_w": 22.64,
+          "rel_h": 6.22,
+          "confidence": 99
         }
       ],
       "is_processed": true
@@ -1022,180 +1334,191 @@
       "trans_image_filename": "page_012_trans.jpg",
       "bubbles": [
         {
-          "id": "b_1",
-          "text_en": "INVISIBILITY IS A MATTER OF Pi",
-          "text_ru": "НЕВИДИМОСТЬ – ДЕЛО Пи",
+          "id": "b_12_1",
+          "type": "bubble",
+          "text_en": "HOW DID YOU...DO THAT? DISAPPEAR LIKE THAT?",
+          "text_ru": "КАК ТЫ... СДЕЛАЛА ЭТО? ИСЧЕЗЛА ВОТ ТАК?",
           "bbox": {
-            "x": 1364,
-            "y": 57,
-            "width": 466,
-            "height": 85
+            "x": 280,
+            "y": 90,
+            "width": 320,
+            "height": 150
           },
-          "rel_x": 68.61,
-          "rel_y": 1.87,
-          "rel_w": 23.44,
-          "rel_h": 2.78,
-          "confidence": 81
+          "rel_x": 14.08,
+          "rel_y": 2.95,
+          "rel_w": 16.1,
+          "rel_h": 4.91,
+          "confidence": 99
         },
         {
-          "id": "b_2",
-          "text_en": "HO! DISAPPEAR LIKE THAT?",
-          "text_ru": "ХО! ТАК ИСЧЕЗАТЬ?",
-          "bbox": {
-            "x": 277,
-            "y": 96,
-            "width": 289,
-            "height": 151
-          },
-          "rel_x": 13.93,
-          "rel_y": 3.14,
-          "rel_w": 14.54,
-          "rel_h": 4.94,
-          "confidence": 94
-        },
-        {
-          "id": "b_3",
+          "id": "b_12_2",
+          "type": "bubble",
           "text_en": "YOU WERE COMPLETELY INVISIBLE...",
-          "text_ru": "ВЫ БЫЛИ ПОЛНОСТЬЮ НЕВИДИМЫМИ...",
+          "text_ru": "ТЫ БЫЛА СОВЕРШЕННО НЕВИДИМОЙ...",
           "bbox": {
-            "x": 484,
-            "y": 213,
-            "width": 236,
-            "height": 114
+            "x": 510,
+            "y": 180,
+            "width": 230,
+            "height": 140
           },
-          "rel_x": 24.35,
-          "rel_y": 6.97,
-          "rel_w": 11.87,
-          "rel_h": 3.73,
-          "confidence": 96
+          "rel_x": 25.65,
+          "rel_y": 5.89,
+          "rel_w": 11.57,
+          "rel_h": 4.58,
+          "confidence": 99
         },
         {
-          "id": "b_4",
-          "text_en": "DIDN'T DISAPPEAR. I USED TELEPATHY TO CLOAK MYSELF FROM YOUR VISION.",
-          "text_ru": "НЕ ИСЧЕЗЛО. Я ИСПОЛЬЗОВАЛ ТЕЛЕПАТИЮ, ЧТОБЫ СКРЫТЬ СЕБЯ ОТ ВАШЕГО ЗРЕНИЯ.",
+          "id": "b_12_3",
+          "type": "bubble",
+          "text_en": "INVISIBILITY IS A MATTER OF PERSPECTIVE.",
+          "text_ru": "НЕВИДИМОСТЬ — ВОПРОС ВОСПРИЯТИЯ.",
           "bbox": {
-            "x": 1519,
-            "y": 933,
+            "x": 1370,
+            "y": 55,
+            "width": 470,
+            "height": 100
+          },
+          "rel_x": 68.91,
+          "rel_y": 1.8,
+          "rel_w": 23.64,
+          "rel_h": 3.27,
+          "confidence": 99
+        },
+        {
+          "id": "b_12_4",
+          "type": "bubble",
+          "text_en": "I DIDN'T DISAPPEAR. I USED TELEPATHY TO CLOAK MYSELF FROM YOUR VISION.",
+          "text_ru": "Я НЕ ИСЧЕЗАЛА. Я ИСПОЛЬЗОВАЛА ТЕЛЕПАТИЮ, ЧТОБЫ СКРЫТЬ СЕБЯ ОТ ТВОЕГО ВЗОРА.",
+          "bbox": {
+            "x": 1530,
+            "y": 900,
             "width": 420,
             "height": 145
           },
-          "rel_x": 76.41,
-          "rel_y": 30.53,
+          "rel_x": 76.96,
+          "rel_y": 29.45,
           "rel_w": 21.13,
           "rel_h": 4.74,
-          "confidence": 93
+          "confidence": 99
         },
         {
-          "id": "b_5",
-          "text_en": "I DON'T APPRECIATE IT WHEN TELEPATHS MESS AROUND IN my",
-          "text_ru": "Я НЕ ЦЕНЮ, КОГДА ТЕЛЕПАТЫ БОЯТСЯ В МОЕЙ",
+          "id": "b_12_5",
+          "type": "bubble",
+          "text_en": "I DON'T APPRECIATE IT WHEN TELEPATHS MESS AROUND IN MY BRAIN.",
+          "text_ru": "ТЕРПЕТЬ НЕ МОГУ, КОГДА ТЕЛЕПАТЫ КОВЫРЯЮТСЯ В МОИХ МОЗГАХ.",
           "bbox": {
-            "x": 663,
-            "y": 1141,
-            "width": 363,
+            "x": 670,
+            "y": 1100,
+            "width": 370,
+            "height": 160
+          },
+          "rel_x": 33.7,
+          "rel_y": 35.99,
+          "rel_w": 18.61,
+          "rel_h": 5.24,
+          "confidence": 99
+        },
+        {
+          "id": "b_12_6",
+          "type": "bubble",
+          "text_en": "I DON'T APPRECIATE BEING ROBBED.",
+          "text_ru": "ТЕРПЕТЬ НЕ МОГУ, КОГДА МЕНЯ ОБКРАДЫВАЮТ.",
+          "bbox": {
+            "x": 735,
+            "y": 1315,
+            "width": 260,
             "height": 145
           },
-          "rel_x": 33.35,
-          "rel_y": 37.34,
-          "rel_w": 18.26,
+          "rel_x": 36.97,
+          "rel_y": 43.03,
+          "rel_w": 13.08,
           "rel_h": 4.74,
-          "confidence": 93
+          "confidence": 99
         },
         {
-          "id": "b_6",
-          "text_en": "I DON'T APPRECIATE ROBBED.",
-          "text_ru": "Я НЕ ЦЕНЮ ОГРАБЛЕНИЕ.",
+          "id": "b_12_7",
+          "type": "bubble",
+          "text_en": "THE SAPPHIRE YOU REPLACED WITH THIS HUNK OF GLASS BELONGS TO ME.",
+          "text_ru": "САПФИР, КОТОРЫЙ ТЫ ЗАМЕНИЛА ЭТИМ КУСКОМ СТЕКЛА, ПРИНАДЛЕЖИТ МНЕ.",
           "bbox": {
-            "x": 730,
-            "y": 1347,
-            "width": 234,
-            "height": 152
+            "x": 900,
+            "y": 1435,
+            "width": 330,
+            "height": 170
           },
-          "rel_x": 36.72,
-          "rel_y": 44.08,
-          "rel_w": 11.77,
-          "rel_h": 4.97,
-          "confidence": 90
+          "rel_x": 45.27,
+          "rel_y": 46.96,
+          "rel_w": 16.6,
+          "rel_h": 5.56,
+          "confidence": 99
         },
         {
-          "id": "b_7",
-          "text_en": "THE SAPPHIRE YOU REPLACED WITH THIS HUNK OF GLASS PROFIT FROM BELONGS TO ME.",
-          "text_ru": "САПФИР, КОТОРЫЙ ВЫ ЗАМЕНИЛИ ЭТИМ ГРУСТОМ СТЕКЛА, ОТ КОТОРОГО ПРИБЫЛЬ, ПРИНАДЛЕЖИТ МНЕ.",
+          "id": "b_12_8",
+          "type": "bubble",
+          "text_en": "ERGO, SO DOES THE PROFIT FROM THIS AUCTION.",
+          "text_ru": "СЛЕДОВАТЕЛЬНО, И ПРИБЫЛЬ С ЭТОГО АУКЦИОНА — ТОЖЕ.",
           "bbox": {
-            "x": 865,
-            "y": 1458,
-            "width": 615,
-            "height": 146
-          },
-          "rel_x": 43.51,
-          "rel_y": 47.71,
-          "rel_w": 30.94,
-          "rel_h": 4.78,
-          "confidence": 96
-        },
-        {
-          "id": "b_8",
-          "text_en": "ERGO SO DOES THE THIS AUCTION.",
-          "text_ru": "ЭТОТ АУКЦИОН ТАК ДЕЛАЕТ.",
-          "bbox": {
-            "x": 1212,
-            "y": 1457,
-            "width": 265,
-            "height": 152
-          },
-          "rel_x": 60.97,
-          "rel_y": 47.68,
-          "rel_w": 13.33,
-          "rel_h": 4.97,
-          "confidence": 94
-        },
-        {
-          "id": "b_9",
-          "text_en": "ONE OF US S GOING TO LEAVE THIS ROOM A LOT POORER THAN SHE ENTERED IT.",
-          "text_ru": "ОДНА ИЗ НАС СОБИРАЕТСЯ ПОКИНУТЬ ЭТУ КОМНАТУ НАМНОГО БЕДНЕЕ, ЧЕМ ОНА ВХОДИЛА В нее.",
-          "bbox": {
-            "x": 733,
-            "y": 1631,
-            "width": 422,
-            "height": 148
-          },
-          "rel_x": 36.87,
-          "rel_y": 53.37,
-          "rel_w": 21.23,
-          "rel_h": 4.84,
-          "confidence": 94
-        },
-        {
-          "id": "b_10",
-          "text_en": "WELL IT'S NOT GONNA BE ME DARLING.",
-          "text_ru": "НУ ЭТО НЕ Я, ДОРОГАЯ.",
-          "bbox": {
-            "x": 1038,
-            "y": 1901,
-            "width": 228,
+            "x": 1240,
+            "y": 1435,
+            "width": 250,
             "height": 145
           },
-          "rel_x": 52.21,
-          "rel_y": 62.21,
-          "rel_w": 11.47,
+          "rel_x": 62.37,
+          "rel_y": 46.96,
+          "rel_w": 12.58,
           "rel_h": 4.74,
-          "confidence": 95
+          "confidence": 99
         },
         {
-          "id": "b_11",
+          "id": "b_12_9",
+          "type": "bubble",
+          "text_en": "ONE OF US IS GOING TO LEAVE THIS ROOM A LOT POORER THAN SHE ENTERED IT.",
+          "text_ru": "ОДНА ИЗ НАС ВЫЙДЕТ ИЗ ЭТОЙ КОМНАТЫ КУДА БЕДНЕЕ, ЧЕМ ВОШЛА.",
+          "bbox": {
+            "x": 740,
+            "y": 1600,
+            "width": 430,
+            "height": 155
+          },
+          "rel_x": 37.22,
+          "rel_y": 52.36,
+          "rel_w": 21.63,
+          "rel_h": 5.07,
+          "confidence": 99
+        },
+        {
+          "id": "b_12_10",
+          "type": "bubble",
+          "text_en": "WELL, IT'S NOT GONNA BE ME, DARLING.",
+          "text_ru": "ЧТО Ж, ЭТО ТОЧНО БУДУ НЕ Я, ДОРОГУША.",
+          "bbox": {
+            "x": 1050,
+            "y": 1860,
+            "width": 240,
+            "height": 150
+          },
+          "rel_x": 52.82,
+          "rel_y": 60.86,
+          "rel_w": 12.07,
+          "rel_h": 4.91,
+          "confidence": 99
+        },
+        {
+          "id": "b_12_11",
+          "type": "bubble",
           "text_en": "YOU SHOULD'VE KEPT YOUR JEWELS IN A BANK VAULT LIKE A NORMAL PERSON!",
-          "text_ru": "ВЫ ДОЛЖНЫ ХРАНИТЬ СВОИ ДРАГОЦЕННОСТИ В БАНКОВСКОМ ХРАНИЛИЩЕ, КАК НОРМАЛЬНЫЙ ЧЕЛОВЕК!",
+          "text_ru": "НАДО БЫЛО ХРАНИТЬ ДРАГОЦЕННОСТИ В БАНКОВСКОМ СЕЙФЕ, КАК НОРМАЛЬНЫЕ ЛЮДИ!",
           "bbox": {
-            "x": 1078,
-            "y": 2100,
-            "width": 408,
-            "height": 145
+            "x": 1075,
+            "y": 2070,
+            "width": 430,
+            "height": 160
           },
-          "rel_x": 54.23,
-          "rel_y": 68.72,
-          "rel_w": 20.52,
-          "rel_h": 4.74,
-          "confidence": 96
+          "rel_x": 54.07,
+          "rel_y": 67.74,
+          "rel_w": 21.63,
+          "rel_h": 5.24,
+          "confidence": 99
         }
       ],
       "is_processed": true
@@ -1208,100 +1531,123 @@
       "trans_image_filename": "page_013_trans.jpg",
       "bubbles": [
         {
-          "id": "b_1",
-          "text_en": "IT WAS AT THAT POINT THAT I REALIZED I WASN'T DEALING WITH YOUR AVERAGE GARDEN VARIETY TELEPATH.",
-          "text_ru": "ИМЕННО В ТОТ МОМЕНТ Я ПОЯСНИЛ, ЧТО ИМЕЮ НЕ ДЕЛО С ВАШИМ ОБЫЧНЫМ САДОВЫМ ТЕЛЕПАТОМ.",
+          "id": "b_13_1",
+          "type": "bubble",
+          "text_en": "THROWING KNIVES. HOW ORIGINAL.",
+          "text_ru": "МЕТАТЕЛЬНЫЕ НОЖИ. КАК ОРИГИНАЛЬНО.",
           "bbox": {
-            "x": 1359,
-            "y": 99,
-            "width": 422,
-            "height": 175
-          },
-          "rel_x": 68.36,
-          "rel_y": 3.24,
-          "rel_w": 21.23,
-          "rel_h": 5.73,
-          "confidence": 94
-        },
-        {
-          "id": "b_2",
-          "text_en": "THROWING KNIVES. HOW",
-          "text_ru": "МЕТАНИЕ НОЖЕЙ. КАК",
-          "bbox": {
-            "x": 237,
-            "y": 145,
-            "width": 234,
-            "height": 85
-          },
-          "rel_x": 11.92,
-          "rel_y": 4.74,
-          "rel_w": 11.77,
-          "rel_h": 2.78,
-          "confidence": 96
-        },
-        {
-          "id": "b_3",
-          "text_en": "SIMPL",
-          "text_ru": "SIMPL",
-          "bbox": {
-            "x": 1493,
-            "y": 1969,
-            "width": 131,
-            "height": 54
-          },
-          "rel_x": 75.1,
-          "rel_y": 64.43,
-          "rel_w": 6.59,
-          "rel_h": 1.77,
-          "confidence": 61
-        },
-        {
-          "id": "b_4",
-          "text_en": "THAT WASN'T",
-          "text_ru": "ЭТО НЕ БЫЛО",
-          "bbox": {
-            "x": 1432,
-            "y": 1972,
+            "x": 225,
+            "y": 140,
             "width": 280,
-            "height": 123
+            "height": 120
           },
-          "rel_x": 72.03,
-          "rel_y": 64.53,
+          "rel_x": 11.32,
+          "rel_y": 4.58,
           "rel_w": 14.08,
-          "rel_h": 4.02,
-          "confidence": 95
+          "rel_h": 3.93,
+          "confidence": 99
         },
         {
-          "id": "b_5",
+          "id": "b_13_2",
+          "type": "caption",
+          "text_en": "IT WAS AT THAT POINT THAT I REALIZED I WASN'T DEALING WITH YOUR AVERAGE, GARDEN-VARIETY TELEPATH.",
+          "text_ru": "И В ТОТ МОМЕНТ Я ПОНЯЛА, ЧТО ИМЕЮ ДЕЛО НЕ С ОБЫЧНЫМ РЯДОВЫМ ТЕЛЕПАТОМ.",
+          "bbox": {
+            "x": 1365,
+            "y": 100,
+            "width": 425,
+            "height": 185
+          },
+          "rel_x": 68.66,
+          "rel_y": 3.27,
+          "rel_w": 21.38,
+          "rel_h": 6.05,
+          "confidence": 99
+        },
+        {
+          "id": "b_13_3",
+          "type": "bubble",
+          "text_en": "HUH?!",
+          "text_ru": "ЧЕГО?!",
+          "bbox": {
+            "x": 1740,
+            "y": 570,
+            "width": 150,
+            "height": 80
+          },
+          "rel_x": 87.53,
+          "rel_y": 18.65,
+          "rel_w": 7.55,
+          "rel_h": 2.62,
+          "confidence": 99
+        },
+        {
+          "id": "b_13_4",
+          "type": "caption",
+          "text_en": "THIS WAS A TELEPATH WHO CHEATS.",
+          "text_ru": "ЭТА ТЕЛЕПАТКА ИГРАЕТ НЕ ПО ПРАВИЛАМ.",
+          "bbox": {
+            "x": 200,
+            "y": 1195,
+            "width": 260,
+            "height": 120
+          },
+          "rel_x": 10.06,
+          "rel_y": 39.1,
+          "rel_w": 13.08,
+          "rel_h": 3.93,
+          "confidence": 99
+        },
+        {
+          "id": "b_13_5",
+          "type": "bubble",
+          "text_en": "...HOW THE HECK DID SHE DO THAT?",
+          "text_ru": "...КАК, ЧЁРТ ВОЗЬМИ, ОНА ЭТО СДЕЛАЛА?",
+          "bbox": {
+            "x": 580,
+            "y": 2010,
+            "width": 270,
+            "height": 140
+          },
+          "rel_x": 29.18,
+          "rel_y": 65.77,
+          "rel_w": 13.58,
+          "rel_h": 4.58,
+          "confidence": 99
+        },
+        {
+          "id": "b_13_6",
+          "type": "bubble",
+          "text_en": "SIMPLE. THAT WASN'T ME.",
+          "text_ru": "ПРОСТО. ЭТО БЫЛА НЕ Я.",
+          "bbox": {
+            "x": 1460,
+            "y": 1905,
+            "width": 230,
+            "height": 125
+          },
+          "rel_x": 73.44,
+          "rel_y": 62.34,
+          "rel_w": 11.57,
+          "rel_h": 4.09,
+          "confidence": 99
+        },
+        {
+          "id": "b_13_7",
+          "type": "bubble",
           "text_en": "IT WAS A PSYCHIC PROJECTION.",
           "text_ru": "ЭТО БЫЛА ПСИХИЧЕСКАЯ ПРОЕКЦИЯ.",
           "bbox": {
-            "x": 1664,
-            "y": 2008,
-            "width": 244,
-            "height": 114
+            "x": 1660,
+            "y": 1960,
+            "width": 280,
+            "height": 130
           },
-          "rel_x": 83.7,
-          "rel_y": 65.71,
-          "rel_w": 12.27,
-          "rel_h": 3.73,
-          "confidence": 96
-        },
-        {
-          "id": "b_6",
-          "text_en": "HOW THE HECK DID SHE DO THAT?",
-          "text_ru": "КАК ОНА ЭТО СДЕЛАЛА?",
-          "bbox": {
-            "x": 578,
-            "y": 2075,
-            "width": 253,
-            "height": 115
-          },
-          "rel_x": 29.07,
-          "rel_y": 67.9,
-          "rel_w": 12.73,
-          "rel_h": 3.76,
-          "confidence": 94
+          "rel_x": 83.5,
+          "rel_y": 64.14,
+          "rel_w": 14.08,
+          "rel_h": 4.25,
+          "confidence": 99
         }
       ],
       "is_processed": true
@@ -1312,7 +1658,110 @@
       "height": 3056,
       "image_filename": "page_014.jpg",
       "trans_image_filename": "page_014_trans.jpg",
-      "bubbles": [],
+      "bubbles": [
+        {
+          "id": "b_14_1",
+          "type": "bubble",
+          "text_en": "NOW. ARE YOU READY TO HAVE A RATIONAL DISCUSSION ABOUT THIS? OR ARE YOU GOING TO CONTINUE THROWING A TANTRUM?",
+          "text_ru": "А ТЕПЕРЬ. ТЫ ГОТОВА К\nРАЗУМНОМУ РАЗГОВОРУ?\nИЛИ ПРОДОЛЖИШЬ\nУСТРАИВАТЬ ИСТЕРИКУ?",
+          "bbox": {
+            "x": 80,
+            "y": 85,
+            "width": 545,
+            "height": 205
+          },
+          "rel_x": 4.02,
+          "rel_y": 2.78,
+          "rel_w": 27.41,
+          "rel_h": 6.71,
+          "confidence": 99
+        },
+        {
+          "id": "b_14_2",
+          "type": "bubble",
+          "text_en": "...TANTRUM.",
+          "text_ru": "...ИСТЕРИКУ.",
+          "bbox": {
+            "x": 680,
+            "y": 310,
+            "width": 230,
+            "height": 80
+          },
+          "rel_x": 34.21,
+          "rel_y": 10.14,
+          "rel_w": 11.57,
+          "rel_h": 2.62,
+          "confidence": 99
+        },
+        {
+          "id": "b_14_3",
+          "type": "caption",
+          "text_en": "IF THERE'S ONE THING I HATE MORE THAN ANYTHING ELSE IN THE WORLD?",
+          "text_ru": "ЕСЛИ И ЕСТЬ НА\nСВЕТЕ ТО, ЧТО Я\nНЕНАВИЖУ БОЛЬШЕ\nВСЕГО...",
+          "bbox": {
+            "x": 1615,
+            "y": 1560,
+            "width": 305,
+            "height": 195
+          },
+          "rel_x": 81.24,
+          "rel_y": 51.05,
+          "rel_w": 15.34,
+          "rel_h": 6.38,
+          "confidence": 99
+        },
+        {
+          "id": "b_14_4",
+          "type": "caption",
+          "text_en": "IT'S BEING TALKED DOWN TO LIKE A CHILD.",
+          "text_ru": "...ТАК ЭТО КОГДА\nСО МНОЙ РАЗГОВАРИВАЮТ\nКАК С РЕБЁНКОМ.",
+          "bbox": {
+            "x": 110,
+            "y": 1870,
+            "width": 310,
+            "height": 170
+          },
+          "rel_x": 5.53,
+          "rel_y": 61.19,
+          "rel_w": 15.59,
+          "rel_h": 5.56,
+          "confidence": 99
+        },
+        {
+          "id": "b_14_5",
+          "type": "bubble",
+          "text_en": "UGH!",
+          "text_ru": "ОЙ!",
+          "bbox": {
+            "x": 1205,
+            "y": 2260,
+            "width": 145,
+            "height": 80
+          },
+          "rel_x": 60.61,
+          "rel_y": 73.95,
+          "rel_w": 7.29,
+          "rel_h": 2.62,
+          "confidence": 99
+        },
+        {
+          "id": "b_14_6",
+          "type": "bubble",
+          "text_en": "THAT WAS A MISTAKE.",
+          "text_ru": "ЭТО БЫЛА\nОШИБКА.",
+          "bbox": {
+            "x": 1445,
+            "y": 1940,
+            "width": 275,
+            "height": 105
+          },
+          "rel_x": 72.69,
+          "rel_y": 63.48,
+          "rel_w": 13.83,
+          "rel_h": 3.44,
+          "confidence": 99
+        }
+      ],
       "is_processed": true
     },
     {
@@ -1323,148 +1772,89 @@
       "trans_image_filename": "page_015_trans.jpg",
       "bubbles": [
         {
-          "id": "b_1",
-          "text_en": "ky J",
-          "text_ru": "Кай Джей",
+          "id": "b_15_1",
+          "type": "bubble",
+          "text_en": "NOT FAIR, I WASN'T READY--",
+          "text_ru": "НЕЧЕСТНО, Я НЕ БЫЛА ГОТОВА--",
           "bbox": {
-            "x": 236,
-            "y": 117,
-            "width": 333,
-            "height": 158
+            "x": 960,
+            "y": 1060,
+            "width": 230,
+            "height": 125
           },
-          "rel_x": 11.87,
-          "rel_y": 3.83,
-          "rel_w": 16.75,
-          "rel_h": 5.17,
-          "confidence": 63
+          "rel_x": 48.29,
+          "rel_y": 34.69,
+          "rel_w": 11.57,
+          "rel_h": 4.09,
+          "confidence": 99
         },
         {
-          "id": "b_2",
-          "text_en": "OT FAIR",
-          "text_ru": "ОТ ЯРМАРКА",
+          "id": "b_15_2",
+          "type": "bubble",
+          "text_en": "WHO SAID ANYTHING ABOUT FAIR?",
+          "text_ru": "А КТО ГОВОРИЛ О ЧЕСТНОСТИ?",
           "bbox": {
-            "x": 984,
-            "y": 1087,
-            "width": 168,
-            "height": 55
+            "x": 1210,
+            "y": 1335,
+            "width": 220,
+            "height": 145
           },
-          "rel_x": 49.5,
-          "rel_y": 35.57,
-          "rel_w": 8.45,
-          "rel_h": 1.8,
-          "confidence": 96
+          "rel_x": 60.87,
+          "rel_y": 43.68,
+          "rel_w": 11.07,
+          "rel_h": 4.74,
+          "confidence": 99
         },
         {
-          "id": "b_3",
-          "text_en": "FAIR",
-          "text_ru": "СПРАВЕДЛИВЫЙ",
+          "id": "b_15_3",
+          "type": "bubble",
+          "text_en": "I DID. LET'S JUST SAY I LIKE TO BALANCE THE SCALES.",
+          "text_ru": "Я. СКАЖЕМ ТАК, МНЕ НРАВИТСЯ УРАВНИВАТЬ ШАНСЫ.",
           "bbox": {
-            "x": 1222,
-            "y": 1438,
-            "width": 127,
-            "height": 59
+            "x": 120,
+            "y": 1890,
+            "width": 390,
+            "height": 160
           },
-          "rel_x": 61.47,
-          "rel_y": 47.05,
-          "rel_w": 6.39,
-          "rel_h": 1.93,
-          "confidence": 96
+          "rel_x": 6.04,
+          "rel_y": 61.85,
+          "rel_w": 19.62,
+          "rel_h": 5.24,
+          "confidence": 99
         },
         {
-          "id": "b_4",
-          "text_en": "ad IKE TO SCALES.",
-          "text_ru": "объявление IKE TO ВЕСЫ.",
+          "id": "b_15_4",
+          "type": "caption",
+          "text_en": "I REALLY THOUGHT I WAS GOING SOMEWHERE WITH THAT LINE.",
+          "text_ru": "МНЕ КАЗАЛОСЬ, ЭТО ПРОЗВУЧИТ ЭФФЕКТНО.",
           "bbox": {
-            "x": 235,
-            "y": 1795,
-            "width": 346,
-            "height": 305
+            "x": 565,
+            "y": 1920,
+            "width": 315,
+            "height": 185
           },
-          "rel_x": 11.82,
-          "rel_y": 58.74,
-          "rel_w": 17.4,
-          "rel_h": 9.98,
-          "confidence": 82
+          "rel_x": 28.42,
+          "rel_y": 62.83,
+          "rel_w": 15.85,
+          "rel_h": 6.05,
+          "confidence": 99
         },
         {
-          "id": "b_5",
-          "text_en": "IDID",
-          "text_ru": "Я СДЕЛАЛ",
+          "id": "b_15_5",
+          "type": "caption",
+          "text_en": "BUT IT TURNED OUT NOT TO BE THE BRILLIANT PARTING SHOT I HOPED IT WOULD BE.",
+          "text_ru": "НО В ИТОГЕ ЭТО СОВСЕМ НЕ СТАЛО ТОЙ БЛЕСТЯЩЕЙ КОНЦОВКОЙ, НА КОТОРУЮ Я НАДЕЯЛАСЬ.",
           "bbox": {
-            "x": 121,
-            "y": 1938,
-            "width": 127,
-            "height": 56
+            "x": 1485,
+            "y": 2770,
+            "width": 355,
+            "height": 175
           },
-          "rel_x": 6.09,
-          "rel_y": 63.42,
-          "rel_w": 6.39,
-          "rel_h": 1.83,
-          "confidence": 62
-        },
-        {
-          "id": "b_6",
-          "text_en": "ET'S JUST",
-          "text_ru": "ЭТО ПРОСТО",
-          "bbox": {
-            "x": 264,
-            "y": 1939,
-            "width": 196,
-            "height": 54
-          },
-          "rel_x": 13.28,
-          "rel_y": 63.45,
-          "rel_w": 9.86,
-          "rel_h": 1.77,
-          "confidence": 89
-        },
-        {
-          "id": "b_7",
-          "text_en": "GOING IT",
-          "text_ru": "ИДЕМ ЭТО",
-          "bbox": {
-            "x": 687,
-            "y": 1984,
-            "width": 169,
-            "height": 87
-          },
-          "rel_x": 34.56,
-          "rel_y": 64.92,
-          "rel_w": 8.5,
-          "rel_h": 2.85,
-          "confidence": 95
-        },
-        {
-          "id": "b_8",
-          "text_en": "Ue Pa",
-          "text_ru": "Уэ Па",
-          "bbox": {
-            "x": 218,
-            "y": 2497,
-            "width": 235,
-            "height": 177
-          },
-          "rel_x": 10.97,
-          "rel_y": 81.71,
-          "rel_w": 11.82,
-          "rel_h": 5.79,
-          "confidence": 61
-        },
-        {
-          "id": "b_9",
-          "text_en": "NOT TO BE THE ILLIANT PARTING",
-          "text_ru": "НЕ БЫТЬ ИЛЛИАНТНЫМ РАССТАВАНИЕМ",
-          "bbox": {
-            "x": 1520,
-            "y": 2814,
-            "width": 303,
-            "height": 93
-          },
-          "rel_x": 76.46,
-          "rel_y": 92.08,
-          "rel_w": 15.24,
-          "rel_h": 3.04,
-          "confidence": 95
+          "rel_x": 74.7,
+          "rel_y": 90.64,
+          "rel_w": 17.86,
+          "rel_h": 5.73,
+          "confidence": 99
         }
       ],
       "is_processed": true
@@ -1477,116 +1867,140 @@
       "trans_image_filename": "page_016_trans.jpg",
       "bubbles": [
         {
-          "id": "b_1",
-          "text_en": "T MAKE AN IMPRESSION.",
-          "text_ru": "ПРОИЗВОДИМ ВПЕЧАТЛЕНИЕ.",
+          "id": "b_16_1",
+          "type": "bubble",
+          "text_en": "LOOK, I KNOW YOU'RE TRYING TO MAKE AN IMPRESSION.",
+          "text_ru": "СЛУШАЙ, Я ЗНАЮ, ЧТО ТЫ ПЫТАЕШЬСЯ ПРОИЗВЕСТИ ВПЕЧАТЛЕНИЕ.",
           "bbox": {
-            "x": 273,
-            "y": 72,
-            "width": 336,
-            "height": 124
+            "x": 230,
+            "y": 70,
+            "width": 385,
+            "height": 165
           },
-          "rel_x": 13.73,
-          "rel_y": 2.36,
-          "rel_w": 16.9,
-          "rel_h": 4.06,
-          "confidence": 75
+          "rel_x": 11.57,
+          "rel_y": 2.29,
+          "rel_w": 19.37,
+          "rel_h": 5.4,
+          "confidence": 99
         },
         {
-          "id": "b_2",
-          "text_en": "HEARTB! FORGOT WHA WE WERE FIGHTING OUT IN THE IRST",
-          "text_ru": "СЕРДЦЕ! ЗАБЫЛИ, ЧТО МЫ СРАЖАЛИСЬ В ПЕРВОМ",
+          "id": "b_16_2",
+          "type": "bubble",
+          "text_en": "BUT CAN WE PLEASE JUST HAVE A CONVERSATION? BECAUSE YOU'RE NOT GOING TO WIN THIS FIGHT.",
+          "text_ru": "НО МОЖЕМ МЫ ПРОСТО ПОГОВОРИТЬ? ПОТОМУ ЧТО В ЭТОЙ ДРАКЕ ТЕБЕ НЕ ПОБЕДИТЬ.",
           "bbox": {
-            "x": 1079,
-            "y": 116,
-            "width": 328,
-            "height": 174
+            "x": 500,
+            "y": 145,
+            "width": 405,
+            "height": 220
           },
-          "rel_x": 54.28,
-          "rel_y": 3.8,
-          "rel_w": 16.5,
-          "rel_h": 5.69,
-          "confidence": 92
+          "rel_x": 25.15,
+          "rel_y": 4.74,
+          "rel_w": 20.37,
+          "rel_h": 7.2,
+          "confidence": 99
         },
         {
-          "id": "b_3",
-          "text_en": "BUT C",
-          "text_ru": "НО С",
+          "id": "b_16_3",
+          "type": "caption",
+          "text_en": "IN A HEARTBEAT, I FORGOT WHAT WE WERE FIGHTING ABOUT IN THE FIRST PLACE.",
+          "text_ru": "В ОДНО МГНОВЕНИЕ Я ЗАБЫЛА, ИЗ-ЗА ЧЕГО МЫ ВООБЩЕ ДРАЛИСЬ.",
           "bbox": {
-            "x": 572,
-            "y": 144,
-            "width": 134,
-            "height": 54
+            "x": 1085,
+            "y": 120,
+            "width": 330,
+            "height": 190
           },
-          "rel_x": 28.77,
-          "rel_y": 4.71,
-          "rel_w": 6.74,
-          "rel_h": 1.77,
-          "confidence": 63
+          "rel_x": 54.58,
+          "rel_y": 3.93,
+          "rel_w": 16.6,
+          "rel_h": 6.22,
+          "confidence": 99
         },
         {
-          "id": "b_4",
-          "text_en": "U'RE NOT G ING O WIN THI",
-          "text_ru": "ТЫ НЕ Сможешь ЭТО ВЫИГРАТЬ",
+          "id": "b_16_4",
+          "type": "bubble",
+          "text_en": "HELLOOO?",
+          "text_ru": "АУ-У?",
           "bbox": {
-            "x": 515,
-            "y": 223,
-            "width": 363,
-            "height": 94
+            "x": 1245,
+            "y": 555,
+            "width": 225,
+            "height": 105
           },
-          "rel_x": 25.91,
-          "rel_y": 7.3,
-          "rel_w": 18.26,
-          "rel_h": 3.08,
-          "confidence": 84
+          "rel_x": 62.63,
+          "rel_y": 18.16,
+          "rel_w": 11.32,
+          "rel_h": 3.44,
+          "confidence": 99
         },
         {
-          "id": "b_5",
-          "text_en": "ONE",
-          "text_ru": "ОДИН",
+          "id": "b_16_5",
+          "type": "caption",
+          "text_en": "WHAT'S ONE SAPPHIRE WHEN THERE ARE GORGEOUS WOMEN MADE OF DIAMONDS WALKING THE EARTH?",
+          "text_ru": "КАКОЕ ЗНАЧЕНИЕ ИМЕЕТ ОДИН САПФИР, КОГДА ПО ЗЕМЛЕ ХОДЯТ РОСКОШНЫЕ ЖЕНЩИНЫ ИЗ АЛМАЗОВ?",
           "bbox": {
-            "x": 1647,
-            "y": 937,
-            "width": 105,
-            "height": 54
+            "x": 1540,
+            "y": 925,
+            "width": 385,
+            "height": 160
           },
-          "rel_x": 82.85,
-          "rel_y": 30.66,
-          "rel_w": 5.28,
-          "rel_h": 1.77,
-          "confidence": 96
+          "rel_x": 77.46,
+          "rel_y": 30.27,
+          "rel_w": 19.37,
+          "rel_h": 5.24,
+          "confidence": 99
         },
         {
-          "id": "b_6",
-          "text_en": "PPHIRE",
-          "text_ru": "ПФИР",
+          "id": "b_16_6",
+          "type": "bubble",
+          "text_en": "I... I THINK I'M IN LOVE.",
+          "text_ru": "Я... КАЖЕТСЯ, Я ВЛЮБИЛАСЬ.",
           "bbox": {
-            "x": 1759,
-            "y": 937,
-            "width": 144,
-            "height": 54
+            "x": 365,
+            "y": 1185,
+            "width": 235,
+            "height": 155
           },
-          "rel_x": 88.48,
-          "rel_y": 30.66,
-          "rel_w": 7.24,
-          "rel_h": 1.77,
-          "confidence": 92
+          "rel_x": 18.36,
+          "rel_y": 38.78,
+          "rel_w": 11.82,
+          "rel_h": 5.07,
+          "confidence": 99
         },
         {
-          "id": "b_7",
-          "text_en": "DIAMONDS RTH",
-          "text_ru": "АЛМАЗЫ РУТ",
+          "id": "b_16_7",
+          "type": "bubble",
+          "text_en": "THIS IS GETTING RIDICULOUS.",
+          "text_ru": "ЭТО СТАНОВИТСЯ СМЕХОТВОРНЫМ.",
           "bbox": {
-            "x": 1671,
-            "y": 1021,
-            "width": 238,
-            "height": 88
+            "x": 1500,
+            "y": 1420,
+            "width": 335,
+            "height": 140
           },
-          "rel_x": 84.05,
-          "rel_y": 33.41,
-          "rel_w": 11.97,
-          "rel_h": 2.88,
-          "confidence": 96
+          "rel_x": 75.45,
+          "rel_y": 46.47,
+          "rel_w": 16.85,
+          "rel_h": 4.58,
+          "confidence": 99
+        },
+        {
+          "id": "b_16_8",
+          "type": "bubble",
+          "text_en": "LET'S CUT TO THE CHASE.",
+          "text_ru": "ДАВАЙ БЛИЖЕ К ДЕЛУ.",
+          "bbox": {
+            "x": 865,
+            "y": 2130,
+            "width": 240,
+            "height": 145
+          },
+          "rel_x": 43.51,
+          "rel_y": 69.7,
+          "rel_w": 12.07,
+          "rel_h": 4.74,
+          "confidence": 99
         }
       ],
       "is_processed": true
@@ -1599,148 +2013,174 @@
       "trans_image_filename": "page_017_trans.jpg",
       "bubbles": [
         {
-          "id": "b_1",
+          "id": "b_17_1",
+          "type": "bubble",
+          "text_en": "HNNH!",
+          "text_ru": "ГХ-М-М!",
+          "bbox": {
+            "x": 1170,
+            "y": 175,
+            "width": 180,
+            "height": 95
+          },
+          "rel_x": 58.85,
+          "rel_y": 5.73,
+          "rel_w": 9.05,
+          "rel_h": 3.11,
+          "confidence": 99
+        },
+        {
+          "id": "b_17_2",
+          "type": "bubble",
+          "text_en": "WHAT IN THE...?",
+          "text_ru": "ЧТО ЗА...?",
+          "bbox": {
+            "x": 120,
+            "y": 1060,
+            "width": 195,
+            "height": 95
+          },
+          "rel_x": 6.04,
+          "rel_y": 34.69,
+          "rel_w": 9.81,
+          "rel_h": 3.11,
+          "confidence": 99
+        },
+        {
+          "id": "b_17_3",
+          "type": "bubble",
+          "text_en": "WHERE AM I?",
+          "text_ru": "ГДЕ Я?",
+          "bbox": {
+            "x": 215,
+            "y": 1135,
+            "width": 185,
+            "height": 95
+          },
+          "rel_x": 10.81,
+          "rel_y": 37.14,
+          "rel_w": 9.31,
+          "rel_h": 3.11,
+          "confidence": 99
+        },
+        {
+          "id": "b_17_4",
+          "type": "bubble",
+          "text_en": "YOUR OWN MIND.",
+          "text_ru": "В ТВОЕМ СОБСТВЕННОМ РАЗУМЕ.",
+          "bbox": {
+            "x": 425,
+            "y": 1045,
+            "width": 170,
+            "height": 120
+          },
+          "rel_x": 21.38,
+          "rel_y": 34.2,
+          "rel_w": 8.55,
+          "rel_h": 3.93,
+          "confidence": 99
+        },
+        {
+          "id": "b_17_5",
+          "type": "bubble",
+          "text_en": "NOT WHAT I WAS EXPECTING, HONESTLY.",
+          "text_ru": "ЧЕСТНО ГОВОРЯ, НЕ СОВСЕМ ТО, ЧЕГО Я ОЖИДАЛА.",
+          "bbox": {
+            "x": 980,
+            "y": 1015,
+            "width": 310,
+            "height": 140
+          },
+          "rel_x": 49.3,
+          "rel_y": 33.21,
+          "rel_w": 15.59,
+          "rel_h": 4.58,
+          "confidence": 99
+        },
+        {
+          "id": "b_17_6",
+          "type": "bubble",
           "text_en": "YOU MUST BE COVERING UP A LOT OF UNPLEASANT MEMORIES.",
-          "text_ru": "ВЫ, ДОЛЖНО быть, СКРЫВАЕТЕ МНОГО НЕПРИЯТНЫХ ВОСПОМИНАНИЙ.",
+          "text_ru": "ДОЛЖНО БЫТЬ, ТЫ СКРЫВАЕШЬ МНОЖЕСТВО НЕПРИЯТНЫХ ВОСПОМИНАНИЙ.",
           "bbox": {
             "x": 1475,
-            "y": 1036,
-            "width": 356,
+            "y": 1015,
+            "width": 360,
             "height": 145
           },
           "rel_x": 74.2,
-          "rel_y": 33.9,
-          "rel_w": 17.91,
+          "rel_y": 33.21,
+          "rel_w": 18.11,
           "rel_h": 4.74,
-          "confidence": 96
+          "confidence": 99
         },
         {
-          "id": "b_2",
-          "text_en": "YOUR OWN MIND.",
-          "text_ru": "ВАШ СОБСТВЕННЫЙ РАЗУМ.",
+          "id": "b_17_7",
+          "type": "bubble",
+          "text_en": "NOW. DOWN TO BUSINESS. MY NAME IS EMMA FROST.",
+          "text_ru": "А ТЕПЕРЬ К ДЕЛУ. МОЁ ИМЯ — ЭММА ФРОСТ.",
           "bbox": {
-            "x": 433,
-            "y": 1072,
-            "width": 140,
-            "height": 115
+            "x": 360,
+            "y": 1950,
+            "width": 370,
+            "height": 145
           },
-          "rel_x": 21.78,
-          "rel_y": 35.08,
-          "rel_w": 7.04,
-          "rel_h": 3.76,
-          "confidence": 96
+          "rel_x": 18.11,
+          "rel_y": 63.81,
+          "rel_w": 18.61,
+          "rel_h": 4.74,
+          "confidence": 99
         },
         {
-          "id": "b_3",
-          "text_en": "WHAT IN",
-          "text_ru": "ЧТО В",
+          "id": "b_17_8",
+          "type": "bubble",
+          "text_en": "AND I DON'T LIKE IT WHEN PEOPLE STEAL FROM ME.",
+          "text_ru": "И Я ОЧЕНЬ НЕ ЛЮБЛЮ, КОГДА МЕНЯ ОБКРАДЫВАЮТ.",
           "bbox": {
-            "x": 128,
-            "y": 1090,
-            "width": 162,
-            "height": 54
+            "x": 745,
+            "y": 1950,
+            "width": 360,
+            "height": 140
           },
-          "rel_x": 6.44,
-          "rel_y": 35.67,
-          "rel_w": 8.15,
-          "rel_h": 1.77,
-          "confidence": 97
+          "rel_x": 37.47,
+          "rel_y": 63.81,
+          "rel_w": 18.11,
+          "rel_h": 4.58,
+          "confidence": 99
         },
         {
-          "id": "b_4",
-          "text_en": "WHERE AM",
-          "text_ru": "ГДЕ",
+          "id": "b_17_9",
+          "type": "bubble",
+          "text_en": "I HAD NO IDEA THE SAPPHIRE WAS YOURS--I HAD NO IDEA YOU EXISTED--I CAN MAKE IT UP TO YOU--",
+          "text_ru": "Я ПОНЯТИЯ НЕ ИМЕЛА, ЧТО САПФИР ТВОЙ... Я ВООБЩЕ НЕ ЗНАЛА О ТВОЕМ СУЩЕСТВОВАНИИ... Я МОГУ ВСЁ ЗАГЛАДИТЬ--",
           "bbox": {
-            "x": 223,
-            "y": 1161,
-            "width": 147,
-            "height": 85
+            "x": 615,
+            "y": 2065,
+            "width": 380,
+            "height": 220
           },
-          "rel_x": 11.22,
-          "rel_y": 37.99,
-          "rel_w": 7.39,
-          "rel_h": 2.78,
-          "confidence": 93
+          "rel_x": 30.94,
+          "rel_y": 67.57,
+          "rel_w": 19.11,
+          "rel_h": 7.2,
+          "confidence": 99
         },
         {
-          "id": "b_5",
-          "text_en": "NOW. DOWN TO BUSINESS. MY NAME S WHEN PEOPLE STEAL EMMA FROST.",
-          "text_ru": "СЕЙЧАС. ЗА ДЕЛО. МЕНЯ ЗОВУТ, КОГДА ЛЮДИ ВОРУЮТ ЭММУ ФРОСТ.",
+          "id": "b_17_10",
+          "type": "bubble",
+          "text_en": "I--I MAY HAVE PRE-SOLD IT TO A DISGRACED DUCHESS, BUT I CAN GET YOU YOUR MONEY BACK--",
+          "text_ru": "Я... Я ВОЗМОЖНО УЖЕ ПРЕДВАРИТЕЛЬНО ПРОДАЛА ЕГО ОДНОЙ ОПАЛЬНОЙ ГЕРЦОГИНЕ, НО Я МОГУ ВЕРНУТЬ ТЕБЕ ДЕНЬГИ--",
           "bbox": {
-            "x": 362,
-            "y": 1971,
-            "width": 716,
-            "height": 115
+            "x": 850,
+            "y": 2345,
+            "width": 385,
+            "height": 230
           },
-          "rel_x": 18.21,
-          "rel_y": 64.5,
-          "rel_w": 36.02,
-          "rel_h": 3.76,
-          "confidence": 95
-        },
-        {
-          "id": "b_6",
-          "text_en": "I DON'T LIKE IT",
-          "text_ru": "МНЕ ЭТО НЕ НРАВИТСЯ",
-          "bbox": {
-            "x": 803,
-            "y": 1973,
-            "width": 268,
-            "height": 54
-          },
-          "rel_x": 40.39,
-          "rel_y": 64.56,
-          "rel_w": 13.48,
-          "rel_h": 1.77,
-          "confidence": 93
-        },
-        {
-          "id": "b_7",
-          "text_en": "I HAD NO IDEA THE SAPPHIRE WAS YOURS--T HAD NO IDEA YOU EXISTED I CAN MAKE IT UP TO YOU",
-          "text_ru": "Я НЕ ПРЕДСТАВЛЯЛ, ЧТО САПФИР БЫЛ ВАШ, Я НЕ ПРЕДСТАВЛЯЛ, ЧТО ТЫ СУЩЕСТВУЕШЬ, Я МОГУ ЭТО ПРИДУМАТЬ ДЛЯ ВАС.",
-          "bbox": {
-            "x": 613,
-            "y": 2092,
-            "width": 369,
-            "height": 203
-          },
-          "rel_x": 30.84,
-          "rel_y": 68.46,
-          "rel_w": 18.56,
-          "rel_h": 6.64,
-          "confidence": 91
-        },
-        {
-          "id": "b_8",
-          "text_en": "I--I MAY HAVE PRE-SOLD IT TO A DISGRACED DUCHESS BUT I CAN GET YOU YOUR MONEY BACK",
-          "text_ru": "Я... Я, МОЖЕТ, ПРЕДВАРИТЕЛЬНО ПРОДАЛА ЭТО ОПАЛЕННОЙ ГЕРЦОГИНЕ, НО Я МОГУ ВЕРНУТЬ ВАМ ВАШИ ДЕНЬГИ.",
-          "bbox": {
-            "x": 844,
-            "y": 2375,
-            "width": 383,
-            "height": 204
-          },
-          "rel_x": 42.45,
-          "rel_y": 77.72,
-          "rel_w": 19.27,
-          "rel_h": 6.68,
-          "confidence": 93
-        },
-        {
-          "id": "b_9",
-          "text_en": "er We",
-          "text_ru": "э-э, мы",
-          "bbox": {
-            "x": 410,
-            "y": 2955,
-            "width": 162,
-            "height": 55
-          },
-          "rel_x": 20.62,
-          "rel_y": 96.7,
-          "rel_w": 8.15,
-          "rel_h": 1.8,
-          "confidence": 60
+          "rel_x": 42.76,
+          "rel_y": 76.73,
+          "rel_w": 19.37,
+          "rel_h": 7.53,
+          "confidence": 99
         }
       ],
       "is_processed": true
@@ -1753,196 +2193,208 @@
       "trans_image_filename": "page_018_trans.jpg",
       "bubbles": [
         {
-          "id": "b_1",
-          "text_en": "PERHAPS YOU AS IT HAPPENS IT HAVE CAN FELICIA A JOB EXACTLY SUITED HARDY.",
-          "text_ru": "ВОЗМОЖНО, ВЫ МОЖЕТЕ ИМЕТЬ РАБОТУ, ТОЧНО ПОДХОДЯЩУЮ ХАРДИ.",
+          "id": "b_18_1",
+          "type": "bubble",
+          "text_en": "PERHAPS YOU CAN, FELICIA HARDY.",
+          "text_ru": "ВОЗМОЖНО, И СМОЖЕШЬ, ФЕЛИЦИЯ ХАРДИ.",
           "bbox": {
-            "x": 121,
-            "y": 78,
-            "width": 635,
-            "height": 115
+            "x": 115,
+            "y": 70,
+            "width": 265,
+            "height": 120
           },
-          "rel_x": 6.09,
-          "rel_y": 2.55,
-          "rel_w": 31.94,
-          "rel_h": 3.76,
-          "confidence": 92
+          "rel_x": 5.78,
+          "rel_y": 2.29,
+          "rel_w": 13.33,
+          "rel_h": 3.93,
+          "confidence": 99
         },
         {
-          "id": "b_2",
-          "text_en": "THIS IS THE CENTRAL A SORT OF PRIMITIVE PROCESSING UNIT OF AN EXPERIMENTAL GENERATION OF SENTINELS.",
-          "text_ru": "ЭТО ЦЕНТРАЛЬНЫЙ ЭТАТ ПРИМИТИВНЫЙ БЛОК ОБРАБОТКИ ЭКСПЕРИМЕНТАЛЬНОГО ПОКОЛЕНИЯ СТРАЖЕЙ.",
+          "id": "b_18_2",
+          "type": "bubble",
+          "text_en": "AS IT HAPPENS, I HAVE A JOB EXACTLY SUITED TO SOMEONE OF YOUR... PARTICULAR SKILLS.",
+          "text_ru": "ТАК СЛОЖИЛОСЬ, ЧТО У МЕНЯ ЕСТЬ РАБОТА КАК РАЗ ПОД ТВОИ... ОСОБЫЕ НАВЫКИ.",
           "bbox": {
-            "x": 1198,
-            "y": 77,
-            "width": 715,
-            "height": 175
+            "x": 365,
+            "y": 70,
+            "width": 425,
+            "height": 155
           },
-          "rel_x": 60.26,
-          "rel_y": 2.52,
-          "rel_w": 35.97,
-          "rel_h": 5.73,
-          "confidence": 94
+          "rel_x": 18.36,
+          "rel_y": 2.29,
+          "rel_w": 21.38,
+          "rel_h": 5.07,
+          "confidence": 99
         },
         {
-          "id": "b_3",
-          "text_en": "TACTICAL YOU WILL. IT WAS ABANDONED AFTER IT FAILED VARIOUS FIELD TESTS.",
-          "text_ru": "ТАКТИЧЕСКИ БУДЕТЕ. ОТ ОН БЫЛ ЗАБРОШЕН ПОСЛЕ ПРОВАЛЕНИЯ РАЗЛИЧНЫХ ПОЛЕВЫХ ИСПЫТАНИЙ.",
+          "id": "b_18_3",
+          "type": "bubble",
+          "text_en": "THIS IS THE CENTRAL PROCESSING UNIT OF AN EXPERIMENTAL GENERATION OF SENTINELS.",
+          "text_ru": "ЭТО ЦЕНТРАЛЬНЫЙ ПРОЦЕССОР ЭКСПЕРИМЕНТАЛЬНОГО ПОКОЛЕНИЯ СТРАЖЕЙ.",
           "bbox": {
-            "x": 1554,
-            "y": 107,
-            "width": 352,
-            "height": 175
+            "x": 1210,
+            "y": 70,
+            "width": 360,
+            "height": 145
           },
-          "rel_x": 78.17,
-          "rel_y": 3.5,
-          "rel_w": 17.71,
-          "rel_h": 5.73,
-          "confidence": 95
+          "rel_x": 60.87,
+          "rel_y": 2.29,
+          "rel_w": 18.11,
+          "rel_h": 4.74,
+          "confidence": 99
         },
         {
-          "id": "b_4",
-          "text_en": "TO SOMEONE OF YOUR... PARTICULAR SKILLS.",
-          "text_ru": "КОМУ-ТО ИЗ ВАШИХ... ОСОБЫХ НАВЫКОВ.",
+          "id": "b_18_4",
+          "type": "bubble",
+          "text_en": "A SORT OF PRIMITIVE TACTICAL A.I., IF YOU WILL. IT WAS ABANDONED AFTER IT FAILED VARIOUS FIELD TESTS.",
+          "text_ru": "СВОЕГО РОДА ПРИМИТИВНЫЙ ТАКТИЧЕСКИЙ ИИ. ЕГО ЗАБРОСИЛИ ПОСЛЕ ПРОВАЛА ПОЛЕВЫХ ИСПЫТАНИЙ.",
           "bbox": {
-            "x": 350,
-            "y": 137,
-            "width": 416,
-            "height": 114
+            "x": 1550,
+            "y": 70,
+            "width": 370,
+            "height": 165
           },
-          "rel_x": 17.61,
-          "rel_y": 4.48,
-          "rel_w": 20.93,
-          "rel_h": 3.73,
-          "confidence": 96
+          "rel_x": 77.97,
+          "rel_y": 2.29,
+          "rel_w": 18.61,
+          "rel_h": 5.4,
+          "confidence": 99
         },
         {
-          "id": "b_5",
-          "text_en": "Tan Qa I BELIEVE IT CAN BE REVERSE ENGINEERED TO HELP PROTECT MUTANTKIND FROM FURTHER HOSTILE SURVEILLANCE.",
-          "text_ru": "Тан Ка Я ВЕРЮ, ЧТО ЭТО МОЖНО БЫТЬ ОБРАТНО ИНЖИНИРИНИЗИРОВАТЬ, ЧТОБЫ ПОМОЧЬ ЗАЩИТИТЬ МУТАНТНЫЙ ВИД ОТ ДАЛЬНЕЙШЕГО ВРАЖДЕБНОГО НАБЛЮДЕНИЯ.",
-          "bbox": {
-            "x": 447,
-            "y": 1039,
-            "width": 552,
-            "height": 230
-          },
-          "rel_x": 22.48,
-          "rel_y": 34.0,
-          "rel_w": 27.77,
-          "rel_h": 7.53,
-          "confidence": 86
-        },
-        {
-          "id": "b_6",
+          "id": "b_18_5",
+          "type": "bubble",
           "text_en": "SO WHY DO YOU WANT IT?",
-          "text_ru": "ТАК ЗАЧЕМ ВАМ ЭТО?",
+          "text_ru": "И ЗАЧЕМ ОН ТЕБЕ?",
           "bbox": {
             "x": 135,
-            "y": 1120,
-            "width": 215,
-            "height": 114
+            "y": 1105,
+            "width": 225,
+            "height": 130
           },
           "rel_x": 6.79,
-          "rel_y": 36.65,
-          "rel_w": 10.81,
-          "rel_h": 3.73,
-          "confidence": 92
+          "rel_y": 36.16,
+          "rel_w": 11.32,
+          "rel_h": 4.25,
+          "confidence": 99
         },
         {
-          "id": "b_7",
-          "text_en": "THERE'S JusT ONE LITTLE PROBLEM.",
+          "id": "b_18_6",
+          "type": "bubble",
+          "text_en": "I BELIEVE IT CAN BE REVERSE ENGINEERED TO HELP PROTECT MUTANTKIND FROM FURTHER HOSTILE SURVEILLANCE.",
+          "text_ru": "Я УБЕЖДЕНА, ЧТО ЕГО МОЖНО РАЗОБРАТЬ И ИСПОЛЬЗОВАТЬ ДЛЯ ЗАЩИТЫ МУТАНТОВ ОТ ДАЛЬНЕЙШЕЙ СЛЕЖКИ.",
+          "bbox": {
+            "x": 455,
+            "y": 1095,
+            "width": 555,
+            "height": 185
+          },
+          "rel_x": 22.89,
+          "rel_y": 35.83,
+          "rel_w": 27.92,
+          "rel_h": 6.05,
+          "confidence": 99
+        },
+        {
+          "id": "b_18_7",
+          "type": "bubble",
+          "text_en": "THERE'S JUST ONE LITTLE PROBLEM.",
           "text_ru": "ЕСТЬ ТОЛЬКО ОДНА МАЛЕНЬКАЯ ПРОБЛЕМА.",
           "bbox": {
-            "x": 1407,
-            "y": 1125,
-            "width": 213,
-            "height": 146
+            "x": 1410,
+            "y": 1110,
+            "width": 225,
+            "height": 130
           },
-          "rel_x": 70.77,
-          "rel_y": 36.81,
-          "rel_w": 10.71,
-          "rel_h": 4.78,
-          "confidence": 93
+          "rel_x": 70.93,
+          "rel_y": 36.32,
+          "rel_w": 11.32,
+          "rel_h": 4.25,
+          "confidence": 99
         },
         {
-          "id": "b_8",
+          "id": "b_18_8",
+          "type": "bubble",
           "text_en": "THE X-MEN HAVE IT. AND THEY DON'T WANT TO GIVE IT TO ME.",
-          "text_ru": "У ЛЮДЕЙ ИКС ЭТО ЕСТЬ. И ОНИ НЕ ХОТЯТ МНЕ ЭТО ДАВАТЬ.",
+          "text_ru": "ОН У ЛЮДЕЙ ИКС. И ОНИ НЕ ХОТЯТ МНЕ ЕГО ОТДАВАТЬ.",
           "bbox": {
-            "x": 1608,
-            "y": 1126,
-            "width": 301,
-            "height": 177
+            "x": 1640,
+            "y": 1110,
+            "width": 290,
+            "height": 155
           },
-          "rel_x": 80.89,
-          "rel_y": 36.85,
-          "rel_w": 15.14,
-          "rel_h": 5.79,
-          "confidence": 94
+          "rel_x": 82.49,
+          "rel_y": 36.32,
+          "rel_w": 14.59,
+          "rel_h": 5.07,
+          "confidence": 99
         },
         {
-          "id": "b_9",
-          "text_en": "OOH",
-          "text_ru": "внешняя реклама",
+          "id": "b_18_9",
+          "type": "bubble",
+          "text_en": "OOH, NO.",
+          "text_ru": "О-О-О, НЕТ.",
           "bbox": {
-            "x": 151,
-            "y": 2144,
-            "width": 118,
-            "height": 54
+            "x": 140,
+            "y": 2100,
+            "width": 160,
+            "height": 95
           },
-          "rel_x": 7.6,
-          "rel_y": 70.16,
-          "rel_w": 5.94,
-          "rel_h": 1.77,
-          "confidence": 96
+          "rel_x": 7.04,
+          "rel_y": 68.72,
+          "rel_w": 8.05,
+          "rel_h": 3.11,
+          "confidence": 99
         },
         {
-          "id": "b_10",
-          "text_en": "NO NO",
-          "text_ru": "НЕТ НЕТ",
+          "id": "b_18_10",
+          "type": "bubble",
+          "text_en": "NO, NO, NO.",
+          "text_ru": "НЕТ, НЕТ, НЕТ.",
           "bbox": {
-            "x": 144,
-            "y": 2228,
-            "width": 154,
-            "height": 54
+            "x": 140,
+            "y": 2215,
+            "width": 170,
+            "height": 105
           },
-          "rel_x": 7.24,
-          "rel_y": 72.91,
-          "rel_w": 7.75,
-          "rel_h": 1.77,
-          "confidence": 82
+          "rel_x": 7.04,
+          "rel_y": 72.48,
+          "rel_w": 8.55,
+          "rel_h": 3.44,
+          "confidence": 99
         },
         {
-          "id": "b_11",
-          "text_en": "GETTING INVOLVED. THOSE GUYS TOAST PEOPLE WITH THEIR EYE LASER",
-          "text_ru": "УЧАСТВУЙТЕ. ЭТИ ПАРНИ ПОДПИНЯЮТ ЛЮДЕЙ СВОИМ ЛАЗЕРОМ ДЛЯ ГЛАЗ",
+          "id": "b_18_11",
+          "type": "bubble",
+          "text_en": "I AM NOT GETTING INVOLVED. THOSE GUYS TOAST PEOPLE WITH THEIR EYE LASER BEAMS.",
+          "text_ru": "Я В ЭТО НЕ ВВЯЗЫВАЮСЬ. ЭТИ РЕБЯТА ИСПЕПЕЛЯЮТ ЛЮДЕЙ ЛАЗЕРАМИ ИЗ ГЛАЗ.",
           "bbox": {
-            "x": 208,
-            "y": 2303,
-            "width": 366,
-            "height": 146
+            "x": 215,
+            "y": 2275,
+            "width": 370,
+            "height": 185
           },
-          "rel_x": 10.46,
-          "rel_y": 75.36,
-          "rel_w": 18.41,
-          "rel_h": 4.78,
-          "confidence": 95
+          "rel_x": 10.81,
+          "rel_y": 74.44,
+          "rel_w": 18.61,
+          "rel_h": 6.05,
+          "confidence": 99
         },
         {
-          "id": "b_12",
+          "id": "b_18_12",
+          "type": "bubble",
           "text_en": "THEY'RE ACTUALLY CONCUSSIVE BLASTS. NOT LASER BEAMS.",
-          "text_ru": "ЭТО НА САМОМ ДЕЛЕ СОтрясающие взрывы. НЕ ЛАЗЕРНЫЕ ЛУЧИ.",
+          "text_ru": "ВООБЩЕ-ТО ЭТО СИЛОВЫЕ УДАРНЫЕ ЛУЧИ, А НЕ ЛАЗЕРЫ.",
           "bbox": {
-            "x": 1522,
-            "y": 2467,
-            "width": 273,
-            "height": 175
+            "x": 1530,
+            "y": 2455,
+            "width": 285,
+            "height": 185
           },
-          "rel_x": 76.56,
-          "rel_y": 80.73,
-          "rel_w": 13.73,
-          "rel_h": 5.73,
-          "confidence": 94
+          "rel_x": 76.96,
+          "rel_y": 80.33,
+          "rel_w": 14.34,
+          "rel_h": 6.05,
+          "confidence": 99
         }
       ],
       "is_processed": true
@@ -1955,132 +2407,157 @@
       "trans_image_filename": "page_019_trans.jpg",
       "bubbles": [
         {
-          "id": "b_1",
-          "text_en": "AND ANYWAY CYCLOPS S THE REASON I CAN'T DO THIS MYSELF. WE HAVE... A COMPLICATED PAST.",
-          "text_ru": "И В ЛЮБОМ СЛУЧАЕ ЦИКЛОП – ЭТО ПРИЧИНА, ПО которой Я НЕ МОГУ ЭТОГО СДЕЛАТЬ САМ. У НАС... СЛОЖНОЕ ПРОШЛОЕ.",
+          "id": "b_19_1",
+          "type": "bubble",
+          "text_en": "AND ANYWAY, CYCLOPS IS THE REASON I CAN'T DO THIS MYSELF. WE HAVE... A COMPLICATED PAST.",
+          "text_ru": "И В ЛЮБОМ СЛУЧАЕ, ЦИКЛОП — ПРИЧИНА, ПО КОТОРОЙ Я НЕ МОГУ СДЕЛАТЬ ЭТО САМА. У НАС С НИМ... СЛОЖНОЕ ПРОШЛОЕ.",
           "bbox": {
-            "x": 213,
-            "y": 98,
-            "width": 395,
-            "height": 240
+            "x": 220,
+            "y": 75,
+            "width": 410,
+            "height": 215
           },
-          "rel_x": 10.71,
-          "rel_y": 3.21,
-          "rel_w": 19.87,
-          "rel_h": 7.85,
-          "confidence": 93
+          "rel_x": 11.07,
+          "rel_y": 2.45,
+          "rel_w": 20.62,
+          "rel_h": 7.04,
+          "confidence": 99
         },
         {
-          "id": "b_2",
+          "id": "b_19_2",
+          "type": "bubble",
           "text_en": "YOU WANNA TALK ABOUT THAT?",
-          "text_ru": "ТЫ ХОЧЕШЬ ПОГОВОРИТЬ ОБ ЭТОМ?",
+          "text_ru": "ХОЧЕШЬ ОБ ЭТОМ ПОГОВОРИТЬ?",
           "bbox": {
-            "x": 1090,
-            "y": 769,
-            "width": 237,
-            "height": 114
-          },
-          "rel_x": 54.83,
-          "rel_y": 25.16,
-          "rel_w": 11.92,
-          "rel_h": 3.73,
-          "confidence": 93
-        },
-        {
-          "id": "b_3",
-          "text_en": "IF THEY WEREN'T SO CAUTIOUS THEY WOULD UNDERSTAND THAT I'M TRYING TO HELP THEM--TO HELP ALL OF Us ar",
-          "text_ru": "ЕСЛИ ОНИ НЕ БЫЛИ ТАК ОСТОРОЖНЫ, ТО ПОНЯЛИ, ЧТО Я СТАРАЮСЬ ИМ ПОМОЧЬ – ПОМОЧЬ ВСЕМ НАМ.",
-          "bbox": {
-            "x": 707,
-            "y": 1461,
-            "width": 479,
-            "height": 213
-          },
-          "rel_x": 35.56,
-          "rel_y": 47.81,
-          "rel_w": 24.09,
-          "rel_h": 6.97,
-          "confidence": 91
-        },
-        {
-          "id": "b_4",
-          "text_en": "THE POINT IS THEY HAVE IT I WANT IT.",
-          "text_ru": "Дело в том, что у них это есть, я этого хочу.",
-          "bbox": {
-            "x": 280,
-            "y": 1466,
-            "width": 270,
-            "height": 115
-          },
-          "rel_x": 14.08,
-          "rel_y": 47.97,
-          "rel_w": 13.58,
-          "rel_h": 3.76,
-          "confidence": 87
-        },
-        {
-          "id": "b_5",
-          "text_en": "FIND SOME OTHER THIEF.",
-          "text_ru": "НАЙДИТЕ ДРУГОГО ВОРА.",
-          "bbox": {
-            "x": 917,
-            "y": 1893,
-            "width": 214,
+            "x": 1100,
+            "y": 760,
+            "width": 245,
             "height": 130
           },
-          "rel_x": 46.13,
-          "rel_y": 61.94,
-          "rel_w": 10.76,
+          "rel_x": 55.33,
+          "rel_y": 24.87,
+          "rel_w": 12.32,
           "rel_h": 4.25,
-          "confidence": 96
+          "confidence": 99
         },
         {
-          "id": "b_6",
-          "text_en": "THIS IS YOUR LAST GET ME THE CHANCE TO MAKE THINGS RIGHT WITH ME FELICIA.",
-          "text_ru": "ЭТО ПОСЛЕДНИЙ, ПОЛУЧИТЕ МНЕ ШАНС СДЕЛАТЬ ВСЕ СО МНОЙ ПРАВИЛЬНО, ФЕЛИСИЯ.",
+          "id": "b_19_3",
+          "type": "bubble",
+          "text_en": "NO.",
+          "text_ru": "НЕТ.",
           "bbox": {
-            "x": 68,
-            "y": 2365,
-            "width": 557,
-            "height": 148
+            "x": 1345,
+            "y": 850,
+            "width": 110,
+            "height": 80
           },
-          "rel_x": 3.42,
-          "rel_y": 77.39,
-          "rel_w": 28.02,
-          "rel_h": 4.84,
-          "confidence": 92
+          "rel_x": 67.66,
+          "rel_y": 27.81,
+          "rel_w": 5.53,
+          "rel_h": 2.62,
+          "confidence": 99
         },
         {
-          "id": "b_7",
-          "text_en": "PROCESSOR AND WE'RE EVEN.",
-          "text_ru": "ПРОЦЕССОР И МЫ КВЕТЫ.",
+          "id": "b_19_4",
+          "type": "bubble",
+          "text_en": "THE POINT IS, THEY HAVE IT-- I WANT IT.",
+          "text_ru": "СУТЬ В ТОМ, ЧТО ОН У НИХ. А ОН НУЖЕН МНЕ.",
           "bbox": {
-            "x": 395,
-            "y": 2397,
-            "width": 230,
-            "height": 114
+            "x": 280,
+            "y": 1450,
+            "width": 280,
+            "height": 120
           },
-          "rel_x": 19.87,
-          "rel_y": 78.44,
-          "rel_w": 11.57,
-          "rel_h": 3.73,
-          "confidence": 96
+          "rel_x": 14.08,
+          "rel_y": 47.45,
+          "rel_w": 14.08,
+          "rel_h": 3.93,
+          "confidence": 99
         },
         {
-          "id": "b_8",
-          "text_en": "REFUSE AND YOU'VE MADE AN ENEMY YOU CAN'T AFFORD.",
-          "text_ru": "ОТКАЗЫВАЙТЕСЬ, И ВЫ НАРЕДИТЕ ВРАГА, КОТОРОГО НЕ МОЖЕТЕ ПОЗВОЛИТЬ.",
+          "id": "b_19_5",
+          "type": "bubble",
+          "text_en": "IF THEY WEREN'T SO CAUTIOUS, THEY WOULD UNDERSTAND THAT I'M TRYING TO HELP THEM--TO HELP ALL OF US MUTANTS.",
+          "text_ru": "ЕСЛИ БЫ ОНИ НЕ БЫЛИ СТОЛЬ ОСТОРОЖНЫ, ОНИ БЫ ПОНЯЛИ, ЧТО Я ПЫТАЮСЬ ПОМОЧЬ ИМ — ПОМОЧЬ ВСЕМ МУТАНТАМ.",
           "bbox": {
-            "x": 544,
-            "y": 2450,
-            "width": 291,
-            "height": 175
+            "x": 715,
+            "y": 1440,
+            "width": 485,
+            "height": 205
           },
-          "rel_x": 27.36,
-          "rel_y": 80.17,
-          "rel_w": 14.64,
-          "rel_h": 5.73,
-          "confidence": 96
+          "rel_x": 35.97,
+          "rel_y": 47.12,
+          "rel_w": 24.4,
+          "rel_h": 6.71,
+          "confidence": 99
+        },
+        {
+          "id": "b_19_6",
+          "type": "bubble",
+          "text_en": "NO. FIND SOME OTHER THIEF.",
+          "text_ru": "НЕТ. НАЙДИ СЕБЕ ДРУГОГО ВОРА.",
+          "bbox": {
+            "x": 920,
+            "y": 1875,
+            "width": 225,
+            "height": 130
+          },
+          "rel_x": 46.28,
+          "rel_y": 61.35,
+          "rel_w": 11.32,
+          "rel_h": 4.25,
+          "confidence": 99
+        },
+        {
+          "id": "b_19_7",
+          "type": "bubble",
+          "text_en": "THIS IS YOUR LAST CHANCE TO MAKE THINGS RIGHT WITH ME, FELICIA.",
+          "text_ru": "ЭТО ТВОЙ ПОСЛЕДНИЙ ШАНС ВСЁ ИСПРАВИТЬ, ФЕЛИЦИЯ.",
+          "bbox": {
+            "x": 80,
+            "y": 2340,
+            "width": 320,
+            "height": 145
+          },
+          "rel_x": 4.02,
+          "rel_y": 76.57,
+          "rel_w": 16.1,
+          "rel_h": 4.74,
+          "confidence": 99
+        },
+        {
+          "id": "b_19_8",
+          "type": "bubble",
+          "text_en": "GET ME THE PROCESSOR AND WE'RE EVEN.",
+          "text_ru": "ДОБУДЬ МНЕ ПРОЦЕССОР — И МЫ В КВИТАХ.",
+          "bbox": {
+            "x": 390,
+            "y": 2340,
+            "width": 240,
+            "height": 120
+          },
+          "rel_x": 19.62,
+          "rel_y": 76.57,
+          "rel_w": 12.07,
+          "rel_h": 3.93,
+          "confidence": 99
+        },
+        {
+          "id": "b_19_9",
+          "type": "bubble",
+          "text_en": "REFUSE, AND YOU'VE MADE AN ENEMY YOU CAN'T AFFORD.",
+          "text_ru": "ОТКАЖЕШЬСЯ — И ОБРЕТЁШЬ ВРАГА, КОТОРЫЙ ТЕБЕ НЕ ПО ЗУБАМ.",
+          "bbox": {
+            "x": 550,
+            "y": 2400,
+            "width": 300,
+            "height": 160
+          },
+          "rel_x": 27.67,
+          "rel_y": 78.53,
+          "rel_w": 15.09,
+          "rel_h": 5.24,
+          "confidence": 99
         }
       ],
       "is_processed": true
@@ -2093,180 +2570,191 @@
       "trans_image_filename": "page_020_trans.jpg",
       "bubbles": [
         {
-          "id": "b_1",
+          "id": "b_20_1",
+          "type": "bubble",
           "text_en": "I DON'T LIKE BEING THREATENED.",
-          "text_ru": "МНЕ НЕ НРАВИТСЯ, когда мне угрожают.",
+          "text_ru": "ТЕРПЕТЬ НЕ МОГУ УГРОЗЫ.",
           "bbox": {
-            "x": 733,
-            "y": 56,
-            "width": 252,
-            "height": 115
+            "x": 735,
+            "y": 55,
+            "width": 280,
+            "height": 130
           },
-          "rel_x": 36.87,
-          "rel_y": 1.83,
-          "rel_w": 12.68,
-          "rel_h": 3.76,
-          "confidence": 96
+          "rel_x": 36.97,
+          "rel_y": 1.8,
+          "rel_w": 14.08,
+          "rel_h": 4.25,
+          "confidence": 99
         },
         {
-          "id": "b_2",
-          "text_en": "I DON'T LIKE",
-          "text_ru": "мне не нравится",
+          "id": "b_20_2",
+          "type": "bubble",
+          "text_en": "I DON'T LIKE BEING ROBBED.",
+          "text_ru": "ТЕРПЕТЬ НЕ МОГУ, КОГДА МЕНЯ ОБКРАДЫВАЮТ.",
           "bbox": {
-            "x": 957,
-            "y": 412,
-            "width": 185,
-            "height": 85
+            "x": 960,
+            "y": 415,
+            "width": 250,
+            "height": 130
           },
-          "rel_x": 48.14,
-          "rel_y": 13.48,
-          "rel_w": 9.31,
-          "rel_h": 2.78,
-          "confidence": 95
+          "rel_x": 48.29,
+          "rel_y": 13.58,
+          "rel_w": 12.58,
+          "rel_h": 4.25,
+          "confidence": 99
         },
         {
-          "id": "b_3",
-          "text_en": "he HOW WOULD THIS EVEN SNEAK INTO A SECRET MUTANT HIDEOUT LIKE I DID AT THE ART GALLERY. THEY HAVE PERIMETER ALARMS. WEAPONS.",
-          "text_ru": "КАК ЭТО ДАЖЕ ПРОБЫЛО В СЕКРЕТНОЕ УБЕЖДЕНИЕ МУТАНТОВ, КАК Я СДЕЛАЛ В ХУДОЖЕСТВЕННОЙ ГАЛЕРЕЕ. У НИХ ЕСТЬ СИГНАЛИЗАЦИЯ ПО ПЕРИМЕТРУ. ОРУЖИЕ.",
+          "id": "b_20_3",
+          "type": "bubble",
+          "text_en": "HOW WOULD THIS EVEN WORK?!",
+          "text_ru": "И КАК ЭТО ВООБЩЕ ДОЛЖНО СРАБОТАТЬ?!",
           "bbox": {
-            "x": 129,
-            "y": 828,
-            "width": 609,
-            "height": 400
+            "x": 135,
+            "y": 910,
+            "width": 230,
+            "height": 120
           },
-          "rel_x": 6.49,
-          "rel_y": 27.09,
-          "rel_w": 30.63,
-          "rel_h": 13.09,
-          "confidence": 90
+          "rel_x": 6.79,
+          "rel_y": 29.78,
+          "rel_w": 11.57,
+          "rel_h": 3.93,
+          "confidence": 99
         },
         {
-          "id": "b_4",
-          "text_en": "I CAN'T JUST",
-          "text_ru": "Я НЕ МОГУ ПРОСТО",
+          "id": "b_20_4",
+          "type": "bubble",
+          "text_en": "I CAN'T JUST SNEAK INTO A SECRET MUTANT HIDEOUT LIKE I DID AT THE ART GALLERY.",
+          "text_ru": "Я НЕ МОГУ ПРОСТО ПРОКРАСТЬСЯ В СЕКРЕТНОЕ ЛОГОВО МУТАНТОВ, КАК В АРТ-ГАЛЕРЕЮ.",
           "bbox": {
-            "x": 416,
-            "y": 927,
-            "width": 248,
-            "height": 54
+            "x": 360,
+            "y": 910,
+            "width": 380,
+            "height": 160
           },
-          "rel_x": 20.93,
-          "rel_y": 30.33,
-          "rel_w": 12.47,
-          "rel_h": 1.77,
-          "confidence": 95
+          "rel_x": 18.11,
+          "rel_y": 29.78,
+          "rel_w": 19.11,
+          "rel_h": 5.24,
+          "confidence": 99
         },
         {
-          "id": "b_5",
-          "text_en": "THEY HAVE TELEPATHS WHO LOOK AT YOU AND GO NEE-NRRR-NEE-NRR AND FIGURE OUT ALL YOUR PLANS!",
-          "text_ru": "У НИХ ЕСТЬ ТЕЛЕПАТЫ, КОТОРЫЕ СМОТРЯТ НА ВАС И ИДЯТ НЕРР-НИ-НРР И РАССМАТРИВАЮТ ВСЕ ВАШИ ПЛАНЫ!",
+          "id": "b_20_5",
+          "type": "bubble",
+          "text_en": "THEY HAVE PERIMETER ALARMS. WEAPONS. FREAKY POWERS.",
+          "text_ru": "У НИХ ТАМ СИГНАЛИЗАЦИЯ ПО ПЕРИМЕТРУ. ОРУЖИЕ. БЕЗУМНЫЕ СВЕРХСПОСОБНОСТИ.",
           "bbox": {
-            "x": 1030,
-            "y": 1003,
-            "width": 393,
-            "height": 204
-          },
-          "rel_x": 51.81,
-          "rel_y": 32.82,
-          "rel_w": 19.77,
-          "rel_h": 6.68,
-          "confidence": 95
-        },
-        {
-          "id": "b_6",
-          "text_en": "FOR cop's",
-          "text_ru": "ДЛЯ копов",
-          "bbox": {
-            "x": 1220,
-            "y": 1381,
-            "width": 255,
-            "height": 128
-          },
-          "rel_x": 61.37,
-          "rel_y": 45.19,
-          "rel_w": 12.83,
-          "rel_h": 4.19,
-          "confidence": 76
-        },
-        {
-          "id": "b_7",
-          "text_en": "i IS",
-          "text_ru": "я есть",
-          "bbox": {
-            "x": 1249,
-            "y": 1675,
-            "width": 350,
-            "height": 215
-          },
-          "rel_x": 62.83,
-          "rel_y": 54.81,
-          "rel_w": 17.61,
-          "rel_h": 7.04,
-          "confidence": 50
-        },
-        {
-          "id": "b_8",
-          "text_en": "YOU WON'T HAVE YOU'RE GOING TO WALK THROUGH THE FRONT DOOR.",
-          "text_ru": "ВЫ НЕ СОБИРАЕТЕСЬ ПРОЙТИ ЧЕРЕЗ ВХОДНУЮ ДВЕРЬ.",
-          "bbox": {
-            "x": 96,
-            "y": 1910,
-            "width": 573,
+            "x": 380,
+            "y": 1105,
+            "width": 340,
             "height": 145
           },
-          "rel_x": 4.83,
-          "rel_y": 62.5,
-          "rel_w": 28.82,
+          "rel_x": 19.11,
+          "rel_y": 36.16,
+          "rel_w": 17.1,
           "rel_h": 4.74,
-          "confidence": 95
+          "confidence": 99
         },
         {
-          "id": "b_9",
-          "text_en": "TO SNEAK INTO",
-          "text_ru": "ПРОКРЫТЬСЯ В",
+          "id": "b_20_6",
+          "type": "bubble",
+          "text_en": "THEY HAVE TELEPATHS WHO LOOK AT YOU AND GO NEE-NRRR-NEE-NRR AND FIGURE OUT ALL YOUR PLANS!",
+          "text_ru": "У НИХ ТАМ ТЕЛЕПАТЫ, КОТОРЫЕ СМОТРЯТ НА ТЕБЯ И СВОИМИ МОЗГАМИ: ПИ-У-ПИ-У-ПИ — И ВЫВЕДАЮТ ВСЕ ТВОИ ПЛАНЫ!",
           "bbox": {
-            "x": 109,
-            "y": 1942,
-            "width": 270,
-            "height": 54
+            "x": 1030,
+            "y": 1000,
+            "width": 420,
+            "height": 185
           },
-          "rel_x": 5.48,
-          "rel_y": 63.55,
-          "rel_w": 13.58,
-          "rel_h": 1.77,
-          "confidence": 95
+          "rel_x": 51.81,
+          "rel_y": 32.72,
+          "rel_w": 21.13,
+          "rel_h": 6.05,
+          "confidence": 99
         },
         {
-          "id": "b_10",
-          "text_en": "LEAVE",
-          "text_ru": "ОСТАВЛЯТЬ",
+          "id": "b_20_7",
+          "type": "bubble",
+          "text_en": "OH, FOR GOD'S SAKE.",
+          "text_ru": "ОХ, РАДИ ВСЕГО СВЯТОГО.",
           "bbox": {
-            "x": 1176,
-            "y": 1994,
-            "width": 131,
-            "height": 54
+            "x": 1240,
+            "y": 1375,
+            "width": 240,
+            "height": 120
           },
-          "rel_x": 59.15,
-          "rel_y": 65.25,
-          "rel_w": 6.59,
-          "rel_h": 1.77,
-          "confidence": 97
+          "rel_x": 62.37,
+          "rel_y": 44.99,
+          "rel_w": 12.07,
+          "rel_h": 3.93,
+          "confidence": 99
         },
         {
-          "id": "b_11",
-          "text_en": "THE",
-          "text_ru": "ТО",
+          "id": "b_20_8",
+          "type": "bubble",
+          "text_en": "YOU WON'T HAVE TO SNEAK INTO ANYTHING.",
+          "text_ru": "ТЕБЕ НЕ ПРИДЁТСЯ НИКУДА ПРОКРАДЫВАТЬСЯ.",
           "bbox": {
-            "x": 1127,
-            "y": 2023,
-            "width": 99,
-            "height": 54
+            "x": 95,
+            "y": 1890,
+            "width": 285,
+            "height": 130
           },
-          "rel_x": 56.69,
-          "rel_y": 66.2,
-          "rel_w": 4.98,
-          "rel_h": 1.77,
-          "confidence": 97
+          "rel_x": 4.78,
+          "rel_y": 61.85,
+          "rel_w": 14.34,
+          "rel_h": 4.25,
+          "confidence": 99
+        },
+        {
+          "id": "b_20_9",
+          "type": "bubble",
+          "text_en": "YOU'RE GOING TO WALK THROUGH THE FRONT DOOR.",
+          "text_ru": "ТЫ ВОЙДЁШЬ ЧЕРЕЗ ГЛАВНУЮ ДВЕРЬ.",
+          "bbox": {
+            "x": 375,
+            "y": 1890,
+            "width": 300,
+            "height": 130
+          },
+          "rel_x": 18.86,
+          "rel_y": 61.85,
+          "rel_w": 15.09,
+          "rel_h": 4.25,
+          "confidence": 99
+        },
+        {
+          "id": "b_20_10",
+          "type": "bubble",
+          "text_en": "WHAT? HOW?",
+          "text_ru": "ЧТО? КАК?!",
+          "bbox": {
+            "x": 840,
+            "y": 1975,
+            "width": 170,
+            "height": 95
+          },
+          "rel_x": 42.25,
+          "rel_y": 64.63,
+          "rel_w": 8.55,
+          "rel_h": 3.11,
+          "confidence": 99
+        },
+        {
+          "id": "b_20_11",
+          "type": "bubble",
+          "text_en": "LEAVE THE DETAILS TO ME.",
+          "text_ru": "ДЕТАЛИ ОСТАВЬ МНЕ.",
+          "bbox": {
+            "x": 1140,
+            "y": 1975,
+            "width": 250,
+            "height": 130
+          },
+          "rel_x": 57.34,
+          "rel_y": 64.63,
+          "rel_w": 12.58,
+          "rel_h": 4.25,
+          "confidence": 99
         }
       ],
       "is_processed": true
@@ -2279,132 +2767,191 @@
       "trans_image_filename": "page_021_trans.jpg",
       "bubbles": [
         {
-          "id": "b_1",
-          "text_en": "FOR NOW ALL YOU NEED TO KNOW IS THIS I'M GOING TO CLOAK YOU FROM A DISTANCE. YOU'LL LOOK DIFFERENT. YOUR MIND WILL BE SHIELDED FROM TELEPATHIC INTERFERENCE.",
-          "text_ru": "НА СЕЙЧАС ВСЕ, ЧТО ТЕБЕ НУЖНО ЗНАТЬ, ЭТО, Я СОБИРАЮСЬ СКРЫТЬ ВАС НА ДИСТАНЦИИ. ВЫ БУДЕТЕ ВЫГЛЯДЕТЬ ПО-другому. ВАШ РАЗУМ БУДЕТ ЗАЩИЩЕН ОТ ТЕЛЕПАТИЧЕСКОГО ПОМЕХА.",
+          "id": "b_21_1",
+          "type": "bubble",
+          "text_en": "FOR NOW, ALL YOU NEED TO KNOW IS THIS: I'M GOING TO CLOAK YOU FROM A DISTANCE.",
+          "text_ru": "ПОКА ТЕБЕ НУЖНО ЗНАТЬ ЛИШЬ ОДНО: Я БУДУ МАСКИРОВАТЬ ТЕБЯ НА РАССТОЯНИИ.",
           "bbox": {
-            "x": 1274,
-            "y": 80,
-            "width": 593,
-            "height": 286
+            "x": 1285,
+            "y": 70,
+            "width": 570,
+            "height": 120
           },
-          "rel_x": 64.08,
-          "rel_y": 2.62,
-          "rel_w": 29.83,
-          "rel_h": 9.36,
-          "confidence": 95
+          "rel_x": 64.64,
+          "rel_y": 2.29,
+          "rel_w": 28.67,
+          "rel_h": 3.93,
+          "confidence": 99
         },
         {
-          "id": "b_2",
-          "text_en": "UNDER ORDINARY CIRCUMSTANCES I WOULD HAVE REFUSED.",
-          "text_ru": "ПРИ ОБЫЧНЫХ ОБСТОЯТЕЛЬСТВАХ Я БЫ ОТКАЗАЛСЯ.",
+          "id": "b_21_2",
+          "type": "bubble",
+          "text_en": "YOU'LL LOOK DIFFERENT. YOUR MIND WILL BE SHIELDED FROM TELEPATHIC INTERFERENCE.",
+          "text_ru": "ТЫ БУДЕШЬ ВЫГЛЯДЕТЬ ПО-ДРУГОМУ. ТВОЙ РАЗУМ БУДЕТ ЗАЩИЩЁН ОТ ТЕЛЕПАТИЧЕСКОГО ВМЕШАТЕЛЬСТВА.",
           "bbox": {
-            "x": 1380,
-            "y": 1027,
-            "width": 307,
-            "height": 146
-          },
-          "rel_x": 69.42,
-          "rel_y": 33.61,
-          "rel_w": 15.44,
-          "rel_h": 4.78,
-          "confidence": 96
-        },
-        {
-          "id": "b_3",
-          "text_en": "BUT YOU'RE AN EXCELLENT THIEF. AND I’M AN EXCELLENT TELEPATH. AND THIS IS IMPORTANT.",
-          "text_ru": "НО ТЫ ОТЛИЧНЫЙ ВОР. И Я ОТЛИЧНЫЙ ТЕЛЕПАТ. И ЭТО ВАЖНО.",
-          "bbox": {
-            "x": 533,
-            "y": 1360,
-            "width": 324,
-            "height": 234
-          },
-          "rel_x": 26.81,
-          "rel_y": 44.5,
-          "rel_w": 16.3,
-          "rel_h": 7.66,
-          "confidence": 92
-        },
-        {
-          "id": "b_4",
-          "text_en": "fo Mat",
-          "text_ru": "фо Мат",
-          "bbox": {
-            "x": 96,
-            "y": 1612,
-            "width": 172,
-            "height": 69
-          },
-          "rel_x": 4.83,
-          "rel_y": 52.75,
-          "rel_w": 8.65,
-          "rel_h": 2.26,
-          "confidence": 51
-        },
-        {
-          "id": "b_5",
-          "text_en": "BUT I COULDN'T SAY NO TO A WOMAN MADE OF DIAMONDS.",
-          "text_ru": "НО Я НЕ МОГ ОТКАЗАТЬ НЕТ ЖЕНЩИНЕ ИЗ БРИЛЛИАНТОВ.",
-          "bbox": {
-            "x": 91,
-            "y": 1971,
-            "width": 307,
-            "height": 146
-          },
-          "rel_x": 4.58,
-          "rel_y": 64.5,
-          "rel_w": 15.44,
-          "rel_h": 4.78,
-          "confidence": 95
-        },
-        {
-          "id": "b_6",
-          "text_en": "OKAY. ALL RIGHT. IF I FAIL IT's YOUR FUNERAL.",
-          "text_ru": "ХОРОШО. ВСЕ В ПОРЯДКЕ. ЕСЛИ Я НЕ УСПЕЮ, ЭТО ВАШИ ПОХОРОНЫ.",
-          "bbox": {
-            "x": 411,
-            "y": 1971,
-            "width": 289,
+            "x": 1400,
+            "y": 195,
+            "width": 490,
             "height": 145
           },
-          "rel_x": 20.67,
-          "rel_y": 64.5,
-          "rel_w": 14.54,
+          "rel_x": 70.42,
+          "rel_y": 6.38,
+          "rel_w": 24.65,
           "rel_h": 4.74,
-          "confidence": 95
+          "confidence": 99
         },
         {
-          "id": "b_7",
-          "text_en": "ABOUT",
-          "text_ru": "О",
+          "id": "b_21_3",
+          "type": "bubble",
+          "text_en": "SOUNDS RISKY.",
+          "text_ru": "ЗВУЧИТ РИСКОВАННО.",
+          "bbox": {
+            "x": 110,
+            "y": 1020,
+            "width": 205,
+            "height": 120
+          },
+          "rel_x": 5.53,
+          "rel_y": 33.38,
+          "rel_w": 10.31,
+          "rel_h": 3.93,
+          "confidence": 99
+        },
+        {
+          "id": "b_21_4",
+          "type": "bubble",
+          "text_en": "IT IS RISKY.",
+          "text_ru": "ЭТО И ЕСТЬ РИСК.",
+          "bbox": {
+            "x": 605,
+            "y": 1020,
+            "width": 175,
+            "height": 105
+          },
+          "rel_x": 30.43,
+          "rel_y": 33.38,
+          "rel_w": 8.8,
+          "rel_h": 3.44,
+          "confidence": 99
+        },
+        {
+          "id": "b_21_5",
+          "type": "bubble",
+          "text_en": "BUT YOU'RE AN EXCELLENT THIEF. AND I'M AN EXCELLENT TELEPATH. AND THIS IS IMPORTANT.",
+          "text_ru": "НО ТЫ ПРЕВОСХОДНАЯ ВОРОВКА. А Я ПРЕВОСХОДНЫЙ ТЕЛЕПАТ. И ЭТО ОЧЕНЬ ВАЖНО.",
+          "bbox": {
+            "x": 535,
+            "y": 1335,
+            "width": 320,
+            "height": 215
+          },
+          "rel_x": 26.91,
+          "rel_y": 43.68,
+          "rel_w": 16.1,
+          "rel_h": 7.04,
+          "confidence": 99
+        },
+        {
+          "id": "b_21_6",
+          "type": "caption",
+          "text_en": "UNDER ORDINARY CIRCUMSTANCES, I WOULD HAVE REFUSED.",
+          "text_ru": "ПРИ ОБЫЧНЫХ ОБСТОЯТЕЛЬСТВАХ Я БЫ ОТКАЗАЛАСЬ.",
+          "bbox": {
+            "x": 1385,
+            "y": 1020,
+            "width": 325,
+            "height": 140
+          },
+          "rel_x": 69.67,
+          "rel_y": 33.38,
+          "rel_w": 16.35,
+          "rel_h": 4.58,
+          "confidence": 99
+        },
+        {
+          "id": "b_21_7",
+          "type": "bubble",
+          "text_en": "WHEW.",
+          "text_ru": "ФУХ.",
+          "bbox": {
+            "x": 1750,
+            "y": 1795,
+            "width": 155,
+            "height": 85
+          },
+          "rel_x": 88.03,
+          "rel_y": 58.74,
+          "rel_w": 7.8,
+          "rel_h": 2.78,
+          "confidence": 99
+        },
+        {
+          "id": "b_21_8",
+          "type": "caption",
+          "text_en": "BUT I COULDN'T SAY NO TO A WOMAN MADE OF DIAMONDS.",
+          "text_ru": "НО Я НЕ СМОГЛА СКАЗАТЬ «НЕТ» ЖЕНЩИНЕ ИЗ ЧИСТЫХ АЛМАЗОВ.",
+          "bbox": {
+            "x": 95,
+            "y": 1975,
+            "width": 320,
+            "height": 140
+          },
+          "rel_x": 4.78,
+          "rel_y": 64.63,
+          "rel_w": 16.1,
+          "rel_h": 4.58,
+          "confidence": 99
+        },
+        {
+          "id": "b_21_9",
+          "type": "bubble",
+          "text_en": "OKAY. ALL RIGHT. IF I FAIL, IT'S YOUR FUNERAL.",
+          "text_ru": "ЛАДНО. ХОРОШО. ЕСЛИ Я ПОПАДУСЬ — ЭТО БУДУТ ТВОИ ПОХОРОНЫ.",
+          "bbox": {
+            "x": 415,
+            "y": 1975,
+            "width": 315,
+            "height": 130
+          },
+          "rel_x": 20.88,
+          "rel_y": 64.63,
+          "rel_w": 15.85,
+          "rel_h": 4.25,
+          "confidence": 99
+        },
+        {
+          "id": "b_21_10",
+          "type": "bubble",
+          "text_en": "WHERE ARE THESE X-PEOPLE? I'M NOT GOING ANYWHERE COLD.",
+          "text_ru": "ГДЕ ЭТИ ЛЮДИ ИКС? ТОЛЬКО НЕ ГОТОВА ЕХАТЬ В ХОЛОД.",
+          "bbox": {
+            "x": 595,
+            "y": 2065,
+            "width": 285,
+            "height": 215
+          },
+          "rel_x": 29.93,
+          "rel_y": 67.57,
+          "rel_w": 14.34,
+          "rel_h": 7.04,
+          "confidence": 99
+        },
+        {
+          "id": "b_21_11",
+          "type": "bubble",
+          "text_en": "ABOUT THAT...",
+          "text_ru": "НАСЧЁТ ЭТОГО...",
           "bbox": {
             "x": 1680,
-            "y": 2022,
-            "width": 145,
-            "height": 54
+            "y": 2005,
+            "width": 195,
+            "height": 100
           },
           "rel_x": 84.51,
-          "rel_y": 66.16,
-          "rel_w": 7.29,
-          "rel_h": 1.77,
-          "confidence": 97
-        },
-        {
-          "id": "b_8",
-          "text_en": "WHERE ARE THESE X-PEOPLE? I'M NOT GOING ANYWHERE COLD.",
-          "text_ru": "ГДЕ ЭТИ ИКС-ЛЮДИ? Я НИКУДА НЕ ПОЕДУ ХОЛОДНО.",
-          "bbox": {
-            "x": 588,
-            "y": 2071,
-            "width": 271,
-            "height": 204
-          },
-          "rel_x": 29.58,
-          "rel_y": 67.77,
-          "rel_w": 13.63,
-          "rel_h": 6.68,
-          "confidence": 92
+          "rel_y": 65.61,
+          "rel_w": 9.81,
+          "rel_h": 3.27,
+          "confidence": 99
         }
       ],
       "is_processed": true
@@ -2417,20 +2964,38 @@
       "trans_image_filename": "page_022_trans.jpg",
       "bubbles": [
         {
-          "id": "b_1",
-          "text_en": "PACK FOR",
-          "text_ru": "ПАКЕТ ДЛЯ",
+          "id": "b_22_1",
+          "type": "bubble",
+          "text_en": "...PACK FOR ALASKA.",
+          "text_ru": "...СОБИРАЙСЯ НА АЛЯСКУ.",
           "bbox": {
-            "x": 359,
-            "y": 116,
-            "width": 218,
-            "height": 54
+            "x": 355,
+            "y": 100,
+            "width": 260,
+            "height": 130
           },
-          "rel_x": 18.06,
-          "rel_y": 3.8,
-          "rel_w": 10.97,
-          "rel_h": 1.77,
-          "confidence": 94
+          "rel_x": 17.86,
+          "rel_y": 3.27,
+          "rel_w": 13.08,
+          "rel_h": 4.25,
+          "confidence": 99
+        },
+        {
+          "id": "b_22_2",
+          "type": "caption",
+          "text_en": "NEXT: X-CURSION!",
+          "text_ru": "В СЛЕДУЮЩЕМ ВЫПУСКЕ: ИКС-КУРСИЯ!",
+          "bbox": {
+            "x": 1340,
+            "y": 2865,
+            "width": 570,
+            "height": 100
+          },
+          "rel_x": 67.4,
+          "rel_y": 93.75,
+          "rel_w": 28.67,
+          "rel_h": 3.27,
+          "confidence": 99
         }
       ],
       "is_processed": true
@@ -2443,196 +3008,72 @@
       "trans_image_filename": "page_023_trans.jpg",
       "bubbles": [
         {
-          "id": "b_1",
-          "text_en": "J FRIENDLY NEIGHBORHOOD MARY JANE J MARVEL MEOW STRANGE SCALES J MILES MORALES SPIDER-MAN",
-          "text_ru": "J ДРУЖЕСТВЕННОЕ СОСЕДСТВО МЭРИ ДЖЕЙН J МАРВЕЛ МЯУ СТРАННЫЕ ВЕСЫ J МАЙЛЗ МОРАЛЕС ЧЕЛОВЕК-ПАУК",
+          "id": "b_23_1",
+          "type": "caption",
+          "text_en": "SPIDERS & SYMBIOTES - THE LOWE-DOWN",
+          "text_ru": "ПАУКИ И СИМБИОТЫ — РАЗБОР ОТ ЛОУ",
           "bbox": {
-            "x": 1337,
-            "y": 673,
-            "width": 559,
-            "height": 203
+            "x": 130,
+            "y": 50,
+            "width": 1720,
+            "height": 160
           },
-          "rel_x": 67.25,
-          "rel_y": 22.02,
-          "rel_w": 28.12,
-          "rel_h": 6.64,
-          "confidence": 92
+          "rel_x": 6.54,
+          "rel_y": 1.64,
+          "rel_w": 86.52,
+          "rel_h": 5.24,
+          "confidence": 99
         },
         {
-          "id": "b_2",
-          "text_en": "WELCOME BACK WEB HEADS!",
-          "text_ru": "ДОБРО ПОЖАЛОВАТЬ ВЕБ-ГЛАВАМ!",
+          "id": "b_23_2",
+          "type": "caption",
+          "text_en": "WELCOME BACK, WEB-HEADS!",
+          "text_ru": "ДОБРО ПОЖАЛОВАТЬ, ПАУТИНОГОЛОВЫЕ!",
           "bbox": {
-            "x": 118,
-            "y": 780,
-            "width": 598,
-            "height": 125
+            "x": 130,
+            "y": 510,
+            "width": 600,
+            "height": 90
           },
-          "rel_x": 5.94,
-          "rel_y": 25.52,
-          "rel_w": 30.08,
-          "rel_h": 4.09,
-          "confidence": 95
+          "rel_x": 6.54,
+          "rel_y": 16.69,
+          "rel_w": 30.18,
+          "rel_h": 2.95,
+          "confidence": 99
         },
         {
-          "id": "b_3",
-          "text_en": "supporting character turned MAIN character in comics gets a new series FRIENDLY NEIGHBORHOOD MARY JANE from ASHLEY ALLEN and PHIL NOTO!!! to her theater roots but she",
-          "text_ru": "Второстепенный персонаж, ставший ГЛАВНЫМ персонажем комиксов, получает новый сериал «ДРУЖЕСТВЕННОЕ СОСЕДСТВО МЭРИ ДЖЕЙН» от ЭШЛИ АЛЛЕНА и ФИЛА НОТО!!! к своим театральным корням, но она",
+          "id": "b_23_3",
+          "type": "caption",
+          "text_en": "Lot to be thankful for this November, but nothing may be quite as exciting as our two big launches! SPIDER-WOMAN gets her most gripping series yet...",
+          "text_ru": "В этом ноябре есть за что поблагодарить судьбу, но ничто не сравнится с двумя грандиозными запусками! «ЖЕНЩИНА-ПАУК» получает самую захватывающую серию от ДЭНА УОТТЕРСА...",
           "bbox": {
-            "x": 701,
-            "y": 777,
-            "width": 608,
-            "height": 386
+            "x": 130,
+            "y": 600,
+            "width": 600,
+            "height": 520
           },
-          "rel_x": 35.26,
-          "rel_y": 25.43,
-          "rel_w": 30.58,
-          "rel_h": 12.63,
-          "confidence": 95
+          "rel_x": 6.54,
+          "rel_y": 19.63,
+          "rel_w": 30.18,
+          "rel_h": 17.02,
+          "confidence": 99
         },
         {
-          "id": "b_4",
-          "text_en": "Lot to be thankful for this November but nothing may be quite as exciting as our two big launches! SPIDER WOMAN gets maybe her most gripping series yet courtesy of DAN WATTERS and ANDREA",
-          "text_ru": "Мы можем быть благодарны за ноябрь этого года, но нет ничего более захватывающего, чем наши два больших запуска! «ЖЕНЩИНА-ПАУК» получит, возможно, самый захватывающий сериал благодаря Дэну Уоттерсу и АНДРЕА.",
+          "id": "b_23_4",
+          "type": "caption",
+          "text_en": "THIS MONTH'S HOST: R.B. SILVA",
+          "text_ru": "ГОСТЬ МЕСЯЦА: Р. Б. СИЛЬВА",
           "bbox": {
-            "x": 114,
-            "y": 919,
-            "width": 608,
-            "height": 381
+            "x": 130,
+            "y": 1130,
+            "width": 600,
+            "height": 90
           },
-          "rel_x": 5.73,
-          "rel_y": 30.07,
-          "rel_w": 30.58,
-          "rel_h": 12.47,
-          "confidence": 96
-        },
-        {
-          "id": "b_5",
-          "text_en": "back",
-          "text_ru": "назад",
-          "bbox": {
-            "x": 1161,
-            "y": 1033,
-            "width": 138,
-            "height": 68
-          },
-          "rel_x": 58.4,
-          "rel_y": 33.8,
-          "rel_w": 6.94,
-          "rel_h": 2.23,
-          "confidence": 97
-        },
-        {
-          "id": "b_6",
-          "text_en": "doesn’t know CHAMELEON is one of her co-stars! Both of those plus Spidey’s new role in AVENGERS and month two of MIDNIGHT? It's a Thanksgiving cornucopia of comics!",
-          "text_ru": "не знает, что ХАМЕЛЕОН — один из ее коллег! И то, и другое плюс новая роль Спайди в «Мстителях» и второй месяц «Полночи»? Это рог изобилия комиксов на День Благодарения!",
-          "bbox": {
-            "x": 700,
-            "y": 1127,
-            "width": 609,
-            "height": 338
-          },
-          "rel_x": 35.21,
-          "rel_y": 36.88,
-          "rel_w": 30.63,
-          "rel_h": 11.06,
-          "confidence": 93
-        },
-        {
-          "id": "b_7",
-          "text_en": "BROCCARDO! Jess back to the street level investigating for BEN URICH and the BUGLE but things will be complicated by her new bond with the CARNAGE symbiote! Meanwhile the best",
-          "text_ru": "БРОККАРДО! Джесс возвращается на уличный уровень, расследуя дело БЕНА УРИХА и БОГЛА, но все осложняется ее новой связью с симбиотом КАРНАЖ! При этом лучший",
-          "bbox": {
-            "x": 115,
-            "y": 1269,
-            "width": 608,
-            "height": 389
-          },
-          "rel_x": 5.78,
-          "rel_y": 41.52,
-          "rel_w": 30.58,
-          "rel_h": 12.73,
-          "confidence": 94
-        },
-        {
-          "id": "b_8",
-          "text_en": "taking",
-          "text_ru": "принимая",
-          "bbox": {
-            "x": 547,
-            "y": 1272,
-            "width": 169,
-            "height": 83
-          },
-          "rel_x": 27.52,
-          "rel_y": 41.62,
-          "rel_w": 8.5,
-          "rel_h": 2.72,
-          "confidence": 97
-        },
-        {
-          "id": "b_9",
-          "text_en": "Keep Thwippin Nick Lowe Spider-Editor",
-          "text_ru": "Keep Thwippin Ник Лоу Паук-редактор",
-          "bbox": {
-            "x": 951,
-            "y": 1478,
-            "width": 357,
-            "height": 186
-          },
-          "rel_x": 47.84,
-          "rel_y": 48.36,
-          "rel_w": 17.96,
-          "rel_h": 6.09,
-          "confidence": 93
-        },
-        {
-          "id": "b_10",
-          "text_en": "J SPIDER-WOMAN J AMAZING SPIDER-MAN",
-          "text_ru": "J ЖЕНЩИНА-ПАУК J УДИВИТЕЛЬНЫЙ ЧЕЛОВЕК-ПАУК",
-          "bbox": {
-            "x": 1338,
-            "y": 1528,
-            "width": 419,
-            "height": 116
-          },
-          "rel_x": 67.3,
-          "rel_y": 50.0,
-          "rel_w": 21.08,
-          "rel_h": 3.8,
-          "confidence": 85
-        },
-        {
-          "id": "b_11",
-          "text_en": "BLACK CAT SPIDER-MAN LONG WAY HOME J SPIDER-MAN HULK FIRE BRIMSTONE J MIDNIGHT FANTASTIC FOUR J MIDNIGHT SPIDER-MAN J MIDNIGHT X-MEN J AMAZING SPIDER-MAN",
-          "text_ru": "ЧЕРНЫЙ КОШКА ЧЕЛОВЕК-ПАУК ДОЛГИЙ ПУТЬ ДОМОЙ J ЧЕЛОВЕК-ПАУК ХАЛК ОГОНЬ СЕРА J ПОЛНОЧНАЯ ФАНТАСТИЧЕСКАЯ ЧЕТВЕРКА J ПОЛНОЧНЫЙ ЧЕЛОВЕК-ПАУК J ПОЛНОЧНЫЕ ЛЮДИ ИКС J УДИВИТЕЛЬНЫЙ ЧЕЛОВЕК-ПАУК",
-          "bbox": {
-            "x": 1335,
-            "y": 2258,
-            "width": 541,
-            "height": 390
-          },
-          "rel_x": 67.15,
-          "rel_y": 73.89,
-          "rel_w": 27.21,
-          "rel_h": 12.76,
-          "confidence": 92
-        },
-        {
-          "id": "b_12",
-          "text_en": "J SPECTACULAR SPIDER-MAN J THE AMAZING VENOM J VENOM",
-          "text_ru": "J ЗАХВАТЫВАЮЩИЙ ЧЕЛОВЕК-ПАУК J УДИВИТЕЛЬНЫЙ ВЕНОМ J ВЕНОМ",
-          "bbox": {
-            "x": 1337,
-            "y": 2623,
-            "width": 491,
-            "height": 165
-          },
-          "rel_x": 67.25,
-          "rel_y": 85.83,
-          "rel_w": 24.7,
-          "rel_h": 5.4,
-          "confidence": 87
+          "rel_x": 6.54,
+          "rel_y": 36.98,
+          "rel_w": 30.18,
+          "rel_h": 2.95,
+          "confidence": 99
         }
       ],
       "is_processed": true
@@ -2645,148 +3086,55 @@
       "trans_image_filename": "page_024_trans.jpg",
       "bubbles": [
         {
-          "id": "b_1",
-          "text_en": "EMERALD BENSADOUN KAITLYN LINDTVEDT KAEDEN McGAHEY Assistant Editors",
-          "text_ru": "ИЗУМРУД БЕНСАДУН КЕЙТЛИН ЛИНДТВЕДТ КЕЙДЕН МакГЭИ Помощники редактора",
+          "id": "b_24_1",
+          "type": "caption",
+          "text_en": "PANEL OF THE MONTH: MILES MORALES: SPIDER-MAN #4",
+          "text_ru": "КАДР МЕСЯЦА: МАЙЛЗ МОРАЛЕС: ЧЕЛОВЕК-ПАУК #4",
           "bbox": {
-            "x": 657,
-            "y": 164,
-            "width": 1185,
-            "height": 69
+            "x": 55,
+            "y": 250,
+            "width": 590,
+            "height": 170
           },
-          "rel_x": 33.05,
-          "rel_y": 5.37,
-          "rel_w": 59.61,
-          "rel_h": 2.26,
-          "confidence": 93
+          "rel_x": 2.77,
+          "rel_y": 8.18,
+          "rel_w": 29.68,
+          "rel_h": 5.56,
+          "confidence": 99
         },
         {
-          "id": "b_2",
-          "text_en": "TOM GRONEMAN Associate Editor JORDAN D. WHITE Senior Editor",
-          "text_ru": "ТОМ ГРОНМАН Заместитель редактора ДЖОРДАН Д. УАЙТ Старший редактор",
+          "id": "b_24_2",
+          "type": "caption",
+          "text_en": "MIDNIGHT WHISPERS",
+          "text_ru": "ПОЛУНОЧНЫЙ ШЕПОТ",
           "bbox": {
-            "x": 779,
-            "y": 206,
-            "width": 941,
-            "height": 61
+            "x": 670,
+            "y": 1090,
+            "width": 600,
+            "height": 130
           },
-          "rel_x": 39.19,
-          "rel_y": 6.74,
-          "rel_w": 47.33,
-          "rel_h": 2.0,
-          "confidence": 94
+          "rel_x": 33.7,
+          "rel_y": 35.67,
+          "rel_w": 30.18,
+          "rel_h": 4.25,
+          "confidence": 99
         },
         {
-          "id": "b_3",
-          "text_en": "NICK LOWE Executive Editor",
-          "text_ru": "НИК ЛОУ, исполнительный редактор",
+          "id": "b_24_3",
+          "type": "caption",
+          "text_en": "EDGE OF THE VARIANT-VERSE",
+          "text_ru": "КРАЙ ВАРИАНТНОГО ВЕРСА",
           "bbox": {
-            "x": 1033,
-            "y": 245,
-            "width": 434,
-            "height": 61
+            "x": 1310,
+            "y": 830,
+            "width": 560,
+            "height": 140
           },
-          "rel_x": 51.96,
-          "rel_y": 8.02,
-          "rel_w": 21.83,
-          "rel_h": 2.0,
-          "confidence": 96
-        },
-        {
-          "id": "b_4",
-          "text_en": "PANEL OF THE MONTH MILES MORALES SPIDER-MAN page panel art by NICO LEON",
-          "text_ru": "ПАНЕЛЬ МЕСЯЦА МАЙЛЗ МОРАЛЕС ЧЕЛОВЕК-ПАУК панно на странице НИКО ЛЕОНА",
-          "bbox": {
-            "x": 46,
-            "y": 398,
-            "width": 556,
-            "height": 230
-          },
-          "rel_x": 2.31,
-          "rel_y": 13.02,
-          "rel_w": 27.97,
-          "rel_h": 7.53,
-          "confidence": 93
-        },
-        {
-          "id": "b_5",
-          "text_en": "VARIANT",
-          "text_ru": "ВАРИАНТ",
-          "bbox": {
-            "x": 1279,
-            "y": 1387,
-            "width": 381,
-            "height": 157
-          },
-          "rel_x": 64.34,
-          "rel_y": 45.39,
-          "rel_w": 19.16,
-          "rel_h": 5.14,
-          "confidence": 87
-        },
-        {
-          "id": "b_6",
-          "text_en": "WHISPERS As the chime rings out in the middle of the night three tales of madness and terror unfold! Peter Parker’s transformation into something not quite human takes",
-          "text_ru": "ШЕПОТ Когда посреди ночи раздается звон колоколов, разворачиваются три истории безумия и ужаса! Превращение Питера Паркера в нечто не совсем человеческое происходит",
-          "bbox": {
-            "x": 639,
-            "y": 1858,
-            "width": 630,
-            "height": 396
-          },
-          "rel_x": 32.14,
-          "rel_y": 60.8,
-          "rel_w": 31.69,
-          "rel_h": 12.96,
-          "confidence": 96
-        },
-        {
-          "id": "b_7",
-          "text_en": "him past lines he never dreamed he would cross in MIDNIGHT SPIDER-MAN. Meanwhile Reed Richards continues to delve into the dangerous mysteries of the universe at all costs in MIDNIGHT FANTASTIC FOUR. And in",
-          "text_ru": "он миновал линии, которые он никогда и не мечтал пересечь в «ПОЛНОЧНОМ ЧЕЛОВЕКЕ-ПАУКЕ». Тем временем Рид Ричардс продолжает любой ценой копаться в опасных тайнах вселенной в «ПОЛНОЧНОЙ ФАНТАСТИЧЕСКОЙ ЧЕТВЕРКЕ». И в",
-          "bbox": {
-            "x": 645,
-            "y": 2215,
-            "width": 619,
-            "height": 372
-          },
-          "rel_x": 32.44,
-          "rel_y": 72.48,
-          "rel_w": 31.14,
-          "rel_h": 12.17,
-          "confidence": 96
-        },
-        {
-          "id": "b_8",
-          "text_en": "FANTASTIC FOUR",
-          "text_ru": "ФАНТАСТИЧЕСКАЯ ЧЕТВЕРКА",
-          "bbox": {
-            "x": 76,
-            "y": 2274,
-            "width": 282,
-            "height": 83
-          },
-          "rel_x": 3.82,
-          "rel_y": 74.41,
-          "rel_w": 14.19,
-          "rel_h": 2.72,
-          "confidence": 70
-        },
-        {
-          "id": "b_9",
-          "text_en": "MIDNIGHT X-MEN Cyclops shows us what a man will do for love. Fear the coming of the midnight hour...but know it cannot be stopped.",
-          "text_ru": "ПОЛНОЧНЫЕ ЛЮДИ ИКС Циклоп показывает нам, на что пойдет человек ради любви. Бойтесь наступления полуночи... но знайте, что ее невозможно остановить.",
-          "bbox": {
-            "x": 645,
-            "y": 2558,
-            "width": 619,
-            "height": 276
-          },
-          "rel_x": 32.44,
-          "rel_y": 83.7,
-          "rel_w": 31.14,
-          "rel_h": 9.03,
-          "confidence": 96
+          "rel_x": 65.9,
+          "rel_y": 27.16,
+          "rel_w": 28.17,
+          "rel_h": 4.58,
+          "confidence": 99
         }
       ],
       "is_processed": true
@@ -2799,20 +3147,38 @@
       "trans_image_filename": "page_025_trans.jpg",
       "bubbles": [
         {
-          "id": "b_1",
-          "text_en": "CON N",
-          "text_ru": "КОН Н",
+          "id": "b_25_1",
+          "type": "caption",
+          "text_en": "NEXT",
+          "text_ru": "ДАЛЕЕ",
           "bbox": {
-            "x": 1131,
-            "y": 686,
-            "width": 217,
-            "height": 107
+            "x": 270,
+            "y": 180,
+            "width": 420,
+            "height": 120
           },
-          "rel_x": 56.89,
-          "rel_y": 22.45,
-          "rel_w": 10.92,
-          "rel_h": 3.5,
-          "confidence": 62
+          "rel_x": 13.58,
+          "rel_y": 5.89,
+          "rel_w": 21.13,
+          "rel_h": 3.93,
+          "confidence": 99
+        },
+        {
+          "id": "b_25_2",
+          "type": "caption",
+          "text_en": "#17 ON SALE: 12/9/26",
+          "text_ru": "#17 В ПРОДАЖЕ: 09.12.2026",
+          "bbox": {
+            "x": 1290,
+            "y": 1710,
+            "width": 540,
+            "height": 180
+          },
+          "rel_x": 64.89,
+          "rel_y": 55.96,
+          "rel_w": 27.16,
+          "rel_h": 5.89,
+          "confidence": 99
         }
       ],
       "is_processed": true
@@ -2825,100 +3191,38 @@
       "trans_image_filename": "page_026_trans.jpg",
       "bubbles": [
         {
-          "id": "b_1",
-          "text_en": "\"COUER BY-JOELLE JONES",
-          "text_ru": "\"КУЭР БАЙ-ДЖОЭЛЬ ДЖОНС\"",
+          "id": "b_26_1",
+          "type": "caption",
+          "text_en": "A NEW CHAPTER FOR JEAN & THE X-MEN BEGINS HERE!",
+          "text_ru": "НОВАЯ ГЛАВА ДЛЯ ДЖИН И ЛЮДЕЙ ИКС НАЧИНАЕТСЯ ЗДЕСЬ!",
           "bbox": {
-            "x": 556,
-            "y": 991,
-            "width": 815,
-            "height": 142
+            "x": 65,
+            "y": 1190,
+            "width": 800,
+            "height": 320
           },
-          "rel_x": 27.97,
-          "rel_y": 32.43,
-          "rel_w": 41.0,
-          "rel_h": 4.65,
-          "confidence": 66
+          "rel_x": 3.27,
+          "rel_y": 38.94,
+          "rel_w": 40.24,
+          "rel_h": 10.47,
+          "confidence": 99
         },
         {
-          "id": "b_2",
-          "text_en": "PTER FOR JEA",
-          "text_ru": "ПТЕР ДЛЯ СЭА",
+          "id": "b_26_2",
+          "type": "caption",
+          "text_en": "READ ON FOR A SPECIAL PREVIEW OF JEAN GREY #1!",
+          "text_ru": "ЧИТАЙТЕ ДАЛЕЕ СПЕЦИАЛЬНОЕ ПРЕВЬЮ ВЫПУСКА «ДЖИН ГРЕЙ #1»!",
           "bbox": {
-            "x": 284,
-            "y": 1806,
-            "width": 363,
-            "height": 114
+            "x": 350,
+            "y": 1860,
+            "width": 1520,
+            "height": 110
           },
-          "rel_x": 14.29,
-          "rel_y": 59.1,
-          "rel_w": 18.26,
-          "rel_h": 3.73,
-          "confidence": 86
-        },
-        {
-          "id": "b_3",
-          "text_en": "THE",
-          "text_ru": "ТО",
-          "bbox": {
-            "x": 658,
-            "y": 1806,
-            "width": 159,
-            "height": 114
-          },
-          "rel_x": 33.1,
-          "rel_y": 59.1,
-          "rel_w": 8.0,
-          "rel_h": 3.73,
-          "confidence": 96
-        },
-        {
-          "id": "b_4",
-          "text_en": "MARVEL",
-          "text_ru": "МАРВЕЛ",
-          "bbox": {
-            "x": 63,
-            "y": 2852,
-            "width": 213,
-            "height": 102
-          },
-          "rel_x": 3.17,
-          "rel_y": 93.32,
-          "rel_w": 10.71,
-          "rel_h": 3.34,
-          "confidence": 97
-        },
-        {
-          "id": "b_5",
-          "text_en": "READ ON FOR A SPEGIAL",
-          "text_ru": "ЧИТАЙТЕ СПЕЦИАЛЬНУЮ СПЕЦИАЛЬНУЮ",
-          "bbox": {
-            "x": 309,
-            "y": 2852,
-            "width": 687,
-            "height": 128
-          },
-          "rel_x": 15.54,
-          "rel_y": 93.32,
-          "rel_w": 34.56,
-          "rel_h": 4.19,
-          "confidence": 94
-        },
-        {
-          "id": "b_6",
-          "text_en": "OF JEAN GREY",
-          "text_ru": "ДЖИН ГРЕЙ",
-          "bbox": {
-            "x": 1165,
-            "y": 2852,
-            "width": 432,
-            "height": 128
-          },
-          "rel_x": 58.6,
-          "rel_y": 93.32,
-          "rel_w": 21.73,
-          "rel_h": 4.19,
-          "confidence": 81
+          "rel_x": 17.61,
+          "rel_y": 60.86,
+          "rel_w": 76.46,
+          "rel_h": 3.6,
+          "confidence": 99
         }
       ],
       "is_processed": true
@@ -2931,132 +3235,157 @@
       "trans_image_filename": "page_027_trans.jpg",
       "bubbles": [
         {
-          "id": "b_1",
+          "id": "b_27_1",
+          "type": "caption",
           "text_en": "CONTROL.",
           "text_ru": "КОНТРОЛЬ.",
           "bbox": {
-            "x": 1341,
-            "y": 216,
-            "width": 174,
-            "height": 56
+            "x": 1350,
+            "y": 210,
+            "width": 185,
+            "height": 80
           },
-          "rel_x": 67.45,
-          "rel_y": 7.07,
-          "rel_w": 8.75,
-          "rel_h": 1.83,
-          "confidence": 97
+          "rel_x": 67.91,
+          "rel_y": 6.87,
+          "rel_w": 9.31,
+          "rel_h": 2.62,
+          "confidence": 99
         },
         {
-          "id": "b_2",
-          "text_en": "AND CHIEF AMONGST THEM IS",
-          "text_ru": "И ГЛАВНЫЙ СРЕДИ НИХ ЯВЛЯЕТСЯ",
+          "id": "b_27_2",
+          "type": "bubble",
+          "text_en": "CONTROL.",
+          "text_ru": "КОНТРОЛЬ.",
           "bbox": {
-            "x": 1356,
-            "y": 660,
-            "width": 296,
-            "height": 88
+            "x": 455,
+            "y": 655,
+            "width": 180,
+            "height": 80
           },
-          "rel_x": 68.21,
-          "rel_y": 21.6,
-          "rel_w": 14.89,
-          "rel_h": 2.88,
-          "confidence": 95
+          "rel_x": 22.89,
+          "rel_y": 21.43,
+          "rel_w": 9.05,
+          "rel_h": 2.62,
+          "confidence": 99
         },
         {
-          "id": "b_3",
-          "text_en": "I HAVE LEARNED MANY LESSONS OVER THE COURSE OF MY LIFE JEAN. LESSONS HARD-TAUGHT FROM A SYLLABUS OF SUFFERING AND DIFFICULTY.",
-          "text_ru": "Я ПОЛУЧИЛ МНОГИЕ УРОКИ ЗА СВОЮ ЖИЗНЬ, ДЖАН. УРОКИ, ИЗГОТОВЛЕННЫЕ ИЗ ТЯЖЕЛОГО ПРОГРАММЫ СТРАДАНИЙ И ТРУДНОСТЕЙ.",
+          "id": "b_27_3",
+          "type": "bubble",
+          "text_en": "I HAVE LEARNED MANY LESSONS OVER THE COURSE OF MY LIFE, JEAN. LESSONS HARD-TAUGHT FROM A SYLLABUS OF SUFFERING AND DIFFICULTY.",
+          "text_ru": "Я УСВОИЛ МНОЖЕСТВО УРОКОВ ЗА СВОЮ ЖИЗНЬ, ДЖИН. УРОКОВ, ДАВШИХСЯ НЕИМОВЕРНО ТЯЖЕЛО — ЧЕРЕЗ СТРАДАНИЯ И ПРЕПЯТСТВИЯ.",
           "bbox": {
-            "x": 761,
-            "y": 662,
-            "width": 465,
-            "height": 207
+            "x": 770,
+            "y": 655,
+            "width": 460,
+            "height": 215
           },
-          "rel_x": 38.28,
-          "rel_y": 21.66,
-          "rel_w": 23.39,
-          "rel_h": 6.77,
-          "confidence": 93
+          "rel_x": 38.73,
+          "rel_y": 21.43,
+          "rel_w": 23.14,
+          "rel_h": 7.04,
+          "confidence": 99
         },
         {
-          "id": "b_4",
-          "text_en": "WE ARE MUTANTS. WE CAN DO THINGS THAT NO ONE ELSE CAN DO BUT WITHOUT CONTROL THERE IS DANGER.",
-          "text_ru": "МЫ МУТАНТЫ. МЫ МОЖЕМ ДЕЛАТЬ ВЕЩИ, ЧТО НИКТО ДРУГОЙ НЕ МОЖЕТ СДЕЛАТЬ, НО БЕЗ КОНТРОЛЯ ЕСТЬ ОПАСНОСТЬ.",
+          "id": "b_27_4",
+          "type": "bubble",
+          "text_en": "AND CHIEF AMONGST THEM IS CONTROL.",
+          "text_ru": "И ГЛАВНЫЙ СРЕДИ НИХ — КОНТРОЛЬ.",
           "bbox": {
-            "x": 1447,
-            "y": 763,
-            "width": 402,
+            "x": 1370,
+            "y": 655,
+            "width": 305,
+            "height": 130
+          },
+          "rel_x": 68.91,
+          "rel_y": 21.43,
+          "rel_w": 15.34,
+          "rel_h": 4.25,
+          "confidence": 99
+        },
+        {
+          "id": "b_27_5",
+          "type": "bubble",
+          "text_en": "WE ARE MUTANTS. WE CAN DO THINGS THAT NO ONE ELSE CAN DO, BUT WITHOUT CONTROL, THERE IS DANGER.",
+          "text_ru": "МЫ — МУТАНТЫ. МЫ МОЖЕМ ТО, ЧЕГО НЕ МОЖЕТ НИКТО ДРУГОЙ, НО БЕЗ КОНТРОЛЯ ТАИТСЯ ОПАСНОСТЬ.",
+          "bbox": {
+            "x": 1455,
+            "y": 765,
+            "width": 415,
             "height": 180
           },
-          "rel_x": 72.79,
-          "rel_y": 24.97,
-          "rel_w": 20.22,
+          "rel_x": 73.19,
+          "rel_y": 25.03,
+          "rel_w": 20.88,
           "rel_h": 5.89,
-          "confidence": 96
+          "confidence": 99
         },
         {
-          "id": "b_5",
-          "text_en": "f A",
-          "text_ru": "ж А",
+          "id": "b_27_6",
+          "type": "bubble",
+          "text_en": "LESSONS I WISH TO PASS ON TO YOUR GENERATION OF MUTANTS SO THEY NEEDN'T SUFFER IN THE SAME WAY.",
+          "text_ru": "ЭТИ УРОКИ Я ХОЧУ ПЕРЕДАТЬ ТВОЕМУ ПОКОЛЕНИЮ МУТАНТОВ, ЧТОБЫ ВАМ НЕ ПРИШЛОСЬ СТРАДАТЬ ТАК ЖЕ.",
           "bbox": {
-            "x": 43,
-            "y": 851,
-            "width": 139,
-            "height": 88
+            "x": 900,
+            "y": 1300,
+            "width": 385,
+            "height": 175
           },
-          "rel_x": 2.16,
-          "rel_y": 27.85,
-          "rel_w": 6.99,
-          "rel_h": 2.88,
-          "confidence": 66
+          "rel_x": 45.27,
+          "rel_y": 42.54,
+          "rel_w": 19.37,
+          "rel_h": 5.73,
+          "confidence": 99
         },
         {
-          "id": "b_6",
-          "text_en": "VA LESSONS I WISH TO PASS ON TO YOUR GENERATION OF MUTANTS SO THEY NEEDN'T SUFFER IN THE SAME WAY.",
-          "text_ru": "УРОКИ ВА, КОТОРЫЕ Я ХОЧУ ПЕРЕДАТЬ ВАШЕМУ ПОКОЛЕНИЮ МУТАНТОВ, ЧТОБЫ ИМ НЕ НУЖНО СТРАДАТЬ ТАКИМ же образом.",
-          "bbox": {
-            "x": 883,
-            "y": 1231,
-            "width": 394,
-            "height": 262
-          },
-          "rel_x": 44.42,
-          "rel_y": 40.28,
-          "rel_w": 19.82,
-          "rel_h": 8.57,
-          "confidence": 88
-        },
-        {
-          "id": "b_7",
+          "id": "b_27_7",
+          "type": "bubble",
           "text_en": "SCOTT CAN KILL SOMEONE BY LOOKING AT THEM.",
-          "text_ru": "СКОТТ МОЖЕТ УБИТЬ КОГО-ТО, ПОСМОТРЕВ НА НЕГО.",
+          "text_ru": "СКОТТ МОЖЕТ УБИТЬ ЧЕЛОВЕКА ВЗГЛЯДОМ.",
           "bbox": {
-            "x": 490,
-            "y": 2022,
-            "width": 241,
-            "height": 148
+            "x": 520,
+            "y": 1980,
+            "width": 225,
+            "height": 175
           },
-          "rel_x": 24.65,
-          "rel_y": 66.16,
-          "rel_w": 12.12,
-          "rel_h": 4.84,
-          "confidence": 96
+          "rel_x": 26.16,
+          "rel_y": 64.79,
+          "rel_w": 11.32,
+          "rel_h": 5.73,
+          "confidence": 99
         },
         {
-          "id": "b_8",
-          "text_en": "CA KILL SOMEONE",
-          "text_ru": "КА УБИТЬ КОГО-ТО",
+          "id": "b_27_8",
+          "type": "bubble",
+          "text_en": "BUT YOU, JEAN...",
+          "text_ru": "НО ТЫ, ДЖИН...",
+          "bbox": {
+            "x": 1415,
+            "y": 2215,
+            "width": 175,
+            "height": 95
+          },
+          "rel_x": 71.18,
+          "rel_y": 72.48,
+          "rel_w": 8.8,
+          "rel_h": 3.11,
+          "confidence": 99
+        },
+        {
+          "id": "b_27_9",
+          "type": "bubble",
+          "text_en": "...YOU CAN KILL SOMEONE BY THINKING AT THEM.",
+          "text_ru": "...ТЫ МОЖЕШЬ УБИТЬ ЧЕЛОВЕКА ОДНОЙ СВОЕЙ МЫСЛЬЮ.",
           "bbox": {
             "x": 1600,
-            "y": 2633,
-            "width": 238,
-            "height": 87
+            "y": 2580,
+            "width": 255,
+            "height": 155
           },
           "rel_x": 80.48,
-          "rel_y": 86.16,
-          "rel_w": 11.97,
-          "rel_h": 2.85,
-          "confidence": 83
+          "rel_y": 84.42,
+          "rel_w": 12.83,
+          "rel_h": 5.07,
+          "confidence": 99
         }
       ],
       "is_processed": true
@@ -3069,68 +3398,72 @@
       "trans_image_filename": "page_028_trans.jpg",
       "bubbles": [
         {
-          "id": "b_1",
-          "text_en": "Oe a3 AWN",
-          "text_ru": "ОЭ А3 AWN",
+          "id": "b_28_1",
+          "type": "caption",
+          "text_en": "CONTROL.",
+          "text_ru": "КОНТРОЛЬ.",
           "bbox": {
-            "x": 568,
-            "y": 545,
-            "width": 307,
-            "height": 193
+            "x": 1175,
+            "y": 195,
+            "width": 185,
+            "height": 80
           },
-          "rel_x": 28.57,
-          "rel_y": 17.83,
-          "rel_w": 15.44,
-          "rel_h": 6.32,
-          "confidence": 61
+          "rel_x": 59.1,
+          "rel_y": 6.38,
+          "rel_w": 9.31,
+          "rel_h": 2.62,
+          "confidence": 99
         },
         {
-          "id": "b_2",
-          "text_en": "br A",
-          "text_ru": "бр А",
+          "id": "b_28_2",
+          "type": "caption",
+          "text_en": "CONTROL.",
+          "text_ru": "КОНТРОЛЬ.",
           "bbox": {
-            "x": 1533,
-            "y": 647,
-            "width": 193,
-            "height": 112
+            "x": 810,
+            "y": 1150,
+            "width": 185,
+            "height": 80
           },
-          "rel_x": 77.11,
-          "rel_y": 21.17,
-          "rel_w": 9.71,
-          "rel_h": 3.66,
-          "confidence": 45
+          "rel_x": 40.74,
+          "rel_y": 37.63,
+          "rel_w": 9.31,
+          "rel_h": 2.62,
+          "confidence": 99
         },
         {
-          "id": "b_3",
-          "text_en": "imo JOR",
-          "text_ru": "имхо Джор",
+          "id": "b_28_3",
+          "type": "caption",
+          "text_en": "CONTROL.",
+          "text_ru": "КОНТРОЛЬ.",
           "bbox": {
-            "x": 1036,
-            "y": 2001,
-            "width": 338,
-            "height": 129
+            "x": 1090,
+            "y": 2005,
+            "width": 185,
+            "height": 80
           },
-          "rel_x": 52.11,
-          "rel_y": 65.48,
-          "rel_w": 17.0,
-          "rel_h": 4.22,
-          "confidence": 47
+          "rel_x": 54.83,
+          "rel_y": 65.61,
+          "rel_w": 9.31,
+          "rel_h": 2.62,
+          "confidence": 99
         },
         {
-          "id": "b_4",
-          "text_en": "abi IS",
-          "text_ru": "аби IS",
+          "id": "b_28_4",
+          "type": "caption",
+          "text_en": "CONTROL.",
+          "text_ru": "КОНТРОЛЬ.",
           "bbox": {
-            "x": 1346,
-            "y": 2080,
-            "width": 291,
-            "height": 253
+            "x": 515,
+            "y": 2605,
+            "width": 185,
+            "height": 80
           },
-          "rel_x": 67.71,
-          "rel_y": 68.06,
-          "rel_w": 14.64,
-          "rel_h": 8.28,
-          "confidence": 44
+          "rel_x": 25.91,
+          "rel_y": 85.24,
+          "rel_w": 9.31,
+          "rel_h": 2.62,
+          "confidence": 99
         }
       ],
       "is_processed": true
@@ -3143,52 +3476,38 @@
       "trans_image_filename": "page_029_trans.jpg",
       "bubbles": [
         {
-          "id": "b_1",
-          "text_en": "ed me",
-          "text_ru": "нарисуй меня",
+          "id": "b_29_1",
+          "type": "caption",
+          "text_en": "CONTROL.",
+          "text_ru": "КОНТРОЛЬ.",
           "bbox": {
-            "x": 876,
-            "y": 832,
-            "width": 170,
-            "height": 74
+            "x": 965,
+            "y": 1090,
+            "width": 215,
+            "height": 80
           },
-          "rel_x": 44.06,
-          "rel_y": 27.23,
-          "rel_w": 8.55,
-          "rel_h": 2.42,
-          "confidence": 47
+          "rel_x": 48.54,
+          "rel_y": 35.67,
+          "rel_w": 10.81,
+          "rel_h": 2.62,
+          "confidence": 99
         },
         {
-          "id": "b_2",
-          "text_en": "AY Y THIS",
-          "text_ru": "АЙ ЭТО",
+          "id": "b_29_2",
+          "type": "caption",
+          "text_en": "THE PHOENIX IS COMING! FIND OUT WHY THIS NOVEMBER IN JEAN GREY #1!",
+          "text_ru": "ФЕНИКС ВОЗВРАЩАЕТСЯ! УЗНАЙТЕ ПОДРОБНОСТИ В ЭТОМ НОЯБРЕ В ВЫПУСКЕ «ДЖИН ГРЕЙ #1»!",
           "bbox": {
-            "x": 733,
-            "y": 2541,
-            "width": 509,
-            "height": 322
+            "x": 80,
+            "y": 2535,
+            "width": 1825,
+            "height": 320
           },
-          "rel_x": 36.87,
-          "rel_y": 83.15,
-          "rel_w": 25.6,
-          "rel_h": 10.54,
-          "confidence": 80
-        },
-        {
-          "id": "b_3",
-          "text_en": "FIND",
-          "text_ru": "НАХОДИТЬ",
-          "bbox": {
-            "x": 39,
-            "y": 2681,
-            "width": 366,
-            "height": 175
-          },
-          "rel_x": 1.96,
-          "rel_y": 87.73,
-          "rel_w": 18.41,
-          "rel_h": 5.73,
-          "confidence": 61
+          "rel_x": 4.02,
+          "rel_y": 82.95,
+          "rel_w": 91.8,
+          "rel_h": 10.47,
+          "confidence": 99
         }
       ],
       "is_processed": true
@@ -3201,84 +3520,38 @@
       "trans_image_filename": "page_030_trans.jpg",
       "bubbles": [
         {
-          "id": "b_1",
-          "text_en": "JONATHAN HICKMAN MATTEO DELLA FONTE",
-          "text_ru": "ДЖОНАТАН ХИКМАН МАТТЕО ДЕЛЛА ФОНТЕ",
-          "bbox": {
-            "x": 109,
-            "y": 1324,
-            "width": 446,
-            "height": 119
-          },
-          "rel_x": 5.48,
-          "rel_y": 43.32,
-          "rel_w": 22.43,
-          "rel_h": 3.89,
-          "confidence": 95
-        },
-        {
-          "id": "b_2",
-          "text_en": "FANTASTIC FOUL",
-          "text_ru": "ФАНТАСТИЧЕСКИЙ ФОЛ",
-          "bbox": {
-            "x": 40,
-            "y": 1508,
-            "width": 588,
-            "height": 166
-          },
-          "rel_x": 2.01,
-          "rel_y": 49.35,
-          "rel_w": 29.58,
-          "rel_h": 5.43,
-          "confidence": 61
-        },
-        {
-          "id": "b_3",
-          "text_en": "BENJAMIN PERCY KEV WALKER",
-          "text_ru": "БЕНДЖАМИН ПЕРСИ КЕВ УОКЕР",
-          "bbox": {
-            "x": 157,
-            "y": 1664,
-            "width": 354,
-            "height": 119
-          },
-          "rel_x": 7.9,
-          "rel_y": 54.45,
-          "rel_w": 17.81,
-          "rel_h": 3.89,
-          "confidence": 97
-        },
-        {
-          "id": "b_4",
-          "text_en": "PHILLIP KENNEDY JOHNSON SCIETRONC",
-          "text_ru": "ФИЛЛИП КЕННЕДИ ДЖОНСОН СКИТРОНК",
+          "id": "b_30_1",
+          "type": "caption",
+          "text_en": "THE LIGHT HAD ITS TURN.",
+          "text_ru": "СВЕТ УСТУПИЛ СВОЮ ОЧЕРЕДЬ.",
           "bbox": {
             "x": 70,
-            "y": 2021,
-            "width": 527,
-            "height": 119
+            "y": 535,
+            "width": 540,
+            "height": 145
           },
           "rel_x": 3.52,
-          "rel_y": 66.13,
-          "rel_w": 26.51,
-          "rel_h": 3.89,
-          "confidence": 94
+          "rel_y": 17.51,
+          "rel_w": 27.16,
+          "rel_h": 4.74,
+          "confidence": 99
         },
         {
-          "id": "b_5",
-          "text_en": "MARVEL",
-          "text_ru": "МАРВЕЛ",
+          "id": "b_30_2",
+          "type": "caption",
+          "text_en": "SECOND ISSUES ON SALE NOVEMBER 18, 2026",
+          "text_ru": "ВТОРЫЕ ВЫПУСКИ В ПРОДАЖЕ С 18 НОЯБРЯ 2026 ГОДА",
           "bbox": {
-            "x": 306,
-            "y": 2726,
-            "width": 107,
-            "height": 40
+            "x": 70,
+            "y": 1460,
+            "width": 540,
+            "height": 180
           },
-          "rel_x": 15.39,
-          "rel_y": 89.2,
-          "rel_w": 5.38,
-          "rel_h": 1.31,
-          "confidence": 96
+          "rel_x": 3.52,
+          "rel_y": 47.77,
+          "rel_w": 27.16,
+          "rel_h": 5.89,
+          "confidence": 99
         }
       ],
       "is_processed": true
@@ -3291,84 +3564,38 @@
       "trans_image_filename": "page_031_trans.jpg",
       "bubbles": [
         {
-          "id": "b_1",
-          "text_en": "Jd A",
-          "text_ru": "Джей А",
+          "id": "b_31_1",
+          "type": "caption",
+          "text_en": "SECRET SYMBI-ORIGINS! JOE KELLY AND ZE CARLOS REVEAL THE HISTORY OF THE MESSY MONSTER!",
+          "text_ru": "ТАЙНЫЕ ИСТОКИ СИМБИОТА! ДЖО КЕЛЛИ И ЗЕ КАРЛОС РАСКРЫВАЮТ ИСТОРИЮ МОНСТРА!",
           "bbox": {
-            "x": 714,
-            "y": 121,
-            "width": 175,
-            "height": 118
+            "x": 1450,
+            "y": 640,
+            "width": 440,
+            "height": 360
           },
-          "rel_x": 35.92,
-          "rel_y": 3.96,
-          "rel_w": 8.8,
-          "rel_h": 3.86,
-          "confidence": 71
+          "rel_x": 72.94,
+          "rel_y": 20.94,
+          "rel_w": 22.13,
+          "rel_h": 11.78,
+          "confidence": 99
         },
         {
-          "id": "b_2",
-          "text_en": "JOE KELLY AND ZE CARLOS REVEAL THE HISTORY THE MESSY MONSTER!",
-          "text_ru": "ДЖО КЕЛЛИ И ЗЕ КАРЛОС РАССКАЗЫВАЮТ ИСТОРИЮ НЕОБЫЧНОГО МОНСТРА!",
+          "id": "b_31_2",
+          "type": "caption",
+          "text_en": "PLUS: A BONUS STORY BY JACOB CHABOT!",
+          "text_ru": "ПЛЮС: БОНУСНАЯ ИСТОРИЯ ОТ ДЖЕЙКОБА ЧАБОТА!",
           "bbox": {
-            "x": 1469,
-            "y": 1191,
-            "width": 417,
-            "height": 355
+            "x": 80,
+            "y": 1070,
+            "width": 380,
+            "height": 290
           },
-          "rel_x": 73.89,
-          "rel_y": 38.97,
-          "rel_w": 20.98,
-          "rel_h": 11.62,
-          "confidence": 94
-        },
-        {
-          "id": "b_3",
-          "text_en": "PLUS A BONUS STORY BY JACOB",
-          "text_ru": "ПЛЮС БОНУСНАЯ ИСТОРИЯ ДЖЕЙКОБА",
-          "bbox": {
-            "x": 137,
-            "y": 1629,
-            "width": 277,
-            "height": 323
-          },
-          "rel_x": 6.89,
-          "rel_y": 53.3,
-          "rel_w": 13.93,
-          "rel_h": 10.57,
-          "confidence": 92
-        },
-        {
-          "id": "b_4",
-          "text_en": "COVER BY PEPE LARRAZ",
-          "text_ru": "ОБЛОЖКА ПЕПЕ ЛАРРАСА",
-          "bbox": {
-            "x": 1558,
-            "y": 2669,
-            "width": 382,
-            "height": 75
-          },
-          "rel_x": 78.37,
-          "rel_y": 87.34,
-          "rel_w": 19.22,
-          "rel_h": 2.45,
-          "confidence": 94
-        },
-        {
-          "id": "b_5",
-          "text_en": "MARVEL",
-          "text_ru": "МАРВЕЛ",
-          "bbox": {
-            "x": 1726,
-            "y": 2865,
-            "width": 216,
-            "height": 103
-          },
-          "rel_x": 86.82,
-          "rel_y": 93.75,
-          "rel_w": 10.87,
-          "rel_h": 3.37,
-          "confidence": 97
+          "rel_x": 4.02,
+          "rel_y": 35.01,
+          "rel_w": 19.11,
+          "rel_h": 9.49,
+          "confidence": 99
         }
       ],
       "is_processed": true

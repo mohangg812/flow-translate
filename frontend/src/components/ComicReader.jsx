@@ -24,7 +24,7 @@ export default function ComicReader({ user, onAddWordToDictionary }) {
   const [successToast, setSuccessToast] = useState('');
 
   // Reader Settings
-  const [viewMode, setViewMode] = useState('translated'); // 'translated' | 'original' | 'burned'
+  const [viewMode, setViewMode] = useState('translated'); // 'translated' | 'original'
   const [isPeekingOriginal, setIsPeekingOriginal] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -117,7 +117,7 @@ export default function ComicReader({ user, onAddWordToDictionary }) {
     preloadIndexes.forEach(idx => {
       if (idx >= 0 && idx < sortedPages.length) {
         const page = sortedPages[idx];
-        const url = (viewMode === 'burned' && page.translated_image_url)
+        const url = (viewMode === 'translated' && page.translated_image_url)
           ? page.translated_image_url
           : page.original_image_url;
         if (url) {
@@ -329,7 +329,7 @@ export default function ComicReader({ user, onAddWordToDictionary }) {
   // Resolve image URL
   const getPageImageUrl = () => {
     if (!currentPage) return '';
-    const imgUrl = (effectiveMode === 'burned' && currentPage.translated_image_url)
+    const imgUrl = (effectiveMode === 'translated' && currentPage.translated_image_url)
       ? currentPage.translated_image_url
       : currentPage.original_image_url;
     if (!imgUrl) return '';
@@ -448,34 +448,25 @@ export default function ComicReader({ user, onAddWordToDictionary }) {
               </div>
             </div>
 
-            {/* Translation Mode Selector */}
+            {/* Translation Mode Selector: Переведенный / Оригинал */}
             <div className="flex items-center bg-black/5 dark:bg-white/10 p-1 rounded-2xl border border-black/5 dark:border-white/10">
               <button
                 onClick={() => setViewMode('translated')}
-                className={`px-3 py-1 rounded-xl font-semibold transition-all ${
+                className={`px-3.5 py-1.5 rounded-xl font-semibold text-xs sm:text-sm transition-all ${
                   viewMode === 'translated' ? 'bg-white text-black dark:bg-white dark:text-black shadow-sm' : 'text-[#8E8E93] hover:text-black dark:hover:text-white'
                 }`}
-                title="Интерактивный перевод поверх спич-бабблов"
+                title="Переведенный комикс"
               >
-                Интерактивный перевод (RU)
-              </button>
-              <button
-                onClick={() => setViewMode('burned')}
-                className={`px-3 py-1 rounded-xl font-semibold transition-all ${
-                  viewMode === 'burned' ? 'bg-white text-black dark:bg-white dark:text-black shadow-sm' : 'text-[#8E8E93] hover:text-black dark:hover:text-white'
-                }`}
-                title="Запеченный перевод в страницах"
-              >
-                Запеченный (RU)
+                Переведенный
               </button>
               <button
                 onClick={() => setViewMode('original')}
-                className={`px-3 py-1 rounded-xl font-semibold transition-all ${
+                className={`px-3.5 py-1.5 rounded-xl font-semibold text-xs sm:text-sm transition-all ${
                   viewMode === 'original' ? 'bg-white text-black dark:bg-white dark:text-black shadow-sm' : 'text-[#8E8E93] hover:text-black dark:hover:text-white'
                 }`}
                 title="Оригинал на английском"
               >
-                Оригинал (EN)
+                Оригинал
               </button>
             </div>
 
@@ -569,7 +560,7 @@ export default function ComicReader({ user, onAddWordToDictionary }) {
               )}
 
               {/* Interactive Speech Bubbles Layer */}
-              {effectiveMode === 'translated' && !isProcessingPage && currentPage.bubbles && currentPage.bubbles.map((b) => {
+              {effectiveMode === 'translated' && !currentPage.translated_image_url && !isProcessingPage && currentPage.bubbles && currentPage.bubbles.map((b) => {
                 const isSelected = selectedBubble?.id === b.id;
                 return (
                   <div
