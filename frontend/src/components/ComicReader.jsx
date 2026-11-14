@@ -7,6 +7,7 @@ import {
   FileText, CheckCircle2, AlertCircle, RefreshCw, Loader2
 } from 'lucide-react';
 import api, { API_BASE_URL } from '../api';
+import { FALLBACK_DEMO_COMIC } from './demoComicData';
 
 // Base URL для статических файлов изображений
 const STATIC_BASE_URL = API_BASE_URL.replace(/\/api\/v1\/?$/, '');
@@ -42,9 +43,21 @@ export default function ComicReader({ user, onAddWordToDictionary }) {
   // Load comic list
   const loadComics = useCallback(async () => {
     try {
-      const res = await api.get('/comics');
-      setComicList(res.data);
+      const res = await api.get('/comics', { timeout: 2000 });
+      if (res.data && res.data.length > 0) {
+        setComicList(res.data);
+        return;
+      }
     } catch (_) {}
+    // Offline / GitHub Pages fallback: display Cyber Vanguard demo item
+    setComicList([{
+      id: FALLBACK_DEMO_COMIC.id,
+      title: FALLBACK_DEMO_COMIC.title,
+      total_pages: 3,
+      current_page: 1,
+      format: 'DEMO',
+      cover_image_url: FALLBACK_DEMO_COMIC.pages[0].original_image_url
+    }]);
   }, []);
 
   useEffect(() => {
@@ -56,15 +69,22 @@ export default function ComicReader({ user, onAddWordToDictionary }) {
     setIsLoading(true);
     setErrorMsg('');
     try {
-      const res = await api.get('/comics/demo');
-      setActiveComic(res.data);
-      setCurrentPageIndex((res.data.current_page || 1) - 1);
-      showToast('Демо-комикс «Cyber Vanguard» успешно загружен!');
+      const res = await api.get('/comics/demo', { timeout: 2500 });
+      if (res.data && res.data.pages && res.data.pages.length > 0) {
+        setActiveComic(res.data);
+        setCurrentPageIndex((res.data.current_page || 1) - 1);
+        showToast('Демо-комикс «Cyber Vanguard» успешно загружен!');
+        return;
+      }
     } catch (err) {
-      setErrorMsg(err.response?.data?.message || 'Ошибка загрузки демо-комикса');
+      console.info('Backend demo unavailable, using embedded offline demo:', err.message);
     } finally {
       setIsLoading(false);
     }
+    // Seamless fallback to embedded vector comic
+    setActiveComic(FALLBACK_DEMO_COMIC);
+    setCurrentPageIndex(0);
+    showToast('Демо-комикс «Cyber Vanguard #1» открыт!');
   };
 
   // Upload Comic File
@@ -97,7 +117,45 @@ export default function ComicReader({ user, onAddWordToDictionary }) {
       loadComics();
       showToast(`Комикс «${res.data.title}» успешно распознан и переведен!`);
     } catch (err) {
-      setErrorMsg(err.response?.data?.message || err.message || 'Ошибка обработки и перевода файла комикса');
+      // Client-side fallback if an image was uploaded
+      if (file.type.startsWith('image/')) {
+        const imgUrl = URL.createObjectURL(file);
+        const clientComic = {
+          id: 'client_' + Date.now(),
+          title: file.name.replace(/\.[^/.]+$/, '').replace(/_/g, ' '),
+          format: file.name.split('.').pop().toUpperCase(),
+          total_pages: 1,
+          current_page: 1,
+          pages: [
+            {
+              page_num: 1,
+              width: 900,
+              height: 1200,
+              original_image_url: imgUrl,
+              translated_image_url: imgUrl,
+              bubbles: [
+                {
+                  id: 'cb_1',
+                  rel_x: 20,
+                  rel_y: 20,
+                  rel_w: 60,
+                  rel_h: 12,
+                  text_en: file.name,
+                  text_ru: 'Загруженная страница комикса (Автономный просмотр)'
+                }
+              ]
+            }
+          ]
+        };
+        setActiveComic(clientComic);
+        setCurrentPageIndex(0);
+        showToast(`Страница «${file.name}» загружена в ридер!`);
+      } else {
+        setErrorMsg(
+          err.response?.data?.message || 
+          'Для обработки CBZ/CBR/PDF архивов необходим локальный сервер FastAPI (uvicorn app.main:app). На GitHub Pages откройте демо-комикс!'
+        );
+      }
     } finally {
       setIsLoading(false);
       setUploadProgress(0);
@@ -223,10 +281,14 @@ export default function ComicReader({ user, onAddWordToDictionary }) {
   // Resolve image URL
   const getPageImageUrl = () => {
     if (!currentPage) return '';
-    if (effectiveMode === 'burned' && currentPage.translated_image_url) {
-      return `${STATIC_BASE_URL}${currentPage.translated_image_url}`;
+    const imgUrl = (effectiveMode === 'burned' && currentPage.translated_image_url)
+      ? currentPage.translated_image_url
+      : currentPage.original_image_url;
+    if (!imgUrl) return '';
+    if (imgUrl.startsWith('data:') || imgUrl.startsWith('http://') || imgUrl.startsWith('https://') || imgUrl.startsWith('blob:')) {
+      return imgUrl;
     }
-    return `${STATIC_BASE_URL}${currentPage.original_image_url}`;
+    return `${STATIC_BASE_URL}${imgUrl}`;
   };
 
   return (
@@ -620,12 +682,22 @@ export default function ComicReader({ user, onAddWordToDictionary }) {
                   <div
                     key={c.id}
                     onClick={async () => {
+                      if (c.id === FALLBACK_DEMO_COMIC.id) {
+                        setActiveComic(FALLBACK_DEMO_COMIC);
+                        setCurrentPageIndex(0);
+                        return;
+                      }
                       setIsLoading(true);
                       try {
                         const res = await api.get(`/comics/${c.id}`);
                         setActiveComic(res.data);
                         setCurrentPageIndex((res.data.current_page || 1) - 1);
-                      } catch (_) {}
+                      } catch (_) {
+                        if (c.id === FALLBACK_DEMO_COMIC.id) {
+                          setActiveComic(FALLBACK_DEMO_COMIC);
+                          setCurrentPageIndex(0);
+                        }
+                      }
                       finally { setIsLoading(false); }
                     }}
                     className="ios-glass p-4 rounded-[24px] border border-black/5 dark:border-white/10 hover:border-blue-500/40 transition-all cursor-pointer group hover-lift flex flex-col justify-between space-y-3"
@@ -633,7 +705,7 @@ export default function ComicReader({ user, onAddWordToDictionary }) {
                     <div className="aspect-[3/4] rounded-2xl bg-black/10 dark:bg-black/40 overflow-hidden relative border border-white/5">
                       {c.cover_image_url ? (
                         <img 
-                          src={`${STATIC_BASE_URL}${c.cover_image_url}`} 
+                          src={c.cover_image_url.startsWith('data:') || c.cover_image_url.startsWith('http') || c.cover_image_url.startsWith('blob:') ? c.cover_image_url : `${STATIC_BASE_URL}${c.cover_image_url}`} 
                           alt={c.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
                         />
