@@ -14,6 +14,7 @@ from app.models.models import User
 from app.models.comic import Comic, ComicPage
 from app.schemas.comic import ComicResponse, ComicPageResponse, ComicListItemResponse, ComicProgressUpdate
 from app.services.comic_service import ComicService
+from app.services.precomputed_service import PrecomputedService
 from app.api.auth import get_current_user_optional
 
 logger = logging.getLogger("flow_translate.api.comics")
@@ -77,6 +78,67 @@ async def upload_comic(
 
     comic_id = uuid.uuid4()
     comic_title = title.strip() if title and title.strip() else os.path.splitext(filename)[0].replace('_', ' ').title()
+
+    # 0. Проверяем, есть ли готовый заранее подготовленный перевод для этого комикса
+    precomputed_match = PrecomputedService.find_matching_precomputed(filename)
+    if precomputed_match:
+        comic_dir = ComicService.get_storage_path(str(comic_id))
+        # Извлекаем оригинальные страницы из загруженного архива (< 0.3 сек)
+        ComicService.extract_pages_from_file(file_bytes, filename, str(comic_id))
+        pre_pages = PrecomputedService.apply_precomputed(comic_dir, comic_id, precomputed_match)
+        if pre_pages:
+            db_pages = []
+            page_responses = []
+            for p in pre_pages:
+                pid = uuid.uuid4()
+                p_resp = ComicPageResponse(
+                    id=pid,
+                    comic_id=comic_id,
+                    page_number=p["page_number"],
+                    width=p["width"],
+                    height=p["height"],
+                    original_image_url=p["original_image_url"],
+                    translated_image_url=p["translated_image_url"],
+                    bubbles=p["bubbles"],
+                    is_processed=True
+                )
+                page_responses.append(p_resp)
+                db_pages.append(
+                    ComicPage(
+                        id=pid,
+                        comic_id=comic_id,
+                        page_number=p["page_number"],
+                        width=p["width"],
+                        height=p["height"],
+                        original_image_url=p["original_image_url"],
+                        translated_image_url=p["translated_image_url"],
+                        bubbles=p["bubbles"],
+                        is_processed=True
+                    )
+                )
+
+            final_title = precomputed_match["data"].get("title", comic_title)
+            comic = Comic(
+                id=comic_id,
+                user_id=current_user.id if current_user else None,
+                title=final_title,
+                filename=filename,
+                format=ext.lstrip('.'),
+                total_pages=len(pre_pages),
+                current_page=1
+            )
+            db.add(comic)
+            await db.flush()
+            for p in db_pages:
+                db.add(p)
+            await db.commit()
+
+            stmt = select(Comic).where(Comic.id == comic.id).options(selectinload(Comic.pages))
+            result = (await db.execute(stmt)).scalars().first()
+            if result and result.pages:
+                result.pages.sort(key=lambda p: p.page_number)
+            logger.info(f"[PRECOMPUTED] Комикс '{filename}' мгновенно активирован с готовым переводом всех {len(pre_pages)} страниц!")
+            return result
 
     # 1. Извлекаем страницы (занимает < 0.5 сек для любого архива)
     pages_info = ComicService.extract_pages_from_file(file_bytes, filename, str(comic_id))
