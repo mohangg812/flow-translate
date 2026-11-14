@@ -3,6 +3,7 @@ import logging
 import uuid
 import base64
 import urllib.parse
+from typing import Optional
 import pyotp
 import qrcode
 import qrcode.image.svg
@@ -36,6 +37,7 @@ from app.services.email import EmailService
 logger = logging.getLogger("flow_translate.auth")
 router = APIRouter(prefix="/auth", tags=["Аутентификация и Пользователи"])
 security = HTTPBearer()
+security_optional = HTTPBearer(auto_error=False)
 
 
 # Dependency для получения авторизованного пользователя из БД
@@ -64,6 +66,25 @@ async def get_current_user(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Аккаунт заблокирован администратором")
         
     return user
+
+
+async def get_current_user_optional(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security_optional),
+    db: AsyncSession = Depends(get_db)
+) -> Optional[User]:
+    if not credentials or not credentials.credentials:
+        return None
+    try:
+        payload = decode_access_token(credentials.credentials)
+        if not payload or "sub" not in payload:
+            return None
+        email = payload["sub"]
+        stmt = select(User).where(User.email == email)
+        result = await db.execute(stmt)
+        user = result.scalar_one_or_none()
+        return user if (user and user.is_active) else None
+    except Exception:
+        return None
 
 
 @router.post(

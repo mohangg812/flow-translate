@@ -1,8 +1,10 @@
 import logging
+import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, status
 from fastapi.responses import RedirectResponse, JSONResponse
 from fastapi.exceptions import RequestValidationError
+from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import select
@@ -16,6 +18,7 @@ from app.api.auth import router as auth_router
 from app.api.dictionary import router as dictionary_router
 from app.api.admin import router as admin_router
 from app.api.transcribe import router as transcribe_router
+from app.api.comics import router as comics_router
 
 logging.basicConfig(
     level=logging.INFO,
@@ -149,6 +152,12 @@ app.include_router(auth_router, prefix="/api/v1")
 app.include_router(dictionary_router, prefix="/api/v1")
 app.include_router(admin_router, prefix="/api/v1")
 app.include_router(transcribe_router, prefix="/api/v1")
+app.include_router(comics_router, prefix="/api/v1")
+
+# Статические файлы комиксов (страницы и пререндеренные переводы)
+comics_storage_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "storage", "comics")
+os.makedirs(comics_storage_dir, exist_ok=True)
+app.mount("/static/comics", StaticFiles(directory=comics_storage_dir), name="comics_static")
 
 
 @app.get("/api/v1/health", tags=["Системные"])

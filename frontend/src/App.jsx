@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import Tesseract, { createWorker } from 'tesseract.js';
 import api, { transcribeVideo, transcribeAudio, API_BASE_URL } from './api';
+import ComicReader from './components/ComicReader';
 import { 
   Volume2, Star, Edit3, Search, LogOut, 
   ArrowRightLeft, X, Shield, RefreshCw, Check, Sun, Moon, Copy,
@@ -2999,6 +3000,18 @@ export default function App() {
               <Music size={13} className={activeMode === 'rap' ? 'text-current' : ''} />
               <span>Рэп-треки</span>
             </button>
+            <button
+              onClick={() => { setActiveMode('comics'); }}
+              className={`px-3 sm:px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 flex-shrink-0 active:scale-95 ${
+                activeMode === 'comics' 
+                  ? 'apple-tab-active scale-[1.02]' 
+                  : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
+              }`}
+              title="Переводчик и Ридер комиксов (CBZ, CBR, PDF)"
+            >
+              <BookOpen size={13} className={activeMode === 'comics' ? 'text-current' : ''} />
+              <span>Комиксы</span>
+            </button>
           </div>
         </div>
 
@@ -3326,6 +3339,8 @@ export default function App() {
                 </div>
               </div>
             </div>
+          ) : activeMode === 'comics' ? (
+            <ComicReader user={user} />
           ) : activeMode === 'rap' ? (
             <div className="space-y-4 animate-in fade-in">
               {/* Music Player Bar with Track Selector */}
