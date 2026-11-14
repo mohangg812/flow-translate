@@ -25,33 +25,32 @@ _IN_MEMORY_COMICS: Dict[str, Dict[str, Any]] = {}
 
 async def process_remaining_pages_background(comic_id: uuid.UUID, remaining_pages: List[tuple]):
     """
-    Фоновая фоновая обработка и перевод страниц 2..N.
-    Не блокирует загрузку комикса и ответ клиенту.
+    Фоновая обработка и перевод страниц 2..N.
+    Не блокирует загрузку комикса и не удерживает соединение с БД во время OCR/перевода.
     """
     comic_dir = ComicService.get_storage_path(str(comic_id))
-    try:
-        async with async_session_maker() as session:
-            for page_num, img_path, width, height in remaining_pages:
-                try:
-                    bubbles = await ComicService.detect_and_translate_bubbles(img_path, width, height)
-                    base_name = os.path.basename(img_path)
-                    name_no_ext = os.path.splitext(base_name)[0]
-                    trans_name = f"{name_no_ext}_trans.jpg"
-                    trans_path = os.path.join(comic_dir, trans_name)
-                    ComicService.render_translated_page(img_path, bubbles, trans_path)
+    for page_num, img_path, width, height in remaining_pages:
+        try:
+            # 1. Выполняем OCR и перевод БЕЗ удержания сессии базы данных
+            bubbles = await ComicService.detect_and_translate_bubbles(img_path, width, height)
+            base_name = os.path.basename(img_path)
+            name_no_ext = os.path.splitext(base_name)[0]
+            trans_name = f"{name_no_ext}_trans.jpg"
+            trans_path = os.path.join(comic_dir, trans_name)
+            ComicService.render_translated_page(img_path, bubbles, trans_path)
 
-                    stmt = select(ComicPage).where(ComicPage.comic_id == comic_id, ComicPage.page_number == page_num)
-                    page_obj = (await session.execute(stmt)).scalars().first()
-                    if page_obj:
-                        page_obj.bubbles = bubbles
-                        page_obj.translated_image_url = f"/static/comics/{comic_id}/{trans_name}"
-                        page_obj.is_processed = True
-                        await session.commit()
-                        logger.info(f"[COMIC_BG] Страница {page_num} комикса {comic_id} успешно распознана и переведена.")
-                except Exception as page_err:
-                    logger.warning(f"[COMIC_BG] Ошибка обработки страницы {page_num}: {page_err}")
-    except Exception as e:
-        logger.warning(f"[COMIC_BG] Ошибка фоновой сессии PostgreSQL: {e}")
+            # 2. Открываем сессию только на миллисекунды записи результата в БД
+            async with async_session_maker() as session:
+                stmt = select(ComicPage).where(ComicPage.comic_id == comic_id, ComicPage.page_number == page_num)
+                page_obj = (await session.execute(stmt)).scalars().first()
+                if page_obj:
+                    page_obj.bubbles = bubbles
+                    page_obj.translated_image_url = f"/static/comics/{comic_id}/{trans_name}"
+                    page_obj.is_processed = True
+                    await session.commit()
+                    logger.info(f"[COMIC_BG] Страница {page_num} комикса {comic_id} успешно распознана и переведена.")
+        except Exception as page_err:
+            logger.warning(f"[COMIC_BG] Ошибка обработки страницы {page_num}: {page_err}")
 
 
 @router.post("/upload", response_model=ComicResponse, status_code=status.HTTP_201_CREATED, summary="Загрузить комикс (CBZ, CBR, PDF, ZIP, JPG, PNG)")
@@ -179,6 +178,8 @@ async def upload_comic(
 
         stmt = select(Comic).where(Comic.id == comic.id).options(selectinload(Comic.pages))
         result = (await db.execute(stmt)).scalars().first()
+        if result and result.pages:
+            result.pages.sort(key=lambda p: p.page_number)
         return result
     except Exception as e:
         logger.warning(f"PostgreSQL недоступен ({e}), сохранение в автономное хранилище.")
@@ -290,6 +291,8 @@ async def get_comic(comic_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
         stmt = select(Comic).where(Comic.id == comic_id).options(selectinload(Comic.pages))
         comic = (await db.execute(stmt)).scalars().first()
         if comic:
+            if comic.pages:
+                comic.pages.sort(key=lambda p: p.page_number)
             return comic
     except Exception as e:
         logger.warning(f"PostgreSQL недоступен ({e}), чтение из памяти.")

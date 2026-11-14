@@ -18,6 +18,7 @@ export default function ComicReader({ user, onAddWordToDictionary }) {
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isProcessingPage, setIsProcessingPage] = useState(false);
+  const [isPageImgLoading, setIsPageImgLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [errorMsg, setErrorMsg] = useState('');
   const [successToast, setSuccessToast] = useState('');
@@ -98,41 +99,82 @@ export default function ComicReader({ user, onAddWordToDictionary }) {
     }
   };
 
+  const progressDebounceTimerRef = useRef(null);
+  const inFlightProcessRef = useRef(new Set());
+
+  // Sorted pages array to strictly respect page_number
+  const sortedPages = React.useMemo(() => {
+    if (!activeComic?.pages || !Array.isArray(activeComic.pages)) return [];
+    return [...activeComic.pages].sort((a, b) => (a.page_number || 0) - (b.page_number || 0));
+  }, [activeComic?.pages]);
+
+  const currentPage = sortedPages[currentPageIndex] || activeComic?.pages?.[currentPageIndex];
+
+  // Preload neighboring page images for instantaneous page flipping
+  useEffect(() => {
+    if (!sortedPages || sortedPages.length === 0) return;
+    const preloadIndexes = [currentPageIndex - 1, currentPageIndex + 1];
+    preloadIndexes.forEach(idx => {
+      if (idx >= 0 && idx < sortedPages.length) {
+        const page = sortedPages[idx];
+        const url = (viewMode === 'burned' && page.translated_image_url)
+          ? page.translated_image_url
+          : page.original_image_url;
+        if (url) {
+          const fullUrl = (url.startsWith('data:') || url.startsWith('http') || url.startsWith('blob:'))
+            ? url
+            : `${STATIC_BASE_URL}${url}`;
+          const img = new Image();
+          img.src = fullUrl;
+        }
+      }
+    });
+  }, [currentPageIndex, sortedPages, viewMode]);
+
   // Change page with progress persistence and on-demand translation
-  const goToPage = useCallback(async (newIndex) => {
+  const goToPage = useCallback((newIndex) => {
     if (!activeComic || !activeComic.pages || activeComic.pages.length === 0) return;
     const clampedIndex = Math.max(0, Math.min(newIndex, activeComic.pages.length - 1));
     setCurrentPageIndex(clampedIndex);
     setSelectedBubble(null);
+    setIsPageImgLoading(true);
 
-    const targetPage = activeComic.pages[clampedIndex];
-    const pageNum = clampedIndex + 1;
+    const targetPage = sortedPages[clampedIndex] || activeComic.pages[clampedIndex];
+    const pageNum = targetPage?.page_number || (clampedIndex + 1);
 
-    // Save reading progress to backend
-    try {
-      api.patch(`/comics/${activeComic.id}/progress`, { current_page: pageNum });
-    } catch (_) {}
-
-    // If page is not yet processed, trigger fast on-demand OCR & translation
-    if (targetPage && !targetPage.is_processed) {
-      setIsProcessingPage(true);
-      try {
-        const res = await api.post(`/comics/${activeComic.id}/pages/${pageNum}/process`);
-        if (res.data) {
-          setActiveComic(prev => {
-            if (!prev) return prev;
-            const updatedPages = [...prev.pages];
-            updatedPages[clampedIndex] = res.data;
-            return { ...prev, pages: updatedPages };
-          });
-        }
-      } catch (err) {
-        console.warn('Page on-demand processing error:', err);
-      } finally {
-        setIsProcessingPage(false);
-      }
+    // Debounced reading progress saving (300ms) to prevent server connection pool exhaustion
+    if (progressDebounceTimerRef.current) {
+      clearTimeout(progressDebounceTimerRef.current);
     }
-  }, [activeComic]);
+    progressDebounceTimerRef.current = setTimeout(() => {
+      try {
+        api.patch(`/comics/${activeComic.id}/progress`, { current_page: pageNum });
+      } catch (_) {}
+    }, 300);
+
+    // If page is not yet processed and not currently requested, trigger on-demand OCR & translation
+    if (targetPage && !targetPage.is_processed && !inFlightProcessRef.current.has(pageNum)) {
+      inFlightProcessRef.current.add(pageNum);
+      setIsProcessingPage(true);
+      api.post(`/comics/${activeComic.id}/pages/${pageNum}/process`)
+        .then(res => {
+          if (res.data) {
+            setActiveComic(prev => {
+              if (!prev) return prev;
+              const updatedPages = prev.pages.map(p => p.page_number === pageNum ? res.data : p);
+              return { ...prev, pages: updatedPages };
+            });
+          }
+        })
+        .catch(err => {
+          console.warn('Page on-demand processing error:', err);
+        })
+        .finally(() => {
+          inFlightProcessRef.current.delete(pageNum);
+          setIsProcessingPage(false);
+        });
+    }
+  }, [activeComic, sortedPages]);
 
   // Keyboard navigation & space peek
   useEffect(() => {
@@ -236,7 +278,6 @@ export default function ComicReader({ user, onAddWordToDictionary }) {
     } catch (_) {}
   };
 
-  const currentPage = activeComic?.pages?.[currentPageIndex];
   const effectiveMode = isPeekingOriginal ? 'original' : viewMode;
 
   // Resolve image URL
@@ -356,7 +397,7 @@ export default function ComicReader({ user, onAddWordToDictionary }) {
                   {activeComic.title}
                 </h3>
                 <span className="text-[11px] text-[#8E8E93]">
-                  Страница {currentPageIndex + 1} из {activeComic.total_pages} &bull; Формат: {activeComic.format?.toUpperCase()}
+                  Страница {currentPage?.page_number || (currentPageIndex + 1)} из {activeComic.total_pages} &bull; Формат: {activeComic.format?.toUpperCase()}
                 </span>
               </div>
             </div>
@@ -443,17 +484,32 @@ export default function ComicReader({ user, onAddWordToDictionary }) {
             >
               {/* Comic Page Image */}
               <img
+                key={`${activeComic.id}_p${currentPage?.page_number || currentPageIndex + 1}_${effectiveMode}`}
                 src={getPageImageUrl()}
-                alt={`Page ${currentPageIndex + 1}`}
-                className="rounded-xl border border-white/10 object-contain max-h-[82vh] w-auto pointer-events-none block"
+                alt={`Page ${currentPage?.page_number || currentPageIndex + 1}`}
+                onLoad={() => setIsPageImgLoading(false)}
+                onError={() => setIsPageImgLoading(false)}
+                className={`rounded-xl border border-white/10 object-contain max-h-[82vh] w-auto pointer-events-none block transition-opacity duration-200 ${
+                  isPageImgLoading ? 'opacity-40' : 'opacity-100'
+                }`}
               />
+
+              {/* Page Image Loading Spinner */}
+              {isPageImgLoading && !isProcessingPage && (
+                <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none bg-black/30 backdrop-blur-[1px] rounded-xl">
+                  <div className="flex items-center gap-2 bg-black/85 px-4 py-2 rounded-full border border-white/20 text-white text-xs font-semibold shadow-2xl">
+                    <Loader2 size={16} className="animate-spin text-blue-400" />
+                    <span>Загрузка страницы {currentPage?.page_number || currentPageIndex + 1}...</span>
+                  </div>
+                </div>
+              )}
 
               {/* On-Demand Processing Spinner */}
               {isProcessingPage && (
-                <div className="absolute inset-0 z-30 bg-black/55 backdrop-blur-[2px] rounded-xl flex flex-col items-center justify-center gap-2.5 text-white">
+                <div className="absolute inset-0 z-30 bg-black/60 backdrop-blur-[2px] rounded-xl flex flex-col items-center justify-center gap-2.5 text-white">
                   <Loader2 size={32} className="animate-spin text-blue-400" />
-                  <span className="text-xs font-bold bg-black/80 px-4 py-2 rounded-full border border-white/20 shadow-xl">
-                    Распознавание бабблов и перевод страницы {currentPageIndex + 1}...
+                  <span className="text-xs font-bold bg-black/85 px-4 py-2 rounded-full border border-white/20 shadow-2xl">
+                    Распознавание бабблов и перевод страницы {currentPage?.page_number || currentPageIndex + 1}...
                   </span>
                 </div>
               )}
@@ -566,7 +622,7 @@ export default function ComicReader({ user, onAddWordToDictionary }) {
 
             <div className="flex items-center gap-3">
               <span className="font-mono text-xs">
-                {currentPageIndex + 1} / {activeComic.total_pages}
+                {currentPage?.page_number || (currentPageIndex + 1)} / {activeComic.total_pages}
               </span>
               <input
                 type="range"
