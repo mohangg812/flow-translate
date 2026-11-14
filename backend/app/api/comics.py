@@ -202,6 +202,7 @@ async def upload_comic(
 async def process_page_on_demand(
     comic_id: uuid.UUID,
     page_number: int,
+    force: bool = False,
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -212,7 +213,7 @@ async def process_page_on_demand(
     if not page_obj:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Страница комикса не найдена")
 
-    if page_obj.is_processed and page_obj.bubbles:
+    if not force and page_obj.is_processed:
         return page_obj
 
     comic_dir = ComicService.get_storage_path(str(comic_id))

@@ -176,6 +176,52 @@ export default function ComicReader({ user, onAddWordToDictionary }) {
     }
   }, [activeComic, sortedPages]);
 
+  // Auto-sync activeComic pages from backend while any page is unprocessed
+  useEffect(() => {
+    if (!activeComic || !activeComic.id) return;
+    const hasUnprocessed = activeComic.pages?.some(p => !p.is_processed);
+    if (!hasUnprocessed) return;
+
+    const pollTimer = setInterval(async () => {
+      try {
+        const res = await api.get(`/comics/${activeComic.id}`);
+        if (res.data && Array.isArray(res.data.pages)) {
+          setActiveComic(prev => {
+            if (!prev || prev.id !== res.data.id) return prev;
+            return {
+              ...prev,
+              pages: res.data.pages
+            };
+          });
+        }
+      } catch (_) {}
+    }, 2500);
+
+    return () => clearInterval(pollTimer);
+  }, [activeComic?.id, activeComic?.pages]);
+
+  // Force re-process current page with updated OCR pipeline
+  const forceReprocessCurrentPage = async () => {
+    if (!activeComic || !currentPage || isProcessingPage) return;
+    const pageNum = currentPage.page_number || (currentPageIndex + 1);
+    setIsProcessingPage(true);
+    try {
+      const res = await api.post(`/comics/${activeComic.id}/pages/${pageNum}/process?force=true`);
+      if (res.data) {
+        setActiveComic(prev => {
+          if (!prev) return prev;
+          const updatedPages = prev.pages.map(p => p.page_number === pageNum ? res.data : p);
+          return { ...prev, pages: updatedPages };
+        });
+        showToast(`Страница ${pageNum} успешно перераспознана и переведена!`);
+      }
+    } catch (err) {
+      showToast('Ошибка повторной обработки страницы');
+    } finally {
+      setIsProcessingPage(false);
+    }
+  };
+
   // Keyboard navigation & space peek
   useEffect(() => {
     if (!activeComic) return;
@@ -458,6 +504,14 @@ export default function ComicReader({ user, onAddWordToDictionary }) {
                 title="Сбросить масштаб"
               >
                 <RotateCcw size={15} />
+              </button>
+              <button 
+                onClick={forceReprocessCurrentPage}
+                disabled={isProcessingPage}
+                className="apple-icon-btn p-2 rounded-full text-[#8E8E93] hover:text-blue-500 disabled:opacity-40"
+                title="Перераспознать и обновить перевод страницы"
+              >
+                <RefreshCw size={15} className={isProcessingPage ? 'animate-spin text-blue-500' : ''} />
               </button>
               <button 
                 onClick={toggleFullscreen}

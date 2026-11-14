@@ -2,6 +2,7 @@ import os
 import re
 import json
 import uuid
+import asyncio
 import zipfile
 import subprocess
 import logging
@@ -141,30 +142,20 @@ class ComicService:
         if not raw_bubbles:
             return []
 
-        # Батч-перевод всех бабблов страницы за один HTTP-запрос (ускорение в 10-20 раз)
+        # Асинхронный параллельный перевод всех бабблов через asyncio.gather
         texts_en = [b.get("text_en", "").strip() for b in raw_bubbles]
-        translations_ru = []
-
-        if len(texts_en) > 1:
+        
+        async def _safe_translate(t: str) -> str:
+            if not t:
+                return ""
             try:
-                delimiter = " ||| "
-                joined_text = delimiter.join(texts_en)
-                translated_joined = await TranslationService.translate(joined_text, source_lang="en", target_lang="ru")
-                parts = translated_joined.split("|||")
-                if len(parts) == len(texts_en):
-                    translations_ru = [p.strip() for p in parts]
+                res = await TranslationService.translate(t, source_lang="en", target_lang="ru")
+                return res.strip() if isinstance(res, str) else str(res)
             except Exception as e:
-                logger.warning(f"Ошибка батч-перевода, fallback на построчный: {e}")
+                logger.warning(f"Ошибка перевода реплики '{t[:30]}': {e}")
+                return t
 
-        # Построчный перевод, если батч не сработал или был только 1 баббл
-        if len(translations_ru) != len(texts_en):
-            translations_ru = []
-            for t_en in texts_en:
-                if t_en:
-                    t_ru = await TranslationService.translate(t_en, source_lang="en", target_lang="ru")
-                    translations_ru.append(t_ru)
-                else:
-                    translations_ru.append("")
+        translations_ru = await asyncio.gather(*[_safe_translate(t) for t in texts_en])
 
         processed_bubbles = []
         for idx, b in enumerate(raw_bubbles):
