@@ -137,19 +137,41 @@ class ComicService:
             except Exception as e:
                 logger.warning(f"Ошибка выполнения extract_bubbles.mjs для {image_path}: {e}")
 
-        # Если OCR ничего не вернул (например, абстрактный арт или демо-страница), возвращаем пустой список
+        # Если OCR ничего не вернул (например, чистый арт), возвращаем пустой список
         if not raw_bubbles:
             return []
 
-        # Переводим каждый баббл через TranslationService
+        # Батч-перевод всех бабблов страницы за один HTTP-запрос (ускорение в 10-20 раз)
+        texts_en = [b.get("text_en", "").strip() for b in raw_bubbles]
+        translations_ru = []
+
+        if len(texts_en) > 1:
+            try:
+                delimiter = " ||| "
+                joined_text = delimiter.join(texts_en)
+                translated_joined = await TranslationService.translate(joined_text, source_lang="en", target_lang="ru")
+                parts = translated_joined.split("|||")
+                if len(parts) == len(texts_en):
+                    translations_ru = [p.strip() for p in parts]
+            except Exception as e:
+                logger.warning(f"Ошибка батч-перевода, fallback на построчный: {e}")
+
+        # Построчный перевод, если батч не сработал или был только 1 баббл
+        if len(translations_ru) != len(texts_en):
+            translations_ru = []
+            for t_en in texts_en:
+                if t_en:
+                    t_ru = await TranslationService.translate(t_en, source_lang="en", target_lang="ru")
+                    translations_ru.append(t_ru)
+                else:
+                    translations_ru.append("")
+
         processed_bubbles = []
-        for b in raw_bubbles:
-            text_en = b.get("text_en", "").strip()
+        for idx, b in enumerate(raw_bubbles):
+            text_en = texts_en[idx]
+            text_ru = translations_ru[idx] if idx < len(translations_ru) else ""
             if not text_en:
                 continue
-
-            # Перевод на русский
-            text_ru = await TranslationService.translate(text_en, source_lang="en", target_lang="ru")
 
             # Вычисление относительных координат в процентах (0..100%)
             bbox = b.get("bbox", {})
@@ -164,7 +186,7 @@ class ComicService:
             rel_h = round((h / height) * 100, 2)
 
             processed_bubbles.append({
-                "id": b.get("id", f"b_{len(processed_bubbles) + 1}"),
+                "id": b.get("id", f"b_{idx + 1}"),
                 "text_en": text_en,
                 "text_ru": text_ru,
                 "bbox": {"x": x, "y": y, "width": w, "height": h},
@@ -181,12 +203,14 @@ class ComicService:
     def render_translated_page(cls, orig_image_path: str, bubbles: List[Dict[str, Any]], out_image_path: str) -> str:
         """
         Накладывает переведенный русский текст поверх исходных бабблов с помощью Pillow.
-        Генерирует аккуратный запеченный рендер страницы.
+        Использует адаптивный шрифт TrueType (Arial Bold) для четкого отображения.
         """
         try:
+            from PIL import ImageFont
             with Image.open(orig_image_path) as img:
                 canvas = img.convert('RGB')
                 draw = ImageDraw.Draw(canvas)
+                img_w, img_h = canvas.size
 
                 for b in bubbles:
                     bbox = b.get("bbox", {})
@@ -199,26 +223,36 @@ class ComicService:
                     if not text_ru:
                         continue
 
-                    # Рисуем стильный белый баббл со скругленными краями
-                    pad = 6
+                    # Рисуем аккуратный баббл с мягкой тенью и скругленными углами
+                    pad = max(6, int(w * 0.03))
                     rect = [x - pad, y - pad, x + w + pad, y + h + pad]
-                    draw.rounded_rectangle(rect, radius=12, fill=(255, 255, 255), outline=(20, 20, 24), width=2)
+                    
+                    # Белая заливка с контрастной черной обводкой
+                    draw.rounded_rectangle(rect, radius=max(8, int(pad * 1.5)), fill=(255, 255, 255), outline=(15, 23, 42), width=3)
 
-                    # Рисуем текст (центрированный)
-                    # Простое разбиение длинного текста на строки
+                    # Вычисляем адаптивный размер шрифта под размер баббла
+                    font_size = max(14, min(38, int(h * 0.22)))
+                    try:
+                        font = ImageFont.truetype('C:/Windows/Fonts/arialbd.ttf', font_size)
+                    except Exception:
+                        font = ImageFont.load_default()
+
+                    # Перенос слов по строкам с учетом ширины баббла
                     words = text_ru.split()
                     lines = []
                     cur_line = []
+                    max_line_chars = max(12, int(w / (font_size * 0.65)))
+
                     for word in words:
                         cur_line.append(word)
-                        if len(" ".join(cur_line)) > max(14, int(w / 12)):
+                        if len(" ".join(cur_line)) > max_line_chars:
                             lines.append(" ".join(cur_line))
                             cur_line = []
                     if cur_line:
                         lines.append(" ".join(cur_line))
 
-                    display_text = "\n".join(lines[:4])
-                    draw.multiline_text((x + 6, y + 4), display_text, fill=(15, 15, 20), spacing=3)
+                    display_text = "\n".join(lines[:6])
+                    draw.multiline_text((x + 6, y + 4), display_text, fill=(15, 23, 42), font=font, spacing=4)
 
                 canvas.save(out_image_path, format='JPEG', quality=92)
                 return out_image_path

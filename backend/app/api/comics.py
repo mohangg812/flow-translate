@@ -1,116 +1,67 @@
+import logging
 import os
 import shutil
 import uuid
-import logging
 from typing import List, Optional, Dict, Any
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, status
+from datetime import datetime
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form, BackgroundTasks
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.database import get_db
+from app.core.database import get_db, async_session_maker
 from app.models.models import User
 from app.models.comic import Comic, ComicPage
-from app.schemas.comic import (
-    ComicResponse,
-    ComicListItemResponse,
-    ComicProgressUpdate,
-    ComicPageResponse
-)
+from app.schemas.comic import ComicResponse, ComicPageResponse, ComicListItemResponse, ComicProgressUpdate
 from app.services.comic_service import ComicService
 from app.api.auth import get_current_user_optional
 
-logger = logging.getLogger("flow_translate.comics_api")
+logger = logging.getLogger("flow_translate.api.comics")
+router = APIRouter(prefix="/comics", tags=["Комиксы"])
 
-router = APIRouter(prefix="/comics", tags=["Комиксы и Манга (Перевод и Ридер)"])
-
-# В памяти для автономного режима (когда PostgreSQL не запущен)
+# In-memory хранилище для фолбэка при недоступности PostgreSQL
 _IN_MEMORY_COMICS: Dict[str, Dict[str, Any]] = {}
 
 
-@router.get("/demo", response_model=ComicResponse, summary="Получить демонстрационный интерактивный комикс")
-async def get_demo_comic(db: AsyncSession = Depends(get_db)):
+async def process_remaining_pages_background(comic_id: uuid.UUID, remaining_pages: List[tuple]):
     """
-    Возвращает готовый для чтения 3-страничный цветной комикс
-    с распознанными и переведенными бабблами.
-    Работает как с PostgreSQL, так и автономно при выключенной БД.
+    Фоновая фоновая обработка и перевод страниц 2..N.
+    Не блокирует загрузку комикса и ответ клиенту.
     """
-    demo_id = uuid.UUID("00000000-0000-0000-0000-000000000001")
-    demo_data = await ComicService.create_demo_comic_files()
-
+    comic_dir = ComicService.get_storage_path(str(comic_id))
     try:
-        stmt = select(Comic).where(Comic.id == demo_id).options(selectinload(Comic.pages))
-        existing = (await db.execute(stmt)).scalars().first()
+        async with async_session_maker() as session:
+            for page_num, img_path, width, height in remaining_pages:
+                try:
+                    bubbles = await ComicService.detect_and_translate_bubbles(img_path, width, height)
+                    base_name = os.path.basename(img_path)
+                    name_no_ext = os.path.splitext(base_name)[0]
+                    trans_name = f"{name_no_ext}_trans.jpg"
+                    trans_path = os.path.join(comic_dir, trans_name)
+                    ComicService.render_translated_page(img_path, bubbles, trans_path)
 
-        if not existing:
-            existing = Comic(
-                id=demo_data["id"],
-                title=demo_data["title"],
-                filename=demo_data["filename"],
-                format=demo_data["format"],
-                total_pages=demo_data["total_pages"],
-                current_page=demo_data["current_page"]
-            )
-            db.add(existing)
-            await db.flush()
-
-            for p in demo_data["pages"]:
-                page_obj = ComicPage(
-                    id=uuid.uuid4(),
-                    comic_id=existing.id,
-                    page_number=p["page_number"],
-                    width=p["width"],
-                    height=p["height"],
-                    original_image_url=p["original_image_url"],
-                    translated_image_url=p["translated_image_url"],
-                    bubbles=p["bubbles"],
-                    is_processed=True
-                )
-                db.add(page_obj)
-
-            await db.commit()
-            stmt = select(Comic).where(Comic.id == demo_id).options(selectinload(Comic.pages))
-            existing = (await db.execute(stmt)).scalars().first()
-
-        return existing
+                    stmt = select(ComicPage).where(ComicPage.comic_id == comic_id, ComicPage.page_number == page_num)
+                    page_obj = (await session.execute(stmt)).scalars().first()
+                    if page_obj:
+                        page_obj.bubbles = bubbles
+                        page_obj.translated_image_url = f"/static/comics/{comic_id}/{trans_name}"
+                        page_obj.is_processed = True
+                        await session.commit()
+                        logger.info(f"[COMIC_BG] Страница {page_num} комикса {comic_id} успешно распознана и переведена.")
+                except Exception as page_err:
+                    logger.warning(f"[COMIC_BG] Ошибка обработки страницы {page_num}: {page_err}")
     except Exception as e:
-        logger.warning(f"PostgreSQL недоступен ({e}), отдача демо-комикса из кэша файлов.")
-        from datetime import datetime
-        pages_resp = []
-        for p in demo_data["pages"]:
-            pages_resp.append(ComicPageResponse(
-                id=uuid.uuid4(),
-                comic_id=demo_id,
-                page_number=p["page_number"],
-                width=p["width"],
-                height=p["height"],
-                original_image_url=p["original_image_url"],
-                translated_image_url=p["translated_image_url"],
-                bubbles=p["bubbles"],
-                is_processed=True
-            ))
-
-        return ComicResponse(
-            id=demo_id,
-            title=demo_data["title"],
-            filename=demo_data["filename"],
-            format=demo_data["format"],
-            total_pages=demo_data["total_pages"],
-            current_page=1,
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow(),
-            pages=pages_resp
-        )
+        logger.warning(f"[COMIC_BG] Ошибка фоновой сессии PostgreSQL: {e}")
 
 
 @router.post("/upload", response_model=ComicResponse, status_code=status.HTTP_201_CREATED, summary="Загрузить комикс (CBZ, CBR, PDF, ZIP, JPG, PNG)")
 async def upload_comic(
+    background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     title: Optional[str] = Form(None),
     current_user: Optional[User] = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db)
 ):
-    from datetime import datetime
     filename = file.filename or "comic.cbz"
     ext = os.path.splitext(filename)[1].lower()
     allowed_exts = {".cbz", ".cbr", ".zip", ".pdf", ".jpg", ".jpeg", ".png", ".webp"}
@@ -128,7 +79,7 @@ async def upload_comic(
     comic_id = uuid.uuid4()
     comic_title = title.strip() if title and title.strip() else os.path.splitext(filename)[0].replace('_', ' ').title()
 
-    # 1. Извлекаем страницы
+    # 1. Извлекаем страницы (занимает < 0.5 сек для любого архива)
     pages_info = ComicService.extract_pages_from_file(file_bytes, filename, str(comic_id))
     if not pages_info:
         raise HTTPException(
@@ -136,49 +87,76 @@ async def upload_comic(
             detail="Не удалось извлечь ни одной графической страницы из загруженного файла."
         )
 
-    # 2. Обрабатываем страницы и распознаем бабблы
-    page_responses = []
-    db_pages = []
+    # 2. Быстро обрабатываем и переводим первую страницу (1.5-2 сек)
+    first_p_num, first_img_path, first_w, first_h = pages_info[0]
+    first_bubbles = await ComicService.detect_and_translate_bubbles(first_img_path, first_w, first_h)
 
-    for page_num, img_path, width, height in pages_info:
-        bubbles = await ComicService.detect_and_translate_bubbles(img_path, width, height)
+    first_base_name = os.path.basename(first_img_path)
+    first_name_no_ext = os.path.splitext(first_base_name)[0]
+    first_trans_name = f"{first_name_no_ext}_trans.jpg"
+    first_trans_path = os.path.join(os.path.dirname(first_img_path), first_trans_name)
+    ComicService.render_translated_page(first_img_path, first_bubbles, first_trans_path)
 
-        base_name = os.path.basename(img_path)
-        name_no_ext = os.path.splitext(base_name)[0]
-        trans_name = f"{name_no_ext}_trans.jpg"
-        trans_path = os.path.join(os.path.dirname(img_path), trans_name)
-        ComicService.render_translated_page(img_path, bubbles, trans_path)
-
-        orig_url = f"/static/comics/{comic_id}/{base_name}"
-        trans_url = f"/static/comics/{comic_id}/{trans_name}"
-        page_id = uuid.uuid4()
-
-        page_resp = ComicPageResponse(
-            id=page_id,
+    first_page_id = uuid.uuid4()
+    page_responses = [
+        ComicPageResponse(
+            id=first_page_id,
             comic_id=comic_id,
-            page_number=page_num,
-            width=width,
-            height=height,
-            original_image_url=orig_url,
-            translated_image_url=trans_url,
-            bubbles=bubbles,
+            page_number=first_p_num,
+            width=first_w,
+            height=first_h,
+            original_image_url=f"/static/comics/{comic_id}/{first_base_name}",
+            translated_image_url=f"/static/comics/{comic_id}/{first_trans_name}",
+            bubbles=first_bubbles,
             is_processed=True
         )
-        page_responses.append(page_resp)
+    ]
 
-        db_pages.append(ComicPage(
-            id=page_id,
+    db_pages = [
+        ComicPage(
+            id=first_page_id,
             comic_id=comic_id,
-            page_number=page_num,
-            width=width,
-            height=height,
-            original_image_url=orig_url,
-            translated_image_url=trans_url,
-            bubbles=bubbles,
+            page_number=first_p_num,
+            width=first_w,
+            height=first_h,
+            original_image_url=f"/static/comics/{comic_id}/{first_base_name}",
+            translated_image_url=f"/static/comics/{comic_id}/{first_trans_name}",
+            bubbles=first_bubbles,
             is_processed=True
-        ))
+        )
+    ]
 
-    # 3. Сохраняем в БД, если доступна; иначе сохраняем в memory-store
+    # Для остальных страниц подготавливаем оригиналы (доступны для чтения мгновенно)
+    for p_num, img_path, w, h in pages_info[1:]:
+        b_name = os.path.basename(img_path)
+        pid = uuid.uuid4()
+        page_resp = ComicPageResponse(
+            id=pid,
+            comic_id=comic_id,
+            page_number=p_num,
+            width=w,
+            height=h,
+            original_image_url=f"/static/comics/{comic_id}/{b_name}",
+            translated_image_url=None,
+            bubbles=[],
+            is_processed=False
+        )
+        page_responses.append(page_resp)
+        db_pages.append(
+            ComicPage(
+                id=pid,
+                comic_id=comic_id,
+                page_number=p_num,
+                width=w,
+                height=h,
+                original_image_url=f"/static/comics/{comic_id}/{b_name}",
+                translated_image_url=None,
+                bubbles=[],
+                is_processed=False
+            )
+        )
+
+    # 3. Сохраняем в PostgreSQL (или in-memory) и возвращаем ответ
     try:
         comic = Comic(
             id=comic_id,
@@ -195,11 +173,15 @@ async def upload_comic(
             db.add(p)
         await db.commit()
 
+        # Фоновая дообработка страниц 2..N
+        if len(pages_info) > 1:
+            background_tasks.add_task(process_remaining_pages_background, comic_id, pages_info[1:])
+
         stmt = select(Comic).where(Comic.id == comic.id).options(selectinload(Comic.pages))
         result = (await db.execute(stmt)).scalars().first()
         return result
     except Exception as e:
-        logger.warning(f"PostgreSQL недоступен ({e}), сохранение комикса в автономном хранилище.")
+        logger.warning(f"PostgreSQL недоступен ({e}), сохранение в автономное хранилище.")
         fallback_comic = ComicResponse(
             id=comic_id,
             title=comic_title,
@@ -215,15 +197,48 @@ async def upload_comic(
         return fallback_comic
 
 
+@router.post("/{comic_id}/pages/{page_number}/process", response_model=ComicPageResponse, summary="Обработать и перевести страницу комикса по запросу")
+async def process_page_on_demand(
+    comic_id: uuid.UUID,
+    page_number: int,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Мгновенный OCR и перевод страницы при переходе пользователя (если еще не была переведена в фоне).
+    """
+    stmt = select(ComicPage).where(ComicPage.comic_id == comic_id, ComicPage.page_number == page_number)
+    page_obj = (await db.execute(stmt)).scalars().first()
+    if not page_obj:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Страница комикса не найдена")
+
+    if page_obj.is_processed and page_obj.bubbles:
+        return page_obj
+
+    comic_dir = ComicService.get_storage_path(str(comic_id))
+    img_name = f"page_{page_number:03d}.jpg"
+    img_path = os.path.join(comic_dir, img_name)
+    if not os.path.exists(img_path):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Файл {img_name} не найден")
+
+    bubbles = await ComicService.detect_and_translate_bubbles(img_path, page_obj.width, page_obj.height)
+    trans_name = f"page_{page_number:03d}_trans.jpg"
+    trans_path = os.path.join(comic_dir, trans_name)
+    ComicService.render_translated_page(img_path, bubbles, trans_path)
+
+    page_obj.bubbles = bubbles
+    page_obj.translated_image_url = f"/static/comics/{comic_id}/{trans_name}"
+    page_obj.is_processed = True
+    await db.commit()
+    await db.refresh(page_obj)
+    return page_obj
+
+
 @router.get("", response_model=List[ComicListItemResponse], summary="Список загруженных комиксов")
 async def list_comics(
     current_user: Optional[User] = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db)
 ):
-    from datetime import datetime
     results = []
-
-    # 1. Попытка из БД
     try:
         query = select(Comic).options(selectinload(Comic.pages)).order_by(Comic.created_at.desc())
         if current_user:
@@ -248,22 +263,7 @@ async def list_comics(
             )
         return results
     except Exception as e:
-        logger.warning(f"PostgreSQL недоступен ({e}), чтение из памяти/диска.")
-
-    # 2. Фолбэк на in-memory и демо
-    demo_id = uuid.UUID("00000000-0000-0000-0000-000000000001")
-    results.append(
-        ComicListItemResponse(
-            id=demo_id,
-            title="Cyber Vanguard #1: The Cosmic Anomaly",
-            filename="cyber_vanguard_issue1.cbz",
-            format="cbz",
-            total_pages=3,
-            current_page=1,
-            created_at=datetime.utcnow(),
-            cover_image_url=f"/static/comics/{demo_id}/demo_page_001_orig.jpg"
-        )
-    )
+        logger.warning(f"PostgreSQL недоступен ({e}), чтение из памяти.")
 
     for cid_str, cdata in _IN_MEMORY_COMICS.items():
         pages = cdata.get("pages", [])
@@ -284,7 +284,7 @@ async def list_comics(
     return results
 
 
-@router.get("/{comic_id}", response_model=ComicResponse, summary="Получить комикс со всеми страницами и переводом")
+@router.get("/{comic_id}", response_model=ComicResponse, summary="Получить комикс со всеми страницами")
 async def get_comic(comic_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
     try:
         stmt = select(Comic).where(Comic.id == comic_id).options(selectinload(Comic.pages))
@@ -294,16 +294,13 @@ async def get_comic(comic_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
     except Exception as e:
         logger.warning(f"PostgreSQL недоступен ({e}), чтение из памяти.")
 
-    if str(comic_id) == "00000000-0000-0000-0000-000000000001":
-        return await get_demo_comic(db)
-
     if str(comic_id) in _IN_MEMORY_COMICS:
         return ComicResponse(**_IN_MEMORY_COMICS[str(comic_id)])
 
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Комикс не найден")
 
 
-@router.patch("/{comic_id}/progress", response_model=ComicResponse, summary="Сохранить прогресс чтения (номер страницы)")
+@router.patch("/{comic_id}/progress", response_model=ComicResponse, summary="Сохранить прогресс чтения")
 async def update_reading_progress(
     comic_id: uuid.UUID,
     payload: ComicProgressUpdate,
@@ -347,7 +344,7 @@ async def delete_comic(
         del _IN_MEMORY_COMICS[str(comic_id)]
 
     storage_path = ComicService.get_storage_path(str(comic_id))
-    if os.path.exists(storage_path) and str(comic_id) != "00000000-0000-0000-0000-000000000001":
+    if os.path.exists(storage_path):
         try:
             shutil.rmtree(storage_path)
         except Exception as e:
