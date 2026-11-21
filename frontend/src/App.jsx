@@ -3129,18 +3129,6 @@ export default function App() {
               <span>Диалог</span>
             </button>
             <button
-              onClick={() => { setActiveMode('rap'); }}
-              className={`px-3 sm:px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 flex-shrink-0 active:scale-95 ${
-                activeMode === 'rap' 
-                  ? 'apple-tab-active scale-[1.02]' 
-                  : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
-              }`}
-              title="Рэп-треки"
-            >
-              <Music size={13} className={activeMode === 'rap' ? 'text-current' : ''} />
-              <span>Рэп-треки</span>
-            </button>
-            <button
               onClick={() => { setActiveMode('comics'); }}
               className={`px-3 sm:px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 flex-shrink-0 active:scale-95 ${
                 activeMode === 'comics' 
